@@ -52,6 +52,15 @@ BEGIN
 END crearClienteActivo;
 /
 
+-- Comprueba que el telefono tiene 9 dígitos --
+CREATE OR REPLACE TRIGGER telefono_correto
+BEFORE INSERT ON PACK
+FOR EACH ROW WHEN(to_string(new.telefono).size() != 9)
+BEGIN
+    RAISE_APPLICATION_ERROR(-20010, 'TELEFONO INVALIDO');
+END telefono_correcto;
+/
+
 -- Comprueba que el precio sea correcto en los pack --
 CREATE OR REPLACE TRIGGER precio_correcto
 BEFORE INSERT OR UPDATE ON PACK
