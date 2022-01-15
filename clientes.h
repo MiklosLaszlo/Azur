@@ -18,7 +18,7 @@ class Cliente{
   void IniciarSesion(int telf);
   void FinalizarSesion(int id);
   void DarBajaCliente();
-  void ModificarCliente();
+  void ModificarCliente(string n, string c, string cor, char s, string f, int t);
 };
 
 
