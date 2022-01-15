@@ -61,6 +61,15 @@ BEGIN
 END telefono_correcto;
 /
 
+-- Comprueba que la tarjeta tiene 16 dígitos -- 
+CREATE OR REPLACE TRIGGER tarjeta_correcta
+BEFORE INSERT OR UPDATE ON CLIENTE
+FOR EACH ROW WHEN(to_string(new.tarjeta).size() != 16)
+BEGIN
+    RAISE_APPLICATION_ERROR(-20011, 'TARJETA INVALIDA');
+END tarjeta_correcta;
+/
+
 -- Comprueba que el precio sea correcto en los pack --
 CREATE OR REPLACE TRIGGER precio_correcto
 BEFORE INSERT OR UPDATE ON PACK
