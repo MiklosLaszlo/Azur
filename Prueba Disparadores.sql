@@ -16,7 +16,7 @@ CREATE TABLE CLIENTE(
     tarjeta INT NOT NULL
 );
 
-CREATE TABLBE CLIENTEACTIVO(
+CREATE TABLE CLIENTEACTIVO(
     telefono INT,
     FOREIGN KEY (telefono) REFERENCES cliente(telefono),
     PRIMARY KEY(telefono)
