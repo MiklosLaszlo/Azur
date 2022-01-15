@@ -1,3 +1,7 @@
+/*
+  Cliente(nombre, contrasena, telefono, correo, sexo, tarjeta)
+*/
+
 #include <stdio.h>  // for printf
 #include <SQLAPI.h> // main SQLAPI++ header
 #include "clientes.h"
@@ -24,6 +28,12 @@ Cliente::Cliente(string n, string c, unsigned int telf, string cor, char s, stri
     
   crear.setConnection(con);
   crear.setCommandText(_TSA("INSERT INTO cliente VALUES(:1, :2, :3, :4, :5, :6, :7, :8)"));
+  crear.Param(1).setAsString() = n;
+  crear.Param(2).setAsString() = c;
+  crear.Param(3).setAsUInt64() = telf;
+  crear.Param(2).setAsString() = cor;
+  crear.Param(2).setAsChar() = s;
+  crear.Param(2).setAsString() = f;
   //}
 }
 
