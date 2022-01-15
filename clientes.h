@@ -1,6 +1,8 @@
 #ifndef CLIENTES_H
 #define CLIENTES_H
 
+using namespace std;
+
 class Cliente{
   protected:
   string nombre;
