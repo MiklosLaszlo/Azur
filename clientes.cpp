@@ -54,6 +54,9 @@ void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, S
       case 20010:
         cout << "El telefono debe tener 9 digitos\n";
         break;
+      case 20011:
+        cout << "La tarjeta debe tener 16 digitos\n";
+        break;
       default:
         cout << "Excepción no controlada\n" << endl;
         cout << x-ErrText().GetMultiByteChars()<< endl;
@@ -148,7 +151,9 @@ void ModificarCliente(string n, string c, unsigned int telf, string cor, char s,
       cerr << "Error al modificar alguno de los datos del cliente, se cancelaran todos los cambios\n";
       int i = x.ErrNativeCode();
       switch(i){
-         
+        case 20011:
+          cout << "La tarjeta debe tener 16 cifras\n";
+          break;
         default:
           cout << "Excepcion no controlada\n";
           cout<<x.ErrText().GetMultiByteChars()<<endl;
