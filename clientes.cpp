@@ -27,13 +27,14 @@ void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, s
   }
     
   crear.setConnection(con);
-  crear.setCommandText(_TSA("INSERT INTO cliente VALUES(:1, :2, :3, :4, :5, :6, :7, :8)"));
+  crear.setCommandText(_TSA("INSERT INTO cliente VALUES(:1, :2, :3, :4, :5, :6, :7)"));
   crear.Param(1).setAsString() = n;
   crear.Param(2).setAsString() = c;
   crear.Param(3).setAsUInt64() = telf;
-  crear.Param(2).setAsString() = cor;
-  crear.Param(2).setAsChar() = s;
-  crear.Param(2).setAsString() = f;
+  crear.Param(4).setAsString() = cor;
+  crear.Param(5).setAsChar() = s;
+  crear.Param(6).setAsString() = f;
+  crear.Param(7).setAsUInt64() = t;
   
   try{
     crear.Execute();
