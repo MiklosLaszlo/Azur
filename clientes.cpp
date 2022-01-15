@@ -51,9 +51,9 @@ void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, S
       case ___:
         cout << "ERROR NOT NULLS\n";
         break;
-      /*case 20001:
-        cout << "\n";
-        break;*/
+      case 20010:
+        cout << "El telefono debe tener 9 digitos\n";
+        break;
       default:
         cout << "Excepción no controlada\n" << endl;
         cout << x-ErrText().GetMultiByteChars()<< endl;
