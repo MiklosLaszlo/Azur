@@ -9,7 +9,7 @@
 
 using namespace std;
 
-Cliente::Cliente(string n, string c, unsigned int telf, string cor, char s, string f, 
+void Cliente::DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, string f, 
                  unsigned int t, SAConnection* con){
 /*  if(n.length()<50 && c.length()<50 && to_string(telf).length()==9 && cor.length()<50 
      && (s=='F' || s=='M' || s=='O') && f.length()<50 && to_string(t).length()==16){*/
