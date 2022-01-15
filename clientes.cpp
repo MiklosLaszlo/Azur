@@ -48,9 +48,9 @@ void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, S
       case 1:
         cout << "Ya existía un cliente con ese teléfono, use ModificarCliente si quiere cambiar el nombre\n";
         break;
-      case ___:
+      /*case ___:
         cout << "ERROR NOT NULLS\n";
-        break;
+        break;*/
       case 20010:
         cout << "El telefono debe tener 9 digitos\n";
         break;
