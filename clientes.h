@@ -4,7 +4,7 @@
 #include <SQLAPI.h>
 using namespace std;
 
-class Cliente{
+/*class Cliente
   protected:
   string nombre;
   string contrasena;
@@ -14,17 +14,18 @@ class Cliente{
   string fecha_nacimiento;
   unsigned int tarjeta;
   
-  public:
+  public:*/
   
-  void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, string f, unsigned int t, SAConnection* con);
+void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, string f, unsigned int t, SAConnection* con);
   
-  void IniciarSesion(unsigned int telf, SAConnection* con);
-  void FinalizarSesion(unsigned int id, SAConnection* con);
-  void DarBajaCliente(SAConnection* con);
-  void ModificarCliente(string n, string c, string cor, char s, string f, unsigned int t,SAConnection* con);
-  
-  bool TieneNDigitos();
-};
+void IniciarSesion(unsigned int telf, SAConnection* con);
+
+void FinalizarSesion(unsigned int id, SAConnection* con);
+
+void DarBajaCliente(SAConnection* con);
+
+void ModificarCliente(string n, string c, string cor, char s, string f, unsigned int t,SAConnection* con);
+//};
 
 
 #endif // ESCENA_H
