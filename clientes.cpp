@@ -30,11 +30,11 @@ void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, s
   crear.setCommandText(_TSA("INSERT INTO cliente VALUES(:1, :2, :3, :4, :5, :6, :7)"));
   crear.Param(1).setAsString() = n;
   crear.Param(2).setAsString() = c;
-  crear.Param(3).setAsUInt64() = telf;
+  crear.Param(3).setAsInt64() = telf;
   crear.Param(4).setAsString() = cor;
   crear.Param(5).setAsChar() = s;
   crear.Param(6).setAsString() = f;
-  crear.Param(7).setAsUInt64() = t;
+  crear.Param(7).setAsInt64() = t;
   
   try{
     crear.Execute();
@@ -63,20 +63,47 @@ void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, s
   }
   //}
   con->commit();
-}
+};
 
 void IniciarSesion(){
   
-}
+};
 
 void FinalizarSesion(){
   
-}
+};
 
-void DarBajaCliente(){
+void DarBajaCliente(unsigned int telf, SAConnection* con){
+  SACommand guardado, desactiva;
+  guardado.setConnection(con);
+  guardado.setCommandText(_TSA("SAVEPOINT darbajacliente"));
   
-}
+  try{
+    guardado.execute();
+  }
+  catch(SAException &x){
+    cerr<<x.ErrText().GetMultiByteChars()<<endl;
+    cerr<<"Error a la hora de crear el SAVEPOINT" << endl;
+    return ;
+  }
+  
+  desactiva.setConnection(con);
+  desactiva.setCommandText(_TSA("DELETE FROM CLIENTEACTIVO WHERE telefono=:1"));
+  desactiva.Param(1).setAsInt64() = telf;
+  
+  try{
+    desactiva.Execute();
+  }
+  catch(SAException &x){
+    cerr << "Error a la hora de dar de baja al cliente\n";
+    cerr<<x.ErrText().GetMultiByteChars()<<endl;
+    guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT darbajacliente"));
+    guardado.Execute();
+  }
+  
+  con->commit();
+};
 
 void ModificarCliente(){
   
-}
+};
