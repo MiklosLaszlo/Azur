@@ -16,7 +16,7 @@ class Cliente{
   
   public:
   
-  Cliente(string n, string c, unsigned int telf, string cor, char s, string f, unsigned int t, SAConnection* con);
+  void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, string f, unsigned int t, SAConnection* con);
   
   void IniciarSesion(unsigned int telf, SAConnection* con);
   void FinalizarSesion(unsigned int id, SAConnection* con);
