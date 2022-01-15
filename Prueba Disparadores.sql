@@ -6,6 +6,16 @@ DROP TABLE PACK;
 
 -- CREAR tablas --
 
+CREATE TABLE CLIENTE(
+    nombreCliente varchar2(50) NOT NULL,
+    contrasena varchar2(20) NOT NULL,
+    telefono INT PRIMARY KEY,
+    correo varchar2(50) NOT NULL,
+    sexo CHAR,
+    fechanacimiento DATE,
+    tarjeta INT NOT NULL
+);
+
 CREATE TABLE PACK(
     nombrePack varchar2(20) PRIMARY KEY,
     precio FLOAT NOT NULL
