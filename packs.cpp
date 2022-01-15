@@ -17,14 +17,38 @@ void InformarNovedades(vector<string> listaPacks, SAConnection* con){
   SACommand packs;
   telclientes.setConnection(con);
   packs.setConnection(con);
-  vector<String> packsEnviar;
   ofstream simulo_correos;
 
   if(simulo_correos.open("Correos_enviados.txt")){
     telclientes.setCommandText(_TSA("SELECT correo FROM clientes WHERE telefono IN (SELECT * FROM clientesActivos)")); // Obtengo el correo de todos los clientes activos
-    telclientes.Execute();
+    packs.setCommandText(_TSA("SELECT idPelicula, titulo, director, productora, anno FROM peliculaactiva NATURAL JOIN Peliculapack NATURAL JOIN PACKACTIVO WHERE nombrePack:=1"));
+    try{
+      telclientes.Execute();
+    }
+    catch(SAException &x){
+      cerr<<x.ErrText().GetMultiByteChars()<<endl;
+      cerr<<"Error al obtener los correo de los clientes" << endl;
+      return ;
+    }
     // Para cada elemento de lista Packs, mirar si esta en PAcks Activos y luego enviar el correo...
+    while(telclientes.Fetch()){
+      simulo_correos <<"Informando a " <<telclientes[1].asString();
+      for(int i = 0; i < listaPacks.size(); i++){
+        SAString auxiliar(listaPacks[i].c_str());
+        pack.Param(1).setAsString() = auxiliar;
+        try{
+          pack.Execute();
+          simulo_correos << " se informa del contenido del pack con nombre " << listaPacks[i] << endl;
+          while(pack.FetchNext()){
+            simulo_correos <<"Pelicula: " <<pack[2].asString() << " director: " << pack[3].asString() << " productora: " << pack[4].asString() << " año: " << pack[5].AsUInt64() << " idPelicula: " << pack[1].AsInt64() <<endl;
 
+          }
+        }
+        catch(SAException &x){
+          cerr<<x.ErrText().GetMultiByteChars()<<endl;
+        }
+      }
+    }
 
   }
 
@@ -222,7 +246,7 @@ void DesactivarPack(string idPack ,SAConnection* con){
   con->commit();
 };
 
-//HACER
+//REVISAR LUEGO
 void RecibirRecomendaciones(vector< pair <unsigned, unsigned >> clienteRPeliculas ,SAConnection* con){
   SACommand recomendaciones;
   recomendaciones.setConnection(con);
@@ -255,5 +279,7 @@ void RecibirRecomendaciones(vector< pair <unsigned, unsigned >> clienteRPelicula
       }
     }
   }
+
+  con->commit();
 
 };
