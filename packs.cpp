@@ -242,10 +242,10 @@ void RecibirRecomendaciones(vector< pair <unsigned, unsigned >> clienteRPelicula
           break;
 
         case 20002:
-
+          cerr << "El cliente al que se le quiere recomendar no es activo" << endl;
           break;
         case 20003:
-
+          cerr << "La pelicula que se quiere recomendar no esta activa" << endl;
           break;
 
         default

@@ -66,7 +66,7 @@ BEGIN
 END crearPackActivo;
 /
 
--- Comprueba que cuando se inserta una recomendacion esta esta inicialmente recomendada a un cliente activo y a una pelicula activa --
+-- Comprueba que el precio no sea negativo --
 CREATE OR REPLACE TRIGGER precio_correcto
 BEFORE INSERT ON PACK
 FOR EACH ROW WHEN(new.precio < 0)
@@ -75,6 +75,7 @@ BEGIN
 END precio_correcto;
 /
 
+-- Comprueba que cuando se inserta una recomendacion esta esta inicialmente recomendada a un cliente activo y a una pelicula activa --
 CREATE OR REPLACE TRIGGER comprobarRecomendacionInsertar
 BEFORE INSERT ON RECOMENDACION
 FOR EACH ROW
