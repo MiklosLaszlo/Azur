@@ -114,29 +114,7 @@ void ModificarPack(vector<unsigned> idPeliculas, double precio ,string idPack ,S
       return;
     }
 
-    // Activa el Pack, es decir lo añade en PAcksActivos en caso de que no estuviera
-    cout << "Activando el pack..." << endl;
-    modificar.setCommandText(_TSA("INSERT INTO packactivos VALUES(:1)"));
-    modificar.Param(1).setAsString() = auxiliar;
-    try{
-      modificar.Execute();
-      cout << "Se ha activado el Pack" << endl;
-    }
-    catch(SAException &x){
-      int i = x.ErrNativeCode();
-      switch(i){
-        case 1:
-          cout << "El pack ya estaba activado" << endl;
-          break;
 
-        default:
-          cout << "Excepción no controlada" << endl;
-          ccout<<x.ErrText().GetMultiByteChars()<<endl;
-          guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT modifcarpack"));
-          guardado.Execute();
-          break;
-      }
-    }
   }
   con->commit();
 
@@ -206,19 +184,6 @@ void CrearPack(vector<unsigned> idPeliculas, double precio ,string idPack ,SACon
     return ;
   }
 
-  // Activa el Pack, es decir lo añade en PAcksActivos en caso de que no estuviera
-  cout << "Activando el pack..." << endl;
-  crear.setCommandText(_TSA("INSERT INTO packactivos VALUES(:1)"));
-  crear.Param(1).setAsString() = auxiliar;
-  try{
-    crear.Execute();
-    cout << "Se ha activado el Pack" << endl;
-  }
-  catch(SAException &x){ // QUE ERROR PUEDE DAR????
-    ccout<<x.ErrText().GetMultiByteChars()<<endl;
-    guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT crearpack"));
-    guardado.Execute();
-  }
 
   con->commit();
 
@@ -272,6 +237,10 @@ void RecibirRecomendaciones(vector< pair <unsigned, unsigned >> clienteRPelicula
     catch(SAException &x){
       cerr << "Error al insertar la " << i << "-esima insercion." << endl;
       switch (x.ErrNativeCode()) {
+        case 1:
+          cerr << "Recomendacion ya insertada" << endl;
+          break;
+
         case 20002:
 
           break;

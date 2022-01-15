@@ -33,6 +33,14 @@ CREATE TABLE PACKACTIVO (
     PRIMARY KEY(nombrePack)
 );
 
+CREATE TABLE RECOMENDACION {
+  telefono INT,
+  idPelicula INT,
+  FOREIGN KEY (telefono) REFERENCES cliente(telefono),
+  FOREIGN KEY (idPelicula) REFERENCES pelicula(idPelicula),
+  PRIMARY KEY(telefono,idPelicula)
+};
+
 -- Disparadores --
 
 -- Comprueba que el precio sea correcto en los pack --
@@ -65,4 +73,21 @@ FOR EACH ROW WHEN(new.precio < 0)
 BEGIN
     RAISE_APPLICATION_ERROR(-20001, 'PRECIO INVALIDO');
 END precio_correcto;
+/
+
+CREATE OR REPLACE TRIGGER comprobarRecomendacionInsertar
+BEFORE INSERT ON RECOMENDACION
+FOR EACH ROW
+DECLARE
+    cli INTEGER;
+    ple INTEGER;
+BEGIN
+    SELECT COUNT(*) INTO cli FROM CLIENTEACTIVO WHERE telefono= :new.telefono;
+    SELECT COUNT(*) INTO ple FROM PELICULAACTIVA WHERE idPelicula= :new.idPelicula;
+    IF(cli < 1) THEN
+      RAISE_APPLICATION_ERROR(-20002, 'CLIENTE NO ACTIVO RECIBIENDO RECOMENDACION');
+    ELSIF(ple < 1) THEN
+      RAISE_APPLICATION_ERROR(-20003, 'PELICULA NO ACTIVA ASOCIANDOSE A RECOMENDACION');
+    ENDIF;
+END comprobarRecomendacionInsertar;
 /
