@@ -9,7 +9,7 @@
 
 using namespace std;
 
-void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, string f, 
+void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, SADateTime f, 
                  unsigned int t, SAConnection* con){
 /*  if(n.length()<50 && c.length()<50 && to_string(telf).length()==9 && cor.length()<50 
      && (s=='F' || s=='M' || s=='O') && f.length()<50 && to_string(t).length()==16){*/
@@ -29,7 +29,6 @@ void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, s
   SAString auxn(n.c_str());
   SAString auxc(c.c_str());
   SAString auxcor(cor.c_str());
-  SAString auxf(f.c_str());
   crear.setConnection(con);
   crear.setCommandText(_TSA("INSERT INTO cliente VALUES(:1, :2, :3, :4, :5, :6, :7)"));
   crear.Param(1).setAsString() = auxn;
@@ -37,7 +36,7 @@ void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, s
   crear.Param(3).setAsInt64() = telf;
   crear.Param(4).setAsString() = auxcor;
   crear.Param(5).setAsChar() = s;
-  crear.Param(6).setAsString() = auxf;
+  crear.Param(6).setAsDateTime() = f;
   crear.Param(7).setAsInt64() = t;
   
   try{
@@ -108,6 +107,59 @@ void DarBajaCliente(unsigned int telf, SAConnection* con){
   con->commit();
 };
 
-void ModificarCliente(){
+void ModificarCliente(string n, string c, unsigned int telf, string cor, char s, SADateTime f, unsigned int t, SAConnection* con){
+  SACommand guardado, modificar;
+  guardado.setConnection(con);
+  guardado.setCommandText(_TSA("SAVEPOINT modifcliente"));
   
+  try{
+    guardado.Execute();
+  }
+  catch(SAException &x){
+    cerr<<x.ErrText().GetMultiByteChars()<<endl;
+    cerr<<"Error a la hora de crear el SAVEPOINT" << endl;
+    return ;
+  }
+  
+  SAString auxn(n.c_str());
+  SAString auxc(c.c_str());
+  SAString auxcor(cor.c_str());
+  modificar.setConnection(con);
+  modificar.setCommandText(_TSA("SELECT * FROM CLIENTE WHERE telf = :1"));
+  modificar.Param(1).setAsInt64() = telf;
+  
+  if(!(modificar.FetchNext())){
+    cerr << "El cliente que se quiere modificar no pertenece a la base de datos\n";
+  }
+  else{
+    modificar.setCommandText(_TSA("UPDATE CLIENTE SET nombre=:1 contraseña=:2 correo=:3 sexo=:4 fecha=:5 tarjeta=:6 WHERE telefono=:7"));
+    modificar.Param(1).setAsString() = auxn;
+    modificar.Param(2).setAsString() = auxc;
+    modificar.Param(3).setAsString() = auxcor;
+    modificar.Param(4).setAsChar() = s;
+    modificar.Param(5).setAsDateTime() = auxf;
+    modificar.Param(6).setAsInt64() = t;
+    modificar.Param(7).setAsInt64() = telf;
+    
+    try{
+      modificar.Execute();
+    }
+    catch(SAException &x){
+      cerr << "Error al modificar alguno de los datos del cliente, se cancelaran todos los cambios\n";
+      int i = x.ErrNativeCode();
+      switch(i){
+         
+        default:
+          cout << "Excepcion no controlada\n";
+          cout<<x.ErrText().GetMultiByteChars()<<endl;
+          break;
+      }
+      guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT modificarcliente"));
+      guardado.Execute();
+      return ;
+    }
+  }
+  
+  con->commit();
+    
 };
