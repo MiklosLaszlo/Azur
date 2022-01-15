@@ -132,7 +132,7 @@ void ModificarCliente(string n, string c, unsigned int telf, string cor, char s,
     cerr << "El cliente que se quiere modificar no pertenece a la base de datos\n";
   }
   else{
-    modificar.setCommandText(_TSA("UPDATE CLIENTE SET nombre=:1 contraseña=:2 correo=:3 sexo=:4 fecha=:5 tarjeta=:6 WHERE telefono=:7"));
+    modificar.setCommandText(_TSA("UPDATE CLIENTE SET nombre=:1, contraseña=:2, correo=:3, sexo=:4, fecha=:5, tarjeta=:6 WHERE telefono=:7"));
     modificar.Param(1).setAsString() = auxn;
     modificar.Param(2).setAsString() = auxc;
     modificar.Param(3).setAsString() = auxcor;
