@@ -11,7 +11,7 @@
 
 using namespace std;
 
-//HACER
+//REVISAR LUEGO
 void InformarNovedades(vector<string> listaPacks, SAConnection* con){
   SACommand telclientes;
   SACommand packs;
@@ -100,7 +100,7 @@ void ModificarPack(vector<unsigned> idPeliculas, double precio ,string idPack ,S
 
         default:
           cout << "Excepción no controlada" << endl;
-          ccout<<x.ErrText().GetMultiByteChars()<<endl;
+          cout<<x.ErrText().GetMultiByteChars()<<endl;
           break;
       }
       guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT modifcarpack"));
