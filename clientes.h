@@ -16,7 +16,7 @@ using namespace std;
   
   public:*/
   
-void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, string f, unsigned int t, SAConnection* con);
+void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, SADateTime f, unsigned int t, SAConnection* con);
   
 void IniciarSesion(unsigned int telf, SAConnection* con);
 
@@ -24,7 +24,7 @@ void FinalizarSesion(unsigned int id, SAConnection* con);
 
 void DarBajaCliente(unsigned int telf, SAConnection* con);
 
-void ModificarCliente(string n, string c, unsigned int telf, string cor, char s, string f, unsigned int t, SAConnection* con);
+void ModificarCliente(string n, string c, unsigned int telf, string cor, char s, SADateTime f, unsigned int t, SAConnection* con);
 //};
 
 
