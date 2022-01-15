@@ -25,15 +25,19 @@ void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, s
     cerr<<"Error a la hora de crear el SAVEPOINT" << endl;
     return ;
   }
-    
+  
+  SAString auxn(n.c_str());
+  SAString auxc(c.c_str());
+  SAString auxcor(cor.c_str());
+  SAString auxf(f.c_str());
   crear.setConnection(con);
   crear.setCommandText(_TSA("INSERT INTO cliente VALUES(:1, :2, :3, :4, :5, :6, :7)"));
-  crear.Param(1).setAsString() = n;
-  crear.Param(2).setAsString() = c;
+  crear.Param(1).setAsString() = auxn;
+  crear.Param(2).setAsString() = auxc;
   crear.Param(3).setAsInt64() = telf;
-  crear.Param(4).setAsString() = cor;
+  crear.Param(4).setAsString() = auxcor;
   crear.Param(5).setAsChar() = s;
-  crear.Param(6).setAsString() = f;
+  crear.Param(6).setAsString() = auxf;
   crear.Param(7).setAsInt64() = t;
   
   try{
