@@ -8,6 +8,8 @@
 #include <string>
 #include <iostream>
 
+using namespace std;
+
 void InformarNovedades(string listaPacks, SAConnection* con);
 
 void ModificarPack(vector<unsigned> idPeliculas, double precio ,string idPack ,SAConnection* con);

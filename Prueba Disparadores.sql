@@ -41,3 +41,12 @@ BEGIN
     END IF;
 END crearPackActivo;
 /
+
+-- Comprueba que cuando se inserta una recomendacion esta esta inicialmente recomendada a un cliente activo y a una pelicula activa --
+CREATE OR REPLACE TRIGGER precio_correcto
+BEFORE INSERT ON PACK
+FOR EACH ROW WHEN(new.precio < 0)
+BEGIN
+    RAISE_APPLICATION_ERROR(-20001, 'PRECIO INVALIDO');
+END precio_correcto;
+/

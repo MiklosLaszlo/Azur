@@ -9,6 +9,8 @@
 
 #include "packs.h"
 
+using namespace std;
+
 //HACER
 void InformarNovedades(vector<string> listaPacks, SAConnection* con){
   SACommand telclientes;
@@ -67,7 +69,7 @@ void ModificarPack(vector<unsigned> idPeliculas, double precio ,string idPack ,S
       cerr << "Error al modificar el precio del pack, se cancelaran todos los cambios" << endl;
       int i = x.ErrNativeCode();
       // Manejador de Excepciones
-      switc(i){
+      switch(i){
         case 20001:
           cout << "El precio tiene que ser mayor o igual que 0" << endl;
           break;
@@ -122,7 +124,7 @@ void ModificarPack(vector<unsigned> idPeliculas, double precio ,string idPack ,S
     }
     catch(SAException &x){
       int i = x.ErrNativeCode();
-      switc(i){
+      switch(i){
         case 1:
           cout << "El pack ya estaba activado" << endl;
           break;
@@ -256,9 +258,33 @@ void DesactivarPack(string idPack ,SAConnection* con){
 };
 
 //HACER
-/* ES una transaccion atomica, o se reciben todas las recomendaciones o no se recibe ninguna */
 void RecibirRecomendaciones(vector< pair <unsigned, unsigned >> clienteRPeliculas ,SAConnection* con){
-  SACommand comando;
-  comando.setConnection(con);
+  SACommand recomendaciones;
+  recomendaciones.setConnection(con);
+  recomendaciones.setCommandText(_TSA("INSERT INTO recomendacion VALUES(:1,:2)"));
+
+  for(int i = 0; i < clienteRPeliculas.size(); i++){
+    recomendaciones.Param(1).setAsUInt64() = clienteRPeliculas[i].first;
+    recomendaciones.Param(2).setAsUInt64() = clienteRPeliculas[i].first;
+    try{
+      recomendaciones.Execute();
+    }
+    catch(SAException &x){
+      cerr << "Error al insertar la " << i << "-esima insercion." << endl;
+      switch (x.ErrNativeCode()) {
+        case 20002:
+
+          break;
+        case 20003:
+
+          break;
+
+        default
+          cerr << "Execepcion no manejada" << endl;
+          cerr<<x.ErrText().GetMultiByteChars()<<endl;
+          break;
+      }
+    }
+  }
 
 };
