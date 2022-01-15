@@ -16,6 +16,12 @@ CREATE TABLE CLIENTE(
     tarjeta INT NOT NULL
 );
 
+CREATE TABLBE CLIENTEACTIVO(
+    telefono INT,
+    FOREIGN KEY (telefono) REFERENCES cliente(telefono),
+    PRIMARY KEY(telefono)
+);
+
 CREATE TABLE PACK(
     nombrePack varchar2(20) PRIMARY KEY,
     precio FLOAT NOT NULL
