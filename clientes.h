@@ -1,6 +1,7 @@
 #ifndef CLIENTES_H
 #define CLIENTES_H
 
+#include <SQLAPI.h>
 using namespace std;
 
 class Cliente{
@@ -15,12 +16,12 @@ class Cliente{
   
   public:
   
-  Cliente(string n, string c, unsigned int telf, string cor, char s, string f, unsigned int t);
+  Cliente(string n, string c, unsigned int telf, string cor, char s, string f, unsigned int t, SAConnection* con);
   
-  void IniciarSesion(unsigned int telf);
-  void FinalizarSesion(unsigned int id);
-  void DarBajaCliente();
-  void ModificarCliente(string n, string c, string cor, char s, string f, unsigned int t);
+  void IniciarSesion(unsigned int telf, SAConnection* con);
+  void FinalizarSesion(unsigned int id, SAConnection* con);
+  void DarBajaCliente(SAConnection* con);
+  void ModificarCliente(string n, string c, string cor, char s, string f, unsigned int t,SAConnection* con);
   
   bool TieneNDigitos();
 };
