@@ -43,6 +43,15 @@ CREATE TABLE RECOMENDACION {
 
 -- Disparadores --
 
+-- Cuando se de de alta un cliente, este se activa --
+CREATE OR REPLACE TRIGGER crearClienteActivo
+AFTER INSERT ON CLIENTE
+FOR EACH ROW
+BEGIN
+    INSERT INTO CLIENTEACTIVO VALUES(:new.telefono);
+END crearClienteActivo;
+/
+
 -- Comprueba que el precio sea correcto en los pack --
 CREATE OR REPLACE TRIGGER precio_correcto
 BEFORE INSERT OR UPDATE ON PACK
