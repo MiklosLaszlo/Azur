@@ -48,12 +48,15 @@ void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, S
       case 1:
         cout << "Ya existía un cliente con ese teléfono, use ModificarCliente si quiere cambiar el nombre\n";
         break;
-      case ___:
+      /*case ___:
         cout << "ERROR NOT NULLS\n";
-        break;
-      /*case 20001:
-        cout << "\n";
         break;*/
+      case 20010:
+        cout << "El telefono debe tener 9 digitos\n";
+        break;
+      case 20011:
+        cout << "La tarjeta debe tener 16 digitos\n";
+        break;
       default:
         cout << "Excepción no controlada\n" << endl;
         cout << x-ErrText().GetMultiByteChars()<< endl;
@@ -132,7 +135,7 @@ void ModificarCliente(string n, string c, unsigned int telf, string cor, char s,
     cerr << "El cliente que se quiere modificar no pertenece a la base de datos\n";
   }
   else{
-    modificar.setCommandText(_TSA("UPDATE CLIENTE SET nombre=:1 contraseña=:2 correo=:3 sexo=:4 fecha=:5 tarjeta=:6 WHERE telefono=:7"));
+    modificar.setCommandText(_TSA("UPDATE CLIENTE SET nombre=:1, contraseña=:2, correo=:3, sexo=:4, fecha=:5, tarjeta=:6 WHERE telefono=:7"));
     modificar.Param(1).setAsString() = auxn;
     modificar.Param(2).setAsString() = auxc;
     modificar.Param(3).setAsString() = auxcor;
@@ -148,7 +151,9 @@ void ModificarCliente(string n, string c, unsigned int telf, string cor, char s,
       cerr << "Error al modificar alguno de los datos del cliente, se cancelaran todos los cambios\n";
       int i = x.ErrNativeCode();
       switch(i){
-         
+        case 20011:
+          cout << "La tarjeta debe tener 16 cifras\n";
+          break;
         default:
           cout << "Excepcion no controlada\n";
           cout<<x.ErrText().GetMultiByteChars()<<endl;
