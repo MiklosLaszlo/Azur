@@ -103,7 +103,28 @@ void Pelicula::SuministrarPelicula(string t, int a, string d, string p, SAConnec
 
   	con->commit();
 }
+
+
+void Pelicula::BuscarTituloCatalogo(string t, SAConnection *con){
+	SACommand comando, busqueda;
+	SAString auxt(t.c_str());
 	
+    comando.setConnection(con);
+    cout<<"Películas con el título buscado: "<<endl;
+    comando.setCommandText(_TSA("SELECT titulo FROM PELICULAACTIVA WHERE titulo = :1")); 
+    busqueda.Param(1).setAsString() = auxt;
+    busqueda.Execute();
+    
+    try{comando.Execute();}
+    catch(SAException &x){
+    	cout<<x.ErrText().GetMultiByteChars()<<endl;
+    }
+    
+    cout<<" Titulo\tDirector\tAño\tProductora"<<endl;
+    while(comando.FetchNext()) {
+        cout<<" "<<comando[1].asString()<<"\t\t"<<comando[2].asString()<<"\t\t"<<comando[3].asInt64()<<"\t\t"<<comando[4].asString()<<endl;
+    }
+}	
 
 
 
