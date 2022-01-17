@@ -15,11 +15,12 @@ class Pelicula{
   
   Pelicula (int idP, string t, int a, string d, string p);
   
-  void MostrarCatalogo(SAConnection* con);
-  void SuministrarPelicula(string t, int a, string d, string p, SAConnection* con);
-  void InhabilitarPelicula(int idP, SAConnection* con);
-  void BuscarTituloCatalogo(string t, SAConnection *con);d
-  void MostrarRecomendaciones(int telefono,SAConnection *con);
+  void MostrarCatalogo (SAConnection* con);
+  void SuministrarPelicula (string t, int a, string d, string p, SAConnection* con);
+  void InhabilitarPelicula (int idP, SAConnection* con);
+  void BuscarTituloCatalogo (string t, SAConnection *con);d
+  void MostrarRecomendaciones (int telefono,SAConnection *con);
+  void VerPelicula (int telefono, int idPelicula, SAConnection *con);
   
 };
 

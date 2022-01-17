@@ -147,3 +147,24 @@ void Pelicula::MostrarRecomendaciones(int telefono, SAConnection *con){
 }
 
 
+/*AHORA MISMO SOLO BUSCO (O INTENTO) SI EL IDPELICULA ESTA EN EL PACK DEL CLIENTE*/
+void Pelicula::VerPelicula(int telefono, int idPel, SAConnection *con){
+	SACommand busqueda;
+	SANumeric auxtel(telefono);
+	SANumeric auxidPel(idPel);
+	
+	busqueda.setConnection(con);
+	
+	busqueda.setCommandText(_TSA("SELECT idPelicula FROM CLIENTE NATURAL JOIN CONTRATOCLIENTE NATURAL JOIN PACKACTIVO WHERE telefono = :1 AND idPelicula = :2"));
+	busqueda.Param(1).setAsInt64() = auxtel;
+	busqueda.Param(2).setAsInt64() = auxidPel;
+	
+	try{busqueda.Execute();}
+    catch(SAException &x){
+    	cout<<x.ErrText().GetMultiByteChars()<<endl;  
+    }
+	
+	
+}
+
+
