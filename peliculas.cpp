@@ -81,7 +81,7 @@ void Pelicula::SuministrarPelicula(string t, int a, string d, string p, SAConnec
   	busquedaId.setCommandText(_TSA("SELECT MAX(idPelicula) FROM pelicula"));
   	busquedaId.Execute();
   	
-  	int auxId = busquedaId[1].asInt64() + 1;  //CREO QUE HAY PROBLEMAS EN LA PRIMERA INSERCIÓN (NO SE SI DEVUELVE 0 O NULL)
+  	int auxId = busquedaId[1].asInt64() + 1;  //CREO QUE HAY PROBLEMAS EN LA PRIMERA INSERCIÓN (NO SE SI DEVUELVE 0 O NULL) CREO QUE TENGO QUE CREAR TRIGGER
   	
   	suministrar.setConnection(con);
   	suministrar.setCommandText(_TSA("INSERT INTO pelicula (idPelicula,titulo,director,anio,productora) VALUES (:1,:2,:3,:4,:5)"));
@@ -106,14 +106,13 @@ void Pelicula::SuministrarPelicula(string t, int a, string d, string p, SAConnec
 
 
 void Pelicula::BuscarTituloCatalogo(string t, SAConnection *con){
-	SACommand comando, busqueda;
+	SACommand comando;
 	SAString auxt(t.c_str());
 	
     comando.setConnection(con);
     cout<<"Películas con el título buscado: "<<endl;
     comando.setCommandText(_TSA("SELECT titulo FROM PELICULAACTIVA WHERE titulo = :1")); 
-    busqueda.Param(1).setAsString() = auxt;
-    busqueda.Execute();
+    comando.Param(1).setAsString() = auxt;
     
     try{comando.Execute();}
     catch(SAException &x){
@@ -126,5 +125,25 @@ void Pelicula::BuscarTituloCatalogo(string t, SAConnection *con){
     }
 }	
 
+
+void Pelicula::MostrarRecomendaciones(int telefono, SAConnection *con){
+	SACommand comando;
+	SANumeric auxtel(telefono);
+	
+	comando.setConnection(con);
+	cout << "Películas recomendadas para ti" << endl;
+	comando.setCommandText((_TSA("SELECT idPelicula FROM RECOMENDACION NATURAL JOIN PELICULAACTIVA WHERE telefono = :1")));
+	comando.Param(1).setAsInt64() = auxtel;
+	
+	try{comando.Execute();}
+    catch(SAException &x){
+    	cout<<x.ErrText().GetMultiByteChars()<<endl;  //¿Qué pasaría si no hubiese recomendaciones para esa persona? CREO QUE TENGO QUE CREAR TRIGGER
+    }
+    
+    cout<<" Titulo\tDirector\tAño\tProductora"<<endl;
+    while(comando.FetchNext()) {
+        cout<<" "<<comando[1].asString()<<"\t\t"<<comando[2].asString()<<"\t\t"<<comando[3].asInt64()<<"\t\t"<<comando[4].asString()<<endl;
+    }
+}
 
 

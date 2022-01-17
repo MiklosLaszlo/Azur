@@ -18,7 +18,8 @@ class Pelicula{
   void MostrarCatalogo(SAConnection* con);
   void SuministrarPelicula(string t, int a, string d, string p, SAConnection* con);
   void InhabilitarPelicula(int idP, SAConnection* con);
-  void BuscarTituloCatalogo(string t, SAConnection *con);
+  void BuscarTituloCatalogo(string t, SAConnection *con);d
+  void MostrarRecomendaciones(int telefono,SAConnection *con);
   
 };
 
