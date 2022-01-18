@@ -70,7 +70,7 @@ ContratoCliente GenerarContratoCliente(int tlf, vector<SAString> listaPacks, SAD
   }
 
   contrato={ id, selectCliente[1].asString(), tlf, selectCliente[2].asString(), selectCliente[3].asString(),
-    selectCliente[4].asDateTime(), selectCliente.asDouble(), listaPacks, SADateTime::currentDateTime(), fechaFin, precio};
+    selectCliente[4].asDateTime(), selectCliente[5].asDouble(), listaPacks, SADateTime::currentDateTime(), fechaFin, precio};
   return contrato;
 }
 
@@ -146,22 +146,112 @@ ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, 
   }
   int id = selectID.Param(1).asInt64();
 
-  contrato={ id, selectProveedor[1].asString(), cif, selectProveedor[2].asString(), selectProveedor[3].asString(),
-    selectProveedor[4].asDateTime(), selectProveedor.asDouble(), listaPacks, SADateTime::currentDateTime(), fechaFin, precio};
+  contrato={ id, selectProveedor[1].asString(), selectProveedor[2].asInt64(), selectProveedor[3].asString(), cif, peliculas,
+            SADateTime::currentDateTime(), fechaFin, precio};
   return contrato;
 }
 
 FacturaCliente RecibirPago(int tlf, double precio, SADateTime fechaPago, SAConnection* con){
   FacturaCliente factura;
+  SACommand insertFactura, selcetID;
+  insertFactura.setConnection(con);
+  
+  insertFactura.setCommandText(_TSA("INSERT INTO facturaClientePaga (telefono,precio,fecha) VALUES (:1,:2,:3)"));
+  insertFactura.Param(1).setAsInt64() = tlf;
+  insertFactura.Param(2).setAsDouble() = precio;
+  insertFactura.Param(3).setAsDateTime() = fechaPago;
+  try{
+    insertFactura.Execute();
+  }
+  catch(SAException &x){
+    cerr<<x.ErrText().GetMultiByteChars()<<endl;
+    cerr<<"Error al insertar la factura del cliente" << endl;
+    factura.idfacturac=-1;
+    return factura;
+  }
+ 
+  selectID.setCommandText(_TSA("SELECT secuencia_facturaCliente.currval FROM dual"));
+  try{
+    selectID.Execute();
+    selectID.FetchNext(); //Dispongo la información del select
+  }
+  catch(SAException &x){
+    cerr<<x.ErrText().GetMultiByteChars()<<endl;
+    cerr<<"Error al obtener el id de la factura del cliente" << endl;
+    contrato.idContrato = -1;
+    return contrato;
+  }
+  int id = selectID.Param(1).asInt64(); 
+  factura={id, precio, tlf, fechaPago};
   return factura;
 }
 
 FacturaProveedor RealizarPago(double precio, int cif, SADateTime fechaPago, SAConnection* con){
   FacturaProveedor factura;
+  SACommand insertFactura, selcetID;
+  insertFactura.setConnection(con);
+  
+  insertFactura.setCommandText(_TSA("INSERT INTO facturaProveedorRecibeDinero (cif,precio,fecha) VALUES (:1,:2,:3)"));
+  insertFactura.Param(1).setAsInt64() = cif;
+  insertFactura.Param(2).setAsDouble() = precio;
+  insertFactura.Param(3).setAsDateTime() = fechaPago;
+  try{
+    insertFactura.Execute();
+  }
+  catch(SAException &x){
+    cerr<<x.ErrText().GetMultiByteChars()<<endl;
+    cerr<<"Error al insertar la factura del proveedor" << endl;
+    factura.idfacturac=-1;
+    return factura;
+  }
+ 
+  selectID.setCommandText(_TSA("SELECT secuencia_facturaProveedor.currval FROM dual"));
+  try{
+    selectID.Execute();
+    selectID.FetchNext(); //Dispongo la información del select
+  }
+  catch(SAException &x){
+    cerr<<x.ErrText().GetMultiByteChars()<<endl;
+    cerr<<"Error al obtener el id de la factura del proveedor" << endl;
+    contrato.idContrato = -1;
+    return contrato;
+  }
+  int id = selectID.Param(1).asInt64(); 
+  factura={id, precio, cif, fechaPago};
   return factura;
 }
 
 BalanceGastos BalanceDeGastos(SAConnection* con){
-  BalanceGastos balance;
-  retun balance;
+  BalanceGastos balanceTotal;
+  vector<FacturaCliente> fclientes;
+  vector<FacturaProveedor> fproveedores;
+  SACommand selectFClientes, selectFProveedores;
+  selectFClientes.setConnection(con);
+  selectFProveedores.setConnection(con);
+  
+  selectFClientes.setCommandText(_TSA("SELECT * FROM facturaClientePaga"));
+  try{
+    selectFClientes.Execute();
+    selectFClientes.FetchNext(); //Dispongo la información del select
+  }
+  catch(SAException &x){
+    cerr<<x.ErrText().GetMultiByteChars()<<endl;
+    cerr<<"Error al obtener las facturas de los clientes" << endl;
+    balanceTotal.balance = -1;
+    return balanceTotal;
+  }
+  
+  selectFProveedores.setCommandText(_TSA("SELECT * FROM facturaProveedorRecibeDinero"));
+  try{
+    selectFClientes.Execute();
+    selectFClientes.FetchNext(); //Dispongo la información del select
+  }
+  catch(SAException &x){
+    cerr<<x.ErrText().GetMultiByteChars()<<endl;
+    cerr<<"Error al obtener las facturas de los proveedores" << endl;
+    balanceTotal.balance = -1;
+    return balanceTotal;
+  }
+  
+  return balanceTotal;
 }
