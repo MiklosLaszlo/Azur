@@ -58,7 +58,7 @@ ContratoCliente GenerarContratoCliente(int tlf, vector<SAString> listaPacks, SAD
 
 void DarAltaEmpresa(SAString nombre, int tlf, SAString correo, int cif, SAConnection* con);
 
-ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, double precio, SAConnection* con);
+ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, SADateTime fechaFin, double precio, SAConnection* con);
 
 FacturaCliente RecibirPago(int tlf, double precio, SADateTime fechaPago, SAConnection* con);
 
