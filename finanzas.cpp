@@ -76,7 +76,23 @@ ContratoCliente GenerarContratoCliente(int tlf, vector<SAString> listaPacks, SAD
 
 
 void DarAltaEmpresa(SAString nombre, int tlf, SAString correo, int cif, SAConnection* con){
-
+  SACommand insertProveedor;
+  insertProveedor.setConnection(con);
+  
+  insertProveedor.setCommandText(_TSA("INSERT INTO proveedor (cif,nombreempresa,telefonoempresa,correoempresa) VALUES (:1,:2,:3,:4)"));
+  insertProveedor.Param(1).setAsInt64() = cif;
+  insertProveedor.Param(2).setAsString() = nombre;
+  insertProveedor.Param(3).setAsInt64() = tlf;
+  insertProveedor.Param(2).setAsString() = correo;
+  try{
+    inserProveedor.Execute();
+  }
+  catch(SAException &x){
+    cerr<<x.ErrText().GetMultiByteChars()<<endl;
+    cerr<<"Error al dar de alta el proveedor" << endl;
+    return;
+  }
+  cout<<"\nProveedor añadido correctamente"<<endl;
 }
 
 
