@@ -96,8 +96,58 @@ void DarAltaEmpresa(SAString nombre, int tlf, SAString correo, int cif, SAConnec
 }
 
 
-ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, double precio, SAConnection* con){
+ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, SADateTime fechaFin, double precio, SAConnection* con){
   ContratoProveedor contrato;
+  SACommand insertContrato, selectProveedor, selcetID;
+  insertContrato.setConnection(con);
+  selectProveedor.setConnection(con);
+  selectID.setConnection(con);
+
+  //Consulto los datos del proveedor
+  selectProveedor.setCommandText(_TSA("SELECT nombreempresa,telefonoempresa,correoempresa FROM Proveedor where cif=(:1)"));
+  selectProveedor.Param(1).setAsInt64()=cif;
+  try{
+    selectProveedor.Execute();
+    selectProveedor.FetchNext(); //Dispongo la información del select
+  }
+  catch(SAException &x){
+    cerr<<x.ErrText().GetMultiByteChars()<<endl;
+    cerr<<"Error al obtener los datos del proveedor para generar el contrato" << endl;
+    contrato.idContrato = -1;
+    return contrato;
+  }
+
+  //Inserto el contrato, un trigger crea su id correspondiente
+  insertContrato.setCommandText(_TSA("INSERT INTO firmaProveedorContratoProveedor (fechainicio,fechafin,precio,cif) VALUES (:1,:2,:3,:4)"));
+  insertContrato.Param(1).setAsDateTime() = SADateTime::currentDateTime();
+  insertContrato.Param(2).setAsDateTime() = fechaFin;
+  insertContrato.Param(3).setAsDouble() = precio;
+  insertContrato.Param(4).setAsInt64() = cif;
+  try{
+    insertContrato.Execute();
+  }
+  catch(SAException &x){
+    cerr<<x.ErrText().GetMultiByteChars()<<endl;
+    cerr<<"Error al crear el contrato" << endl;
+    contrato.idContrato = -1;
+    return contrato;
+  }
+
+  selectID.setCommandText(_TSA("SELECT secuencia_contratoProveedor.currval FROM dual"));
+  try{
+    selectID.Execute();
+    selectID.FetchNext(); //Dispongo la información del select
+  }
+  catch(SAException &x){
+    cerr<<x.ErrText().GetMultiByteChars()<<endl;
+    cerr<<"Error al obtener el id del contrato" << endl;
+    contrato.idContrato = -1;
+    return contrato;
+  }
+  int id = selectID.Param(1).asInt64();
+
+  contrato={ id, selectProveedor[1].asString(), cif, selectProveedor[2].asString(), selectProveedor[3].asString(),
+    selectProveedor[4].asDateTime(), selectProveedor.asDouble(), listaPacks, SADateTime::currentDateTime(), fechaFin, precio};
   return contrato;
 }
 
