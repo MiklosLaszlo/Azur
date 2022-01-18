@@ -12,40 +12,40 @@ using namespace std;
 
 struct ContratoCliente{
 	int idContrato;
-	string nombreCliente;
+	SAString nombreCliente;
 	int tlfCliente;
-	string correo;
-	string sexo;
-	int[3] fechaNacimiento;
+	SAString correo;
+	SAString sexo;
+	SADateTime fechaNacimiento;
 	double tarjeta;
-	vector<string> packsContratados;
-	int[3] fechaInicio;
-	int[3] fechaFin;
+	vector<SAString> packsContratados;
+	SADateTime fechaInicio;
+	SADateTime fechaFin;
 	double precio;
 };
 
 struct ContratoProveedor{
 	int idContrato;
-	string nombreProveedor;
+	SAString nombreProveedor;
 	int tlfProveedor;
-	string correo;
+	SAString correo;
 	int cif;
-	vector<string> peliculasASuministrar;
-	int[3] fechaInicio;
-	int[3] fechaFin;
+	vector<SAString> peliculasASuministrar;
+	SADateTime fechaInicio;
+	SADateTime fechaFin;
 	double precio;
 };
 
 struct FacturaCliente{
 	double precio;
 	int tlfCliente;
-	int[3] fechaPago;
+	SADateTime fechaPago;
 };
 
 struct FacturaProveedor{
 	double precio;
 	int cif;
-	int[3] fechaPago;
+	SADateTime fechaPago;
 };
 
 struct BalanceGastos{
@@ -54,15 +54,15 @@ struct BalanceGastos{
 	double balance;
 };
 
-ContratoCliente GenerarContratoCliente(int tlf, vector<string> listaPacks, int[3] fechaFin, double precio, SAConnection* con);
+ContratoCliente GenerarContratoCliente(int tlf, vector<SAString> listaPacks, SADateTime fechaFin, double precio, SAConnection* con);
 
-void DarAltaEmpresa(string nombre, int tlf, string correo, int cif, SAConnection* con);
+void DarAltaEmpresa(SAString nombre, int tlf, SAString correo, int cif, SAConnection* con);
 
-ContratoProveedor GenerarContratoProveedor(int cif, vector<string> peliculas, double precio, SAConnection* con);
+ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, double precio, SAConnection* con);
 
-FacturaCliente RecibirPago(int tlf, double precio, int[3] fechaPago, SAConnection* con);
+FacturaCliente RecibirPago(int tlf, double precio, SADateTime fechaPago, SAConnection* con);
 
-FacturaProveedor RealizarPago(int cif, double precio, int[3] fechaPago, SAConnection* con);
+FacturaProveedor RealizarPago(int cif, double precio, SADateTime fechaPago, SAConnection* con);
 
 BalanceGastos BalanceDeGastos(SAConnection* con);
 
