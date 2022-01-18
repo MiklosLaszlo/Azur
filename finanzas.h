@@ -37,12 +37,14 @@ struct ContratoProveedor{
 };
 
 struct FacturaCliente{
+	int idfacturac;
 	double precio;
 	int tlfCliente;
 	SADateTime fechaPago;
 };
 
 struct FacturaProveedor{
+	int idfacturap;
 	double precio;
 	int cif;
 	SADateTime fechaPago;
