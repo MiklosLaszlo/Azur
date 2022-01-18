@@ -21,7 +21,7 @@ CREATE TABLE PROVEEDOR(
     cif INT PRIMARY KEY,
     nombreempresa varchar(20) NOT NULL,
     telefonoempresa INT NOT NULL,
-    correoelectronico varchar(20) NOT NULL
+    correoempresa varchar(20) NOT NULL
 );
 
 CREATE TABLE FIRMAPROVEEDORCONTRATOPROVEEDOR(
