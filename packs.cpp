@@ -122,11 +122,11 @@ void ModificarPack(vector<unsigned> idPeliculas, double precio ,string idPack ,S
       return;
     }
     //Añade todas las peliculas en el pack, relacionandolas
+    modificar.setCommandText(_TSA("INSERT INTO Peliculapack VALUES(:1 , :2)")); //Inserta primera columna la peli y luego el pack
+    modificar.Param(2).setAsString() = auxiliar;
     try{
       for(int i=0; i < idPeliculas.size(); i++){
-        modificar.setCommandText(_TSA("INSERT INTO Peliculapack VALUES(:1 , :2)")); //Inserta primera columna la peli y luego el pack
         modificar.Param(1).setAsUInt64() = idPeliculas[i];
-        modificar.Param(2).setAsString() = auxiliar;
         modificar.Execute();
       };
     }
@@ -191,11 +191,11 @@ void CrearPack(vector<unsigned> idPeliculas, double precio ,string idPack ,SACon
     return ;
   }
 
+  crear.setCommandText(_TSA("INSERT INTO Peliculapack VALUES(:1 , :2)")); //Inserta primera columna la peli y luego el pack (el insert se puede controlar para que sean de peliculas activas)
+  crear.Param(2).setAsString() = auxiliar;
   try{
     for(int i=0; i < idPeliculas.size(); i++){
-      crear.setCommandText(_TSA("INSERT INTO Peliculapack VALUES(:1 , :2)")); //Inserta primera columna la peli y luego el pack (el insert se puede controlar para que sean de peliculas activas)
       crear.Param(1).setAsUInt64() = idPeliculas[i];
-      crear.Param(2).setAsString() = auxiliar;
       crear.Execute();
     };
   }

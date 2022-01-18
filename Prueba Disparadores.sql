@@ -61,7 +61,7 @@ BEGIN
 END telefono_correcto;
 /
 
--- Comprueba que la tarjeta tiene 16 dígitos -- 
+-- Comprueba que la tarjeta tiene 16 dígitos --
 CREATE OR REPLACE TRIGGER tarjeta_correcta
 BEFORE INSERT OR UPDATE ON CLIENTE
 FOR EACH ROW WHEN(to_string(new.tarjeta).size() != 16)
@@ -116,6 +116,6 @@ BEGIN
       RAISE_APPLICATION_ERROR(-20002, 'CLIENTE NO ACTIVO RECIBIENDO RECOMENDACION');
     ELSIF(ple < 1) THEN
       RAISE_APPLICATION_ERROR(-20003, 'PELICULA NO ACTIVA ASOCIANDOSE A RECOMENDACION');
-    ENDIF;
+    END IF;
 END comprobarRecomendacionInsertar;
 /
