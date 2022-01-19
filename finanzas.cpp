@@ -178,8 +178,8 @@ FacturaCliente RecibirPago(int tlf, double precio, SADateTime fechaPago, SAConne
   catch(SAException &x){
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error al obtener el id de la factura del cliente" << endl;
-    contrato.idContrato = -1;
-    return contrato;
+    factura.idfacturac=-1;
+    return factura;
   }
   int id = selectID.Param(1).asInt64(); 
   factura={id, precio, tlf, fechaPago};
@@ -213,8 +213,8 @@ FacturaProveedor RealizarPago(double precio, int cif, SADateTime fechaPago, SACo
   catch(SAException &x){
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error al obtener el id de la factura del proveedor" << endl;
-    contrato.idContrato = -1;
-    return contrato;
+    factura.idfacturac=-1;
+    return factura;
   }
   int id = selectID.Param(1).asInt64(); 
   factura={id, precio, cif, fechaPago};
