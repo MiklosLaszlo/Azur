@@ -9,6 +9,18 @@ ContratoCliente GenerarContratoCliente(int tlf, vector<SAString> listaPacks, SAD
   selectCliente.setConnection(con);
   insertPack.setConnection(con);
   selectID.setConnection(con);
+  
+  SACommand guardado;
+  guardado.setConnection(con);
+  guardado.setCommandText(_TSA("SAVEPOINT contratoCliente"));
+  try{
+    guardado.Execute();
+  }
+  catch(SAException &x){
+    cerr<<x.ErrText().GetMultiByteChars()<<endl;
+    cerr<<"Error a la hora de crear el SAVEPOINT" << endl;
+    return ;
+  }
 
   //Consulto los datos del cliente, hay un trigger que verifica que el cliente sea activo
   selectCliente.setCommandText(_TSA("SELECT nombre,correoelectronico,sexo,fechanacimiento,tarjeta FROM Cliente where telefono=(:1)"));
@@ -21,6 +33,8 @@ ContratoCliente GenerarContratoCliente(int tlf, vector<SAString> listaPacks, SAD
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error al obtener los datos del cliente para generar el contrato" << endl;
     contrato.idContrato = -1;
+    guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT contratoCliente"));
+    guardado.Execute();
     return contrato;
   }
 
@@ -37,6 +51,8 @@ ContratoCliente GenerarContratoCliente(int tlf, vector<SAString> listaPacks, SAD
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error al crear el contrato" << endl;
     contrato.idContrato = -1;
+    guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT contratoCliente"));
+    guardado.Execute();
     return contrato;
   }
 
@@ -49,6 +65,8 @@ ContratoCliente GenerarContratoCliente(int tlf, vector<SAString> listaPacks, SAD
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error al obtener el id del contrato" << endl;
     contrato.idContrato = -1;
+    guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT contratoCliente"));
+    guardado.Execute();
     return contrato;
   }
   int id = selectID.Param(1).asInt64();
@@ -66,6 +84,8 @@ ContratoCliente GenerarContratoCliente(int tlf, vector<SAString> listaPacks, SAD
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error al insertar un supuesto pack activo" << endl;
     contrato.idContrato = -1;
+    guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT contratoCliente"));
+    guardado.Execute();
     return contrato;
   }
 
@@ -98,10 +118,23 @@ void DarAltaEmpresa(SAString nombre, int tlf, SAString correo, int cif, SAConnec
 
 ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, SADateTime fechaFin, double precio, SAConnection* con){
   ContratoProveedor contrato;
-  SACommand insertContrato, selectProveedor, selcetID;
+  SACommand insertContrato, selectProveedor, selcetID, insertActiva;
   insertContrato.setConnection(con);
   selectProveedor.setConnection(con);
   selectID.setConnection(con);
+  insertActiva.setConnection(con);
+  
+  SACommand guardado;
+  guardado.setConnection(con);
+  guardado.setCommandText(_TSA("SAVEPOINT contratoProveedor"));
+  try{
+    guardado.Execute();
+  }
+  catch(SAException &x){
+    cerr<<x.ErrText().GetMultiByteChars()<<endl;
+    cerr<<"Error a la hora de crear el SAVEPOINT" << endl;
+    return ;
+  }
 
   //Consulto los datos del proveedor
   selectProveedor.setCommandText(_TSA("SELECT nombreempresa,telefonoempresa,correoempresa FROM Proveedor where cif=(:1)"));
@@ -114,6 +147,8 @@ ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, 
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error al obtener los datos del proveedor para generar el contrato" << endl;
     contrato.idContrato = -1;
+    guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT contratoProveedor"));
+    guardado.Execute();
     return contrato;
   }
 
@@ -130,6 +165,8 @@ ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, 
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error al crear el contrato" << endl;
     contrato.idContrato = -1;
+    guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT contratoProveedor"));
+    guardado.Execute();
     return contrato;
   }
 
@@ -142,11 +179,46 @@ ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, 
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error al obtener el id del contrato" << endl;
     contrato.idContrato = -1;
+    guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT contratoProveedor"));
+    guardado.Execute();
     return contrato;
   }
-  int id = selectID.Param(1).asInt64();
+  int idContrato = selectID.Param(1).asInt64();
+  
+  int idPelicula;
+  for(int i=0; i<peliculas.size(); i++){//Activo las peliculas contratadas
+    selectID.setCommandText(_TSA("SELECT idpelicula FROM suministrapelicula WHERE titulo=peliculas[i] AND suministrapelicula.cif=cif"));
+    try{
+      selectID.Execute();
+      selectID.FetchNext(); //Dispongo la información del select
+      idPelicula = selectID.Param(1).asInt64();
+    }
+    catch(SAException &x){
+      cerr<<x.ErrText().GetMultiByteChars()<<endl;
+      cerr<<"Error al obtener el id de la pelicula para activarla" << endl;
+      contrato.idContrato = -1;
+      guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT contratoProveedor"));
+      guardado.Execute();
+      return contrato;
+    }
 
-  contrato={ id, selectProveedor[1].asString(), selectProveedor[2].asInt64(), selectProveedor[3].asString(), cif, peliculas,
+    insertActiva.setCommandText(_TSA"INSERT INTO Activa (idpelicula,idContratoProveedor) VALUES (:1,:2)");
+    insertActiva.Param(1).setAsInt64() = idPelicula;
+    insertActiva.Param(2).setAsInt64() = idContrato;
+    try{
+      insertActiva.Execute();
+    }
+    catch(SAException &x){
+      cerr<<x.ErrText().GetMultiByteChars()<<endl;
+      cerr<<"Error al crear activar la pelicula" << endl;
+      contrato.idContrato = -1;
+      guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT contratoProveedor"));
+      guardado.Execute();
+      return contrato;
+    }
+  }
+
+  contrato={ idContrato, selectProveedor[1].asString(), selectProveedor[2].asInt64(), selectProveedor[3].asString(), cif, peliculas,
             SADateTime::currentDateTime(), fechaFin, precio};
   return contrato;
 }
@@ -224,6 +296,7 @@ FacturaProveedor RealizarPago(double precio, int cif, SADateTime fechaPago, SACo
 BalanceGastos BalanceDeGastos(SAConnection* con){
   BalanceGastos balanceTotal;
   balanceTotal.balance=0;
+  balanceTotal.balanceCorrecto=true;
   FacturaCliente fcliente;
   FacturaProveedor fproveedor;
   vector<FacturaCliente> fclientes;
@@ -239,7 +312,7 @@ BalanceGastos BalanceDeGastos(SAConnection* con){
   catch(SAException &x){
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error al obtener las facturas de los clientes" << endl;
-    balanceTotal.balance = -1;
+    balanceTotal.balanceCorrecto = false;
     return balanceTotal;
   }
   
@@ -257,7 +330,7 @@ BalanceGastos BalanceDeGastos(SAConnection* con){
   catch(SAException &x){
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error al obtener las facturas de los proveedores" << endl;
-    balanceTotal.balance = -1;
+    balanceTotal.balanceCorrecto = false;
     return balanceTotal;
   }
   
