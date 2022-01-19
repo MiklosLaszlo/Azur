@@ -223,6 +223,9 @@ FacturaProveedor RealizarPago(double precio, int cif, SADateTime fechaPago, SACo
 
 BalanceGastos BalanceDeGastos(SAConnection* con){
   BalanceGastos balanceTotal;
+  balanceTotal.balance=0;
+  FacturaCliente fcliente;
+  FacturaProveedor fproveedor;
   vector<FacturaCliente> fclientes;
   vector<FacturaProveedor> fproveedores;
   SACommand selectFClientes, selectFProveedores;
@@ -232,7 +235,6 @@ BalanceGastos BalanceDeGastos(SAConnection* con){
   selectFClientes.setCommandText(_TSA("SELECT * FROM facturaClientePaga"));
   try{
     selectFClientes.Execute();
-    selectFClientes.FetchNext(); //Dispongo la información del select
   }
   catch(SAException &x){
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
@@ -241,10 +243,16 @@ BalanceGastos BalanceDeGastos(SAConnection* con){
     return balanceTotal;
   }
   
+  while(selectFClientes.FetchNext()){
+    fcliente = {selectFClientes[1].asInt64(), selectFClientes[3].asReal(), selectFClientes[4].asInt64(), selectFClientes[2].asDateTime()};
+    fclientes.push_back(fcliente);
+    balanceTotal.balance = balanceTotal.balance + selectFClientes[3].asReal();
+  }
+  balanceTotal.ingresos=fclientes;
+  
   selectFProveedores.setCommandText(_TSA("SELECT * FROM facturaProveedorRecibeDinero"));
   try{
-    selectFClientes.Execute();
-    selectFClientes.FetchNext(); //Dispongo la información del select
+    selectFProveedores.Execute();
   }
   catch(SAException &x){
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
@@ -252,6 +260,13 @@ BalanceGastos BalanceDeGastos(SAConnection* con){
     balanceTotal.balance = -1;
     return balanceTotal;
   }
+  
+  while(selectFProveedores.FetchNext()){
+    fproveedor = {selectFProveedores[1].asInt64(), selectFProveedores[3].asReal(), selectFProveedores[4].asInt64(), selectFProveedores[2].asDateTime()};
+    fproveedores.push_back(fproveedor);
+    balanceTotal.balance = balanceTotal.balance - selectFProveedores[3].asReal();
+  }
+  balanceTotal.gastos=fproveedores;
   
   return balanceTotal;
 }
