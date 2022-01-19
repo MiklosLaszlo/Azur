@@ -54,6 +54,7 @@ struct BalanceGastos{
 	vector<FacturaCliente> ingresos;
 	vector<FacturaProveedor> gastos;
 	double balance;
+	bool balanceCorrecto ;
 };
 
 ContratoCliente GenerarContratoCliente(int tlf, vector<SAString> listaPacks, SADateTime fechaFin, double precio, SAConnection* con);
