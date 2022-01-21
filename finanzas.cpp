@@ -355,4 +355,20 @@ void mostrarContratoCliente(ContratoCliente contrato){
     }
   cout<<"\n\tFecha inicio:"<<contrato.fechaInicio.GetDay()<<"/"<<contrato.fechaInicio.GetMonth()<<"/"<<contrato.fechaInicio.GetYear()<<endl;
   cout<<"\n\tFecha fin:"<<contrato.fechaFin.GetDay()<<"/"<<contrato.fechaFin.GetMonth()<<"/"<<contrato.fechaFin.GetYear()<<endl;
+  cout<<"\n\tPrecio:"<<contrato.precio<<endl;
 }
+
+void mostrarContratoProveedor(ContratoProveedor contrato){
+  cout<<"Datos del contrato generado para el proveedor"<<endl;
+  cout<<"\tidContrato:"<<contrato.idContrato<<"\n\tNombre del proveedor:"<<contrato.nombreProveedor.GetMultiByteChar()<<endl;
+  cout<<"\tTelefono:"<<contrato.tlfProveedor<<"\n\tCorreo:"<<contrato.correo.GetMultiByteChar()<<endl;
+  cout<<"\tCIF:"<<contrato.cif<<"\n\tPeliculas a activar:";
+    for(int i=0; i<contrato.peliculasAActivar.size(); i++){
+      cout<<"\n\t\t"<<contrato.peliculasAActivar[i].GetMultiByteChar();
+    }
+  cout<<"\n\tFecha inicio:"<<contrato.fechaInicio.GetDay()<<"/"<<contrato.fechaInicio.GetMonth()<<"/"<<contrato.fechaInicio.GetYear()<<endl;
+  cout<<"\n\tFecha fin:"<<contrato.fechaFin.GetDay()<<"/"<<contrato.fechaFin.GetMonth()<<"/"<<contrato.fechaFin.GetYear()<<endl;
+  cout<<"\n\tPrecio:"<<contrato.precio<<endl;
+}
+
+void mostrarBalance
