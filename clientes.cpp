@@ -170,7 +170,7 @@ void FinalizarSesion(int idSes, SAConnection* con){
   con->commit();
 };
 
-void DarBajaCliente(unsigned int telf, SAConnection* con){
+void DarBajaCliente(int idSes, SAConnection* con){
   SACommand guardado, desactiva;
   guardado.setConnection(con);
   guardado.setCommandText(_TSA("SAVEPOINT darbajacliente"));
@@ -185,8 +185,8 @@ void DarBajaCliente(unsigned int telf, SAConnection* con){
   }
   
   desactiva.setConnection(con);
-  desactiva.setCommandText(_TSA("DELETE FROM CLIENTEACTIVO WHERE telefono=:1"));
-  desactiva.Param(1).setAsInt64() = telf;
+  desactiva.setCommandText(_TSA("DELETE FROM CLIENTEACTIVO WHERE telefono IN (SELECT telefono FROM SESIONCLIENTESESION WHERE idSesion=:1)"));
+  desactiva.Param(1).setAsInt64() = idSES;
   
   try{
     desactiva.Execute();
@@ -201,8 +201,8 @@ void DarBajaCliente(unsigned int telf, SAConnection* con){
   con->commit();
 };
 
-void ModificarCliente(string n, string c, unsigned int telf, string cor, char s, SADateTime f, unsigned int t, SAConnection* con){
-  SACommand guardado, modificar;
+void ModificarCliente(string n, string c, int idSes, string cor, char s, SADateTime f, unsigned int t, SAConnection* con){
+  SACommand guardado, modificar, getTlf;
   guardado.setConnection(con);
   guardado.setCommandText(_TSA("SAVEPOINT modifcliente"));
   
@@ -219,8 +219,9 @@ void ModificarCliente(string n, string c, unsigned int telf, string cor, char s,
   SAString auxc(c.c_str());
   SAString auxcor(cor.c_str());
   modificar.setConnection(con);
-  modificar.setCommandText(_TSA("SELECT * FROM CLIENTE WHERE telefono = :1"));
-  modificar.Param(1).setAsInt64() = telf;
+  modificar.setCommandText(_TSA("SELECT telefono FROM SESIONCLIENTESESION WHERE idSesion=:1)"));
+  
+  modificar.Param(1).setAsInt64() = idSes;
   
   if(!(modificar.FetchNext())){
     cerr << "El cliente que se quiere modificar no pertenece a la base de datos\n";
