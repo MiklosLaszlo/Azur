@@ -128,7 +128,7 @@ void Submenupakcs(SAConnection* con){
 
 };
 
-void MenuCliente(SAConnection* con){
+void MenuCliente(int idSesion,SAConnection* con){
 
 }
 
@@ -174,12 +174,19 @@ main(int argc, char* argv[]){
           break;
         case 2:
           cout << "Ingrese su telefono: " << endl;
-          string c; unsigned int telf;
+          string c; unsigned int telf; int idses;
           cin >> telf;
           cout << "Ingrese su contraseña: " << endl;
           getline(cin, c);
           cout << "Se intentara iniciar sesion" << endl;
-          IniciarSesion(telf, c, &con);
+          idses = IniciarSesion(telf, c, &con);
+          if (idses < 0){
+            cout << "Error al iniciar la sesion" << endl;
+          }
+          else{
+            cout << "Sesion iniciada" << endl;
+            MenuCliente(idses, &con);
+          }
 
           break;
         case 3:

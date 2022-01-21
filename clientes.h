@@ -20,8 +20,6 @@ void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, S
 
 int IniciarSesion(unsigned int telf, string pw, SAConnection* con);
 
-
-
 void FinalizarSesion(unsigned int id, SAConnection* con);
 
 void DarBajaCliente(unsigned int telf, SAConnection* con);
