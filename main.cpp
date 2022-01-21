@@ -47,6 +47,39 @@ void Submenupakcs(SAConnection* con){
 
 };
 
+/*SUBMENU PARA SUMINISTRAR PELICULAS*/
+void SubMenuSuministrar (SAConnection *con){
+	int anio, CIF, n;
+	string titulo, director, productora; 
+	
+	do{
+		cout << "Introduzca el CIF de su empresa: ";
+		cin >> CIF;
+		
+		SACommand busqueda;
+		busqueda.setConnection(con);
+		busqueda.setCommandText(_TSA("SELECT COUNT(*) FROM PROVEEDOR WHERE CIF = :1"));
+		busquda.Param(1).setAsInt64() = CIF;
+		busqueda.Execute();
+		
+		busqueda.Fetch();
+		int n = busqueda[1].asInt64();
+	}while(n!=1);
+	
+	
+	cout << "Va a suministrar una película. Introduzca los siguientes datos: " << endl;
+	cout << "Título: ";
+	cin >> titulo;
+	cout << "Año: ";
+	cin >> anio;
+	cout << "Director: ";
+	cin >> director;
+	cout << "Productora: ";
+	cin >> productora;
+	
+	SuministrarPelicula(titulo,anio,director,productora,CIF,con);
+};
+
 main(int argc, char* argv[]){
   SAConnection con;
   try {
