@@ -2,8 +2,10 @@
 // REVISAR CUANDO commit
 #include <stdio.h>  // for printf
 #include <SQLAPI.h> // main SQLAPI++ header
-#include <iostream>
 #include <ctime>
+#include <cstring>
+#include <string>
+#include <iostream>
 
 #include "packs.h"
 #include "clientes.h"
@@ -223,13 +225,26 @@ main(int argc, char* argv[]){
 
           break;
         case 3:
-
-            break;
+          cout << "Esperemos que seas un empleado ;)" << endl;
+          MenuEmpleado(&con);
+          break;
         case 4:
-
+          string nombre; int telf; string correo; int cif;
+          cout << "Introduzca el CIF de su empresa: " << endl;
+          cin >> cif;
+          cout << "Introduzca el nombre de su empresa: "<<endl;
+          getline(cin, nombre);
+          cout << "Introduzca el telfono de su empresa"<< endl;
+          cin >> telf;
+          cout << "Introduzca el correo de su empresa: "<<endl;
+          getline(cin, correo);
+          SAString aux(nombre.c_str());
+          SAString aux2(correo.c_str());
+          cout << "Se intentara dar de alta a la empresa"<<endl;
+          DarAltaEmpresa(aux, tlf, aux2, cif, &con);
           break;
         case 5:
-
+          SubMenuSuministrar(&con);
           break;
         case 6:
           break;
