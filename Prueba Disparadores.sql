@@ -52,10 +52,10 @@ CREATE TABLE FIRMACLIENTECONTRATOCLIENTE(
 
 CREATE TABLE SUMINISTRAPELICULA(
 	idPelicula INT PRIMARY KEY NOT NULL,
-	titulo VARCHAR2(30) NOT NULL,
+	titulo VARCHAR2(50) UNIQUE NOT NULL,
 	anio INT, 
-	director varchar2(30),
-	productora varchar2(30),
+	director varchar2(50),
+	productora varchar2(50),
 	CIF INT
 	
 	FOREIGN KEY (CIF) REFERENCES PROVEEDOR(CIF)
