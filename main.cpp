@@ -75,20 +75,17 @@ void Submenufinanzas(SAConnection* con){
 		aux=pack.c_str();
 		packsContratados.push_back(aux);
 	    }
-<<<<<<< HEAD
 
 	contratoC = GenerarContratoCliente(, con);
 	mostrarContratoProveedor(contratoP);
-=======
 	cout<<"\nIntroduzca la fecha de finalización del contrato (3 ints: dia mes anio): ";
 	cin>>fechaFin[0]>>fechaFin[1]>>fechaFin[2];
 	SADateTime f_fin(fechaFin[0], fechaFin[1], fechaFin[2]);
 	cout<<"\nIntroduzca el precio del contrato: ";
-	cin>>precio;	
-		    
+	cin>>precio;
+
 	contratoC = GenerarContratoCliente(tlfCliente, packsContratados, f_fin, precio, con);
-	mostrarContratoProveedor(contratoP);	    
->>>>>>> 10ffb43d2ebc211768ae2aa0f7ee451d27d9df69
+	mostrarContratoProveedor(contratoP);
         break;
 
       case 2: //Contrato proveedor
@@ -97,7 +94,7 @@ void Submenufinanzas(SAConnection* con){
 	string pelicula;
 	vector<string> peliculasParaActivar;
 	double precio;
-		    
+
 	cout<<"Introduzca el CIF del proveedor: ";
 	cin>>cif;
 	cout<<"\n¿Cuantas peliculas desea contratar de las suministradas?: ";
@@ -113,8 +110,8 @@ void Submenufinanzas(SAConnection* con){
 	cin>>fechaFin[0]>>fechaFin[1]>>fechaFin[2];
 	SADateTime f_fin(fechaFin[0], fechaFin[1], fechaFin[2]);
 	cout<<"\nIntroduzca el precio del contrato: ";
-	cin>>precio;	
-		    
+	cin>>precio;
+
         contratoP = GenerarContratoProveedor(, con);
 	mostrarContratoProveedor(contratoP);
         break;
@@ -176,9 +173,13 @@ main(int argc, char* argv[]){
           DarAltaCliente(n,c,telf,cor,s,f,t, &con);
           break;
         case 2:
-          cout << "Ingrese su telefono:" << endl;
-
-          cout << "Ingrese su contraseña:" << endl;
+          cout << "Ingrese su telefono: " << endl;
+          string c; unsigned int telf;
+          cin >> telf;
+          cout << "Ingrese su contraseña: " << endl;
+          getline(cin, c);
+          cout << "Se intentara iniciar sesion" << endl;
+          IniciarSesion(telf, c, &con);
 
           break;
         case 3:
