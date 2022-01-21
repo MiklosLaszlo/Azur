@@ -176,13 +176,15 @@ BEGIN
 END comprobarRecomendacionInsertar;
 /
 
-CREATE OR REPLACE TRIGGER insertar_ContratoCliente --Crea id contrato cliente y comprueba que el cliente es activo
+--Crea id contrato cliente y comprueba que el cliente es activo
+CREATE OR REPLACE TRIGGER insertar_ContratoCliente
   before insert on firmaClienteContratoCliente
   for each row
     DECLARE
       cli INTEGER
     BEGIN
-      SELECT COUNT(*) INTO cli FROM ClienteActivo WHERE telefono=new.telefono; --el tlf que quiero insertar
+      --el tlf que quiero insertar
+      SELECT COUNT(*) INTO cli FROM ClienteActivo WHERE telefono=new.telefono; 
       IF (cli<1) THEN
         RAISE_APPLICATION_ERROR(-20100, 'INTENTO DE CREAR CONTRATO A UN CLIENTE NO ACTIVO')
       END IF
@@ -190,7 +192,8 @@ CREATE OR REPLACE TRIGGER insertar_ContratoCliente --Crea id contrato cliente y 
     END insertar_ContratoCliente;
 /
 
-CREATE OR REPLACE TRIGGER insertar_ContratoProveedor --Crea id contrato proveedor
+--Crea id contrato proveedor
+CREATE OR REPLACE TRIGGER insertar_ContratoProveedor 
   before insert on firmaProveedorContratoProveedor
   for each row
     BEGIN
@@ -198,7 +201,8 @@ CREATE OR REPLACE TRIGGER insertar_ContratoProveedor --Crea id contrato proveedo
     END insertar_ContratoProveedor;
 /
 
-CREATE OR REPLACE TRIGGER insertar_FacturaCliente --Crea id factura cliente
+--Crea id factura cliente
+CREATE OR REPLACE TRIGGER insertar_FacturaCliente 
   before insert on facturaClientePaga
   for each row
     BEGIN
@@ -206,7 +210,8 @@ CREATE OR REPLACE TRIGGER insertar_FacturaCliente --Crea id factura cliente
     END insertar_FacturaCliente;
 /
 
-CREATE OR REPLACE TRIGGER insertar_FacturaProveedor --Crea id factura proveedor
+--Crea id factura proveedor
+CREATE OR REPLACE TRIGGER insertar_FacturaProveedor 
   before insert on facturaProveedorRecibeDinero
   for each row
     BEGIN
