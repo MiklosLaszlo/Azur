@@ -12,13 +12,13 @@
 void Peliculas::MostrarCatalogo(SAConnection* con){
 	SACommand comando;
     comando.setConnection(con);
-    cout<<"Nuestras Películas: "<<endl;
+    cout<<"Nuestras PelÃ­culas: "<<endl;
     comando.setCommandText(_TSA("SELECT titulo,director,anio,productora FROM PELICULAACTIVA"));
     try{comando.Execute();}
     catch(SAException &x){
     	cout<<x.ErrText().GetMultiByteChars()<<endl;
     }
-    cout<<" Titulo\tDirector\tAño\tProductora"<<endl;
+    cout<<" Titulo\tDirector\tAÃ±o\tProductora"<<endl;
     while(comando.FetchNext()) {
         cout<<" "<<comando[1].asString()<<"\t\t"<<comando[2].asString()<<"\t\t"<<comando[3].asInt64()<<"\t\t"<<comando[4].asString()<<endl;
     }
@@ -78,13 +78,13 @@ void Pelicula::SuministrarPelicula(string t, int a, string d, string p, SAConnec
   	SAString auxp(p.c_str());
   	
   	busquedaId.setConnection(con);
-  	busquedaId.setCommandText(_TSA("SELECT MAX(idPelicula) FROM pelicula"));
+  	busquedaId.setCommandText(_TSA("SELECT MAX(idPelicula) FROM SUMINISTRAPELICULA"));
   	busquedaId.Execute();
   	
-  	int auxId = busquedaId[1].asInt64() + 1;  //CREO QUE HAY PROBLEMAS EN LA PRIMERA INSERCIÓN (NO SE SI DEVUELVE 0 O NULL) CREO QUE TENGO QUE CREAR TRIGGER
+  	int auxId = busquedaId[1].asInt64() + 1;  //CREO QUE HAY PROBLEMAS EN LA PRIMERA INSERCIÃ“N (NO SE SI DEVUELVE 0 O NULL) CREO QUE TENGO QUE CREAR TRIGGER
   	
   	suministrar.setConnection(con);
-  	suministrar.setCommandText(_TSA("INSERT INTO pelicula (idPelicula,titulo,director,anio,productora) VALUES (:1,:2,:3,:4,:5)"));
+  	suministrar.setCommandText(_TSA("INSERT INTO SUMINISTRAPELICULA (idPelicula,titulo,director,anio,productora) VALUES (:1,:2,:3,:4,:5)"));
   	suministrar.Param(1).setAsInt64() = auxId;
   	suministrar.Param(2).setAsString() = auxt;
   	suministrar.Param(3).setAsString() = auxd;
@@ -110,7 +110,7 @@ void Pelicula::BuscarTituloCatalogo(string t, SAConnection *con){
 	SAString auxt(t.c_str());
 	
     comando.setConnection(con);
-    cout<<"Películas con el título buscado: "<<endl;
+    cout<<"PelÃ­culas con el tÃ­tulo buscado: "<<endl;
     comando.setCommandText(_TSA("SELECT titulo FROM PELICULAACTIVA WHERE titulo = :1")); 
     comando.Param(1).setAsString() = auxt;
     
@@ -119,7 +119,7 @@ void Pelicula::BuscarTituloCatalogo(string t, SAConnection *con){
     	cout<<x.ErrText().GetMultiByteChars()<<endl;
     }
     
-    cout<<" Titulo\tDirector\tAño\tProductora"<<endl;
+    cout<<" Titulo\tDirector\tAÃ±o\tProductora"<<endl;
     while(comando.FetchNext()) {
         cout<<" "<<comando[1].asString()<<"\t\t"<<comando[2].asString()<<"\t\t"<<comando[3].asInt64()<<"\t\t"<<comando[4].asString()<<endl;
     }
@@ -131,16 +131,16 @@ void Pelicula::MostrarRecomendaciones(int telefono, SAConnection *con){
 	SANumeric auxtel(telefono);
 	
 	comando.setConnection(con);
-	cout << "Películas recomendadas para ti" << endl;
+	cout << "PelÃ­culas recomendadas para ti" << endl;
 	comando.setCommandText((_TSA("SELECT idPelicula FROM RECOMENDACION NATURAL JOIN PELICULAACTIVA WHERE telefono = :1")));
 	comando.Param(1).setAsInt64() = auxtel;
 	
 	try{comando.Execute();}
     catch(SAException &x){
-    	cout<<x.ErrText().GetMultiByteChars()<<endl;  //¿Qué pasaría si no hubiese recomendaciones para esa persona? CREO QUE TENGO QUE CREAR TRIGGER
+    	cout<<x.ErrText().GetMultiByteChars()<<endl;  //Â¿QuÃ© pasarÃ­a si no hubiese recomendaciones para esa persona? CREO QUE TENGO QUE CREAR TRIGGER
     }
     
-    cout<<" Titulo\tDirector\tAño\tProductora"<<endl;
+    cout<<" Titulo\tDirector\tAÃ±o\tProductora"<<endl;
     while(comando.FetchNext()) {
         cout<<" "<<comando[1].asString()<<"\t\t"<<comando[2].asString()<<"\t\t"<<comando[3].asInt64()<<"\t\t"<<comando[4].asString()<<endl;
     }
@@ -155,7 +155,7 @@ void Pelicula::VerPelicula(int idSesion, int idPel, SAConnection *con){
 	
 	busqueda.setConnection(con);
 	
-	busqueda.setCommandText(_TSA("SELECT idPelicula FROM CLIENTE NATURAL JOIN CONTRATOCLIENTE NATURAL JOIN PACKACTIVO NATURAL JOIN CLIENTESESION WHERE idSesion = :1 AND idPelicula = :2"));
+	busqueda.setCommandText(_TSA("SELECT idPelicula FROM CLIENTE NATURAL JOIN CONTRATOCLIENTE NATURAL JOIN PACKACTIVO NATURAL JOIN SESIONCLIENTESESION WHERE idSesion = :1 AND idPelicula = :2"));
 	busqueda.Param(1).setAsInt64() = auxidSes;
 	busqueda.Param(2).setAsInt64() = auxidPel;
 	
