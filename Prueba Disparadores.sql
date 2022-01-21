@@ -119,3 +119,37 @@ BEGIN
     END IF;
 END comprobarRecomendacionInsertar;
 /
+
+
+CREATE OR REPLACE TRIGGER comprobarPeliculaInsertada
+BEFORE INSERT ON PELICULA
+FOR EACH ROW
+DECLARE
+	idP INTEGER;
+BEGIN
+	SELECT COUNT(*) INTO idP FROM PELICULA WHERE idPelicula = :new.idPelicula;
+	
+	IF (idP >= 1) THEN
+		RAISE_APPLICATION_ERROR(-20015, 'PELÍCULA YA SUMINISTRADA');
+	END IF;
+END comprobarPeliculaInsertada;
+/
+
+
+CREATE OR REPLACE TRIGGER insertarNuevoIdPelicula
+BEFORE INSERT ON PELICULA
+FOR EACH ROW
+DECLARE
+	idP INTEGER;
+BEGIN
+	SELECT COUNT(*) INTO idP FROM PELICULA;
+	:new.idPelicula = idPelicula+1;
+END insertarNuevoIdPelicula;
+/
+
+
+CREATE OR REPLACE TRIGGER desactivarPacks
+BEFORE DELETE ON PACKS
+FOR EACH ROW
+DECLARE
+	
