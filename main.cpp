@@ -60,6 +60,7 @@ void Submenufinanzas(SAConnection* con){
       case 1: //Contrato cliente
 	int tlfCliente, numPacks;
 	int[3] fechaFin;
+	string pack;
 	vector<string> packsContratados;
 	double precio;
 
@@ -70,15 +71,50 @@ void Submenufinanzas(SAConnection* con){
 	SAString aux;
 	    for(int i=0; i<numPacks; i++){
 		cout<<"\n\tIntroduzca el nombre del pack "<<i<<":";
-		cin>>pack;
+		getline(cin,pack);
+		aux=pack.c_str();
 		packsContratados.push_back(aux);
 	    }
+<<<<<<< HEAD
 
 	contratoC = GenerarContratoCliente(, con);
 	mostrarContratoProveedor(contratoP);
+=======
+	cout<<"\nIntroduzca la fecha de finalización del contrato (3 ints: dia mes anio): ";
+	cin>>fechaFin[0]>>fechaFin[1]>>fechaFin[2];
+	SADateTime f_fin(fechaFin[0], fechaFin[1], fechaFin[2]);
+	cout<<"\nIntroduzca el precio del contrato: ";
+	cin>>precio;	
+		    
+	contratoC = GenerarContratoCliente(tlfCliente, packsContratados, f_fin, precio, con);
+	mostrarContratoProveedor(contratoP);	    
+>>>>>>> 10ffb43d2ebc211768ae2aa0f7ee451d27d9df69
         break;
 
       case 2: //Contrato proveedor
+	int cif, numPeliculas;
+	int[3] fechaFin;
+	string pelicula;
+	vector<string> peliculasParaActivar;
+	double precio;
+		    
+	cout<<"Introduzca el CIF del proveedor: ";
+	cin>>cif;
+	cout<<"\n¿Cuantas peliculas desea contratar de las suministradas?: ";
+	cin>>numPeliculas;
+	SAString aux;
+	    for(int i=0; i<numPeliculas; i++){
+		cout<<"\n\tIntroduzca el nombre de la pelicula "<<i<<":";
+		getline(cin,pelicula);
+		aux=pelicula.c_str();
+		peliculasParaActivar.push_back(aux);
+	    }
+	cout<<"\nIntroduzca la fecha de finalización del contrato (3 ints: dia mes anio): ";
+	cin>>fechaFin[0]>>fechaFin[1]>>fechaFin[2];
+	SADateTime f_fin(fechaFin[0], fechaFin[1], fechaFin[2]);
+	cout<<"\nIntroduzca el precio del contrato: ";
+	cin>>precio;	
+		    
         contratoP = GenerarContratoProveedor(, con);
 	mostrarContratoProveedor(contratoP);
         break;
