@@ -18,7 +18,7 @@ using namespace std;
   
 void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, SADateTime f, unsigned int t, SAConnection* con);
   
-bool IniciarSesion(unsigned int telf, string pw, SAConnection* con);
+int IniciarSesion(unsigned int telf, string pw, SAConnection* con);
 
 void FinalizarSesion(unsigned int id, SAConnection* con);
 
