@@ -119,3 +119,18 @@ BEGIN
     END IF;
 END comprobarRecomendacionInsertar;
 /
+
+
+/*SELECT id_pelicula FROM peliculasactivas
+  where id_peliucla=:1 and (id_pelicula in ( Select id_pelicula From PAckPElicula
+      where nombrepakc in (Select nombrePack from PackActivo
+        where nombrePAck IN (Select nombrePack From Contienen
+          Where idContrato IN (Select idContrato From ContratoCliente
+            Where idContrato IN (Select idContrato From ClienteContrato
+              Where tle IN (Select tle From SesionCliente Where idSesion = :2)
+            )
+          )
+        )
+      )
+    )
+  );*/
