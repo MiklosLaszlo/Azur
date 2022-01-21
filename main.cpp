@@ -18,7 +18,29 @@ void MenuPrincipal(){
 };
 
 void Submenufinanzas(SAConnection* con){
-
+  //1 generar contrato de un cliente
+  //2 generar contrato empleado
+  //3 balance de gastos
+  int opcion = 0;
+  Balance balance;
+  ContratoCliente contratoC;
+  ContratoProveedor contratoP;
+  
+  while(opcion!=4){
+    cout<<"Está usted en el submenú del de departamento de finanzas, ¿Qué desea hacer?"<<endl;
+    cout<<"\t1- Generar contrato cliente\n\t2- Generar contrato proveedor\n\t3- Balance de gastos\n\t4- Salir del submenú"<<endl;
+    cin>>opcion;
+    switch(opcion){
+      case 1: //Contrato cliente
+        break;
+      case 2: //Contrato proveedor
+        
+        break;
+      case 3: //Balance gastos
+        balance = BalanceDeGastos(con);
+        break;
+    }
+  }
 };
 
 void Submenupakcs(SAConnection* con){
