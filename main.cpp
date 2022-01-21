@@ -103,6 +103,7 @@ void Submenupakcs(SAConnection* con){
 void SubMenuSuministrar (SAConnection *con){
 	int anio, CIF, n;
 	string titulo, director, productora; 
+	char YN;
 	
 	do{
 		cout << "Introduzca el CIF de su empresa: ";
@@ -114,11 +115,13 @@ void SubMenuSuministrar (SAConnection *con){
 		busquda.Param(1).setAsInt64() = CIF;
 		busqueda.Execute();
 		
-		busqueda.Fetch();
-		int n = busqueda[1].asInt64();
+		if (busqueda.Fetch());
+			n = busqueda[1].asInt64();
+		else
+			n = -1;
 	}while(n!=1);
 	
-	
+	do{
 	cout << "Va a suministrar una película. Introduzca los siguientes datos: " << endl;
 	cout << "Título: ";
 	getline(cin,titulo);
@@ -130,6 +133,10 @@ void SubMenuSuministrar (SAConnection *con){
 	getline(cin,productora);
 	
 	SuministrarPelicula(titulo,anio,director,productora,CIF,con);
+		
+	cout << "¿Quiere seguir suministrando películas?" << endl;
+	cin >> YN;
+	}while(YN=='Y');
 };
 
 main(int argc, char* argv[]){
