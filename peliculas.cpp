@@ -58,8 +58,8 @@ void Peliculas::InhabilitarPelicula(int idP, SAConnection* con)
 }
 
 
-void Pelicula::SuministrarPelicula(string t, int a, string d, string p, SAConnection* con){
-	SACommand guardado, suministrar, busquedaId;
+void Pelicula::SuministrarPelicula(string t, int a, string d, string p, int CIF, SAConnection* con){
+	SACommand guardado, suministrar;
 	guardado.setConnection(con);
 	guardado.setCommandText(_TSA("SAVEPOINT suministrarpelicula"));
 	
@@ -76,20 +76,16 @@ void Pelicula::SuministrarPelicula(string t, int a, string d, string p, SAConnec
   	SANumeric auxa(a);
   	SAString auxd(d.c_str());
   	SAString auxp(p.c_str());
-  	
-  	busquedaId.setConnection(con);
-  	busquedaId.setCommandText(_TSA("SELECT MAX(idPelicula) FROM SUMINISTRAPELICULA"));
-  	busquedaId.Execute();
-  	
-  	int auxId = busquedaId[1].asInt64() + 1;  //CREO QUE HAY PROBLEMAS EN LA PRIMERA INSERCIÓN (NO SE SI DEVUELVE 0 O NULL) CREO QUE TENGO QUE CREAR TRIGGER
+	SANumerix auxCIF(CIF);
   	
   	suministrar.setConnection(con);
-  	suministrar.setCommandText(_TSA("INSERT INTO SUMINISTRAPELICULA (idPelicula,titulo,director,anio,productora) VALUES (:1,:2,:3,:4,:5)"));
+  	suministrar.setCommandText(_TSA("INSERT INTO SUMINISTRAPELICULA (idPelicula,titulo,director,anio,productora,CIF) VALUES (:1,:2,:3,:4,:5,:6)"));
   	suministrar.Param(1).setAsInt64() = auxId;
   	suministrar.Param(2).setAsString() = auxt;
   	suministrar.Param(3).setAsString() = auxd;
   	suministrar.Param(4).setAsInt64() = auxa;
   	suministrar.Param(5).setAsString() = auxp;
+	suministrar.Param(6).setAsInt64() = auxCIF;
   	
   	try{
     	suministrar.Execute();
