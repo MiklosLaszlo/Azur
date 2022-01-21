@@ -22,6 +22,20 @@ CREATE TABLE CLIENTEACTIVO(
     PRIMARY KEY(telefono)
 );
 
+CREATE TABLE SESIONCLIENTESESION(
+    idSesion INT PRIMARY KEY,
+	telefono INT,
+	horaInicio DATE NOT NULL,
+	horaFin DATE,
+	FOREIGN KEY (telefono) REFERENCES cliente(telefono)
+);
+
+CREATE TABLE SESIONACTIVA(
+	idSesion INT,
+	FOREIGN KEY (idSesion) REFERENCES sesionclientessesion(idSesion),
+	PRIMARY KEY (idSesion)
+);
+
 CREATE TABLE PACK(
     nombrePack varchar2(20) PRIMARY KEY,
     precio FLOAT NOT NULL
