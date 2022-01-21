@@ -68,6 +68,15 @@ CREATE TABLE PELICULAACTIVA(
     PRIMARY KEY(idPelicula)
 );
 
+CREATE TABLE VE(
+	idSesion int NOT NULL,
+	idPelicula int NOT NULL,
+	
+	FOREIGN KEY (idSesion) REFERENCES SESIONCLIENTESESION,
+	FOREIGN KEY (idPelicula) REFERENCES SUMINISTRAPELICULA,
+	PRIMARY KEY (idSesion,idPelicula)
+);
+
 --Genera el id de la tabla de contrato-cliente
 CREATE SEQUENCE secuencia_contratoCliente; 
 
