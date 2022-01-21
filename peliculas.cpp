@@ -13,14 +13,14 @@ void MostrarCatalogo(SAConnection* con){
 	SACommand comando;
     comando.setConnection(con);
     cout<<"Nuestras Películas: "<<endl;
-    comando.setCommandText(_TSA("SELECT titulo,director,anio,productora FROM PELICULAACTIVA"));
+    comando.setCommandText(_TSA("SELECT idPelicula,titulo,director,anio,productora FROM PELICULAACTIVA NATURAL JOIN SUMINISTRAPELICULA"));
     try{comando.Execute();}
     catch(SAException &x){
     	cout<<x.ErrText().GetMultiByteChars()<<endl;
     }
-    cout<<" Titulo\tDirector\tAño\tProductora"<<endl;
+    cout<<" IdPelicula\tTitulo\tDirector\tAño\tProductora"<<endl;
     while(comando.FetchNext()) {
-        cout<<" "<<comando[1].asString()<<"\t\t"<<comando[2].asString()<<"\t\t"<<comando[3].asInt64()<<"\t\t"<<comando[4].asString()<<endl;
+        cout<<" "<<comando[1].asInt64()<<"\t\t"<<comando[2].asString()<<"\t\t"<<comando[3].asString()<<"\t\t"<<comando[4].asInt64()<<"\t\t"<<comando[5].asString()<<endl;
     }
 }
 
@@ -122,7 +122,7 @@ void BuscarTituloCatalogo(string t, SAConnection *con){
 	
     comando.setConnection(con);
     cout<<"Películas con el título buscado: "<<endl;
-    comando.setCommandText(_TSA("SELECT titulo FROM PELICULAACTIVA WHERE titulo = :1")); 
+    comando.setCommandText(_TSA("SELECT titulo FROM PELICULAACTIVA NATURAL JOIN SUMINISTRAPELICULA WHERE titulo = :1")); 
     comando.Param(1).setAsString() = auxt;
     
     try{comando.Execute();}
@@ -130,9 +130,9 @@ void BuscarTituloCatalogo(string t, SAConnection *con){
     	cout<<x.ErrText().GetMultiByteChars()<<endl;
     }
     
-    cout<<" Titulo\tDirector\tAño\tProductora"<<endl;
+    cout<<" IdPelicula\tTitulo\tDirector\tAño\tProductora"<<endl;
     while(comando.FetchNext()) {
-        cout<<" "<<comando[1].asString()<<"\t\t"<<comando[2].asString()<<"\t\t"<<comando[3].asInt64()<<"\t\t"<<comando[4].asString()<<endl;
+        cout<<" "<<comando[1].asInt64()<<"\t\t"<<comando[2].asString()<<"\t\t"<<comando[3].asString()<<"\t\t"<<comando[4].asInt64()<<"\t\t"<<comando[5].asString()<<endl;
     }
 	con -> commit;
 }	
@@ -144,7 +144,7 @@ void MostrarRecomendaciones(int telefono, SAConnection *con){
 	
 	comando.setConnection(con);
 	cout << "Películas recomendadas para ti" << endl;
-	comando.setCommandText((_TSA("SELECT idPelicula FROM RECOMENDACION NATURAL JOIN PELICULAACTIVA WHERE telefono = :1")));
+	comando.setCommandText((_TSA("SELECT idPelicula FROM RECOMENDACION NATURAL JOIN PELICULAACTIVA NATURAL JOIN SUMINISTRAPELICULA WHERE telefono = :1")));
 	comando.Param(1).setAsInt64() = auxtel;
 	
 	try{comando.Execute();}
@@ -152,9 +152,9 @@ void MostrarRecomendaciones(int telefono, SAConnection *con){
     	cout<<x.ErrText().GetMultiByteChars()<<endl;  //¿Qué pasaría si no hubiese recomendaciones para esa persona? CREO QUE TENGO QUE CREAR TRIGGER
     }
     
-    cout<<" Titulo\tDirector\tAño\tProductora"<<endl;
+    cout<<" IdPelicula\tTitulo\tDirector\tAño\tProductora"<<endl;
     while(comando.FetchNext()) {
-        cout<<" "<<comando[1].asString()<<"\t\t"<<comando[2].asString()<<"\t\t"<<comando[3].asInt64()<<"\t\t"<<comando[4].asString()<<endl;
+        cout<<" "<<comando[1].asInt64()<<"\t\t"<<comando[2].asString()<<"\t\t"<<comando[3].asString()<<"\t\t"<<comando[4].asInt64()<<"\t\t"<<comando[5].asString()<<endl;
     }
 	
 	con -> commit;
