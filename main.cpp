@@ -6,12 +6,20 @@
 
 #include "packs.h"
 #include "clientes.h"
+#include "peliculas.h"
+#include "finanzas.h"
 
 void MenuPrincipal(){
-
+  // 1 Registrar Cliente
+  // 2 Inciar Sesion cliente -> MEnu cliente (ver pelicula, modficar datos, buscar catalago, mostrar catalog/recomendaciones, dar de baja y finalizar sesion)
+  // 3 COSAS EMPLEADO (iniciar sesion "empleado") -> Menu empleado (submenu de packs, submenu finanzas)
+  // 4 Dar alta Empresa
+  // 5 COsas de la empresa -> MEnu empresa (solo suministrar peliculas)
 };
 
+void Submenufinanzas(){
 
+};
 
 main(int argc, char* argv[]){
   SAConnection con;
