@@ -9,7 +9,7 @@
 #include "peliculas.h"
 
 
-void Peliculas::MostrarCatalogo(SAConnection* con){
+void MostrarCatalogo(SAConnection* con){
 	SACommand comando;
     comando.setConnection(con);
     cout<<"Nuestras Películas: "<<endl;
@@ -25,7 +25,7 @@ void Peliculas::MostrarCatalogo(SAConnection* con){
 }
 
 
-void Peliculas::InhabilitarPelicula(int idP, SAConnection* con)
+void InhabilitarPelicula(int idP, SAConnection* con)
   SACommand guardado, inhabilitar;
   guardado.setConnection(con);
   guardado.setCommandText(_TSA("SAVEPOINT inhabilitarpelicula"));
@@ -58,7 +58,7 @@ void Peliculas::InhabilitarPelicula(int idP, SAConnection* con)
 }
 
 
-void Pelicula::SuministrarPelicula(string t, int a, string d, string p, int CIF, SAConnection* con){
+void SuministrarPelicula(string t, int a, string d, string p, int CIF, SAConnection* con){
 	SACommand guardado, suministrar, selectID, suministrarId;
 	guardado.setConnection(con);
 	selectID.setConnection(con);
@@ -116,7 +116,7 @@ void Pelicula::SuministrarPelicula(string t, int a, string d, string p, int CIF,
 }
 
 
-void Pelicula::BuscarTituloCatalogo(string t, SAConnection *con){
+void BuscarTituloCatalogo(string t, SAConnection *con){
 	SACommand comando;
 	SAString auxt(t.c_str());
 	
@@ -138,7 +138,7 @@ void Pelicula::BuscarTituloCatalogo(string t, SAConnection *con){
 }	
 
 
-void Pelicula::MostrarRecomendaciones(int telefono, SAConnection *con){
+void MostrarRecomendaciones(int telefono, SAConnection *con){
 	SACommand comando;
 	SANumeric auxtel(telefono);
 	
@@ -162,7 +162,7 @@ void Pelicula::MostrarRecomendaciones(int telefono, SAConnection *con){
 
 
 /*AHORA MISMO SOLO BUSCO (O INTENTO) SI EL IDPELICULA ESTA EN EL PACK DEL CLIENTE*/
-void Pelicula::VerPelicula(int idSesion, int idPel, SAConnection *con){
+void VerPelicula(int idSesion, int idPel, SAConnection *con){
 	SACommand busqueda;
 	SANumeric auxidSes(idSesion);
 	SANumeric auxidPel(idPel);
