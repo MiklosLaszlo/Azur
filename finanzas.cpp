@@ -371,4 +371,25 @@ void mostrarContratoProveedor(ContratoProveedor contrato){
   cout<<"\n\tPrecio:"<<contrato.precio<<endl;
 }
 
-void mostrarBalance
+void mostrarFacturaCliente(FacturaCliente factura){
+  cout<<"Factura de cliente"<<endl;
+  cout<<"\n\tidFactura:"<<factura.idFactura<<"\n\tPrecio:"<<factura.precio<<"\n\tTelefono cliente:"<<factura.tlfCliente<<endl;
+  cout<<"\n\tFecha pago:"<<factura.fechaPago.GetDay()<<"/"<<factura.fechaPago.GetMonth()<<"/"<<factura.fechaPago.GetYear()<<endl;
+}
+
+void mostrarFacturaProveedor(FacturaProveedor factura){
+  cout<<"Factura de proveedor"<<endl;
+  cout<<"\n\tidFactura:"<<factura.idFactura<<"\n\tPrecio:"<<factura.precio<<"\n\tCIF:"<<factura.cif<<endl;
+  cout<<"\n\tFecha pago:"<<factura.fechaPago.GetDay()<<"/"<<factura.fechaPago.GetMonth()<<"/"<<factura.fechaPago.GetYear()<<endl;
+}
+
+void mostrarBalance(BalanceGastos balanceTotal){
+  cout<<"Datos del balance de gastos"<<endl;
+  cout<<"Ingresos:"<<endl;
+    for(int i=0; i<balanceTotal.ingresos.size(); i++)
+      mostrarFacturaCliente(balanceTotal.ingresos[i]);
+  cout<<"Gastos:"<<endl;
+    for(int i=0; i<balanceTotal.gastos.size(); i++)
+      mostrarFacturaProveedor(balanceTotal.gastos[i]); 
+  cout<<"Balance"<<balanceTotal.balance<<endl;
+}
