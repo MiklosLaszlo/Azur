@@ -235,7 +235,26 @@ cout<<"Está usted en el submenú del de departamento de finanzas, ¿Qué desea 
       VerPelicula(idSesion, idP, con);
     break;
 
-    case 2:
+    case 2: //Modificar Datos
+      string name, password, correo;
+      int dd,mm,aa;
+      unsigned int tarjeta;
+      char sexo;
+	    cout << "Introduzca los nuevos datos:\n\tNombre: ";
+      cin >> name;
+      cout << "\n\tContraseña: ";
+      cin >> password;
+      cout << "\n\tCorreo electrónico: ";
+      cin >> correo;
+      cout << "\n\tSexo(H/M/O): ";
+      cin >> sexo;
+      cout << "\n\tEscriba su dia mes y año de nacimiento, separado por espacios: ";
+      cin >> dd; cin >> mm; cin >> aa;
+      SADateTime f(dd,mm,aa);
+      cout << "\n\Tarjeta: ";
+      cin >> tarjeta;
+      ModificarCliente(name, password, idSesion, correo, sexo, f, tarjeta, &con)
+      
     break;
 
     case 3:
@@ -255,10 +274,12 @@ cout<<"Está usted en el submenú del de departamento de finanzas, ¿Qué desea 
       MostrarRecomendaciones(telefono,con);
     break;
 
-    case 6:
+    case 6: //Dar de baja
+      DarBajaCliente(idSesion, &con);
     break;
 
-    case 7:
+    case 7: //Finalizar sesión
+      FinalizarSesion(idSesion, &con);
     break;
 }
 
