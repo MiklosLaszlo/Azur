@@ -17,7 +17,7 @@
 using namespace std;
 
 void MenuPrincipal(){
-  cout << "Que desea:\n 1) Registrar Cliente\n 2) Iniciar Sesion cliente\n 3) Iniciar Sesion Empleado\n 4) Dar alta empresa\n 5) Menu empresa\n 6) Salir"
+  cout << "Que desea:\n 1) Registrar Cliente\n 2) Iniciar Sesion cliente\n 3) Iniciar Sesion Empleado\n 4) Dar alta empresa\n 5) Menu empresa\n 6) Salir"<< endl;
   // 1 Registrar Cliente
   // 2 Inciar Sesion cliente -> Menu cliente (ver pelicula, modficar datos, buscar catalago, mostrar catalog/recomendaciones, dar de baja y finalizar sesion)
   // 3 COSAS EMPLEADO (iniciar sesion "empleado") -> Menu empleado (submenu de packs, submenu finanzas)
@@ -219,10 +219,6 @@ void Submenupakcs(SAConnection* con){
   }
 };
 
-void MenuCliente(int idSesion,SAConnection* con){
-
-}
-
 
 void SubMenuSuministrar (SAConnection *con){
 	int anio, CIF, n;
@@ -318,7 +314,7 @@ main(int argc, char* argv[]){
           }
           else{
             cout << "Sesion iniciada" << endl;
-            MenuCliente(idses,telf, &con);
+            SubMenuCliente(idses,telf, &con);
           }
 
           break;
