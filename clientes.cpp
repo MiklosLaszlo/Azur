@@ -71,8 +71,40 @@ void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, S
   con->commit();
 };
 
-void IniciarSesion(){
+int IniciarSesion(unsigned int telf, string pw, SAConnection* con){
+  SACommand guardado, inicia, selectID;
+  guardado.SetConnection(con);
+  guardado.setCommandText(_TSA("SAVEPOINT iniciarSesion"));
   
+  try{
+    guardado.execute();
+  }
+  catch(SAException &x){
+    cerr<<x.ErrText().GetMultiByteChars()<<endl;
+    cerr<<"Error a la hora de crear el SAVEPOINT" << endl;
+    return ;
+  }
+  
+  inicia.setConnection(con);
+  SAString auxc(pw.c_string());
+  inicia.setCommandText(_TSA("SELECT * FROM CLIENTE WHERE (telefono = :1 AND contrasena = :2)"));
+  inicia.Param(1).setAsInt64() = telf;
+  inicia.Param(2).setAsString() = auxc;
+  
+  if(!(inicia.FetchNext())){
+    cerr << "Telefono o contraseña incorrecta\n";
+    return -1;
+  }
+  else{
+    inicia.setCommandText(_TSA("INSERT INTO SESIONCLIENTESESION (telefono,horaInicio) VALUES(:1,:2)"));
+    inicia.Param(1).setAsInt() = telf;
+    inicia.Param(2).setAsDateTime() = SADateTime::currentDataTime();
+    
+    selectID.setCommand(_TSA("SELECT secuencia_suministrarIdP.currval FROM dual"));
+    try{
+      selectID.E
+    }
+  }
 };
 
 void FinalizarSesion(){
@@ -128,7 +160,7 @@ void ModificarCliente(string n, string c, unsigned int telf, string cor, char s,
   SAString auxc(c.c_str());
   SAString auxcor(cor.c_str());
   modificar.setConnection(con);
-  modificar.setCommandText(_TSA("SELECT * FROM CLIENTE WHERE telf = :1"));
+  modificar.setCommandText(_TSA("SELECT * FROM CLIENTE WHERE telefono = :1"));
   modificar.Param(1).setAsInt64() = telf;
   
   if(!(modificar.FetchNext())){
