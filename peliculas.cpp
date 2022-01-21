@@ -155,7 +155,7 @@ void Pelicula::VerPelicula(int idSesion, int idPel, SAConnection *con){
 	
 	busqueda.setConnection(con);
 	
-	busqueda.setCommandText(_TSA("SELECT idPelicula FROM CLIENTE NATURAL JOIN CONTRATOCLIENTE NATURAL JOIN PACKACTIVO NATURAL JOIN SESIONCLIENTESESION WHERE idSesion = :1 AND idPelicula = :2"));
+	busqueda.setCommandText(_TSA("SELECT idPelicula FROM SESIONCLIENTESESION NATURAL JOIN CONTRATOCLIENTE NATURAL JOIN PACKACTIVO WHERE idSesion = :1 AND idPelicula = :2"));
 	busqueda.Param(1).setAsInt64() = auxidSes;
 	busqueda.Param(2).setAsInt64() = auxidPel;
 	
