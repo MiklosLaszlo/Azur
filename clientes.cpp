@@ -100,9 +100,9 @@ int IniciarSesion(unsigned int telf, string pw, SAConnection* con){
     inicia.Param(1).setAsInt() = telf;
     inicia.Param(2).setAsDateTime() = SADateTime::currentDataTime();
     
-    selectID.setCommand(_TSA("SELECT secuencia_suministrarIdP.currval FROM dual"));
+    selectID.setCommand(_TSA("SELECT secuencia_suministrarIdSesion.currval FROM dual"));
     try{
-      selectID.E
+      //selectID.E
     }
   }
 };
