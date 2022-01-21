@@ -3,6 +3,8 @@
 #include <stdio.h>  // for printf
 #include <SQLAPI.h> // main SQLAPI++ header
 #include <ctime>
+#include <vector>
+#include <utility>
 #include <cstring>
 #include <string>
 #include <iostream>
@@ -11,6 +13,8 @@
 #include "clientes.h"
 #include "peliculas.h"
 #include "finanzas.h"
+
+using namespace std;
 
 void MenuPrincipal(){
   cout << "Que desea:\n 1) Registrar Cliente\n 2) Iniciar Sesion cliente\n 3) Iniciar Sesion Empleado\n 4) Dar alta empresa\n 5) Menu empresa\n 6) Salir"
@@ -135,7 +139,7 @@ void Submenupakcs(SAConnection* con){
     switch (opcion) {
       case 1:
         string nombre;
-        cout << "Introduzca el nombre del pack" << endl;
+        cout << "Introduzca el nombre del pack a crear" << endl;
         getline(cin,nombre);
         cout << "Introduzca los id de las peliculas, con id=-1 se detendra la caputra, recuerdo que las peliculas tienen id no negativa" << endl;
         int idpeli; vector<int> lpelicula;
@@ -150,19 +154,60 @@ void Submenupakcs(SAConnection* con){
         CrearPack(lpelicula, precio ,nombre ,con)
       break;
       case 2:
-
+        string nombre;
+        cout << "Introduzca el nombre del pack a modificar" << endl;
+        getline(cin,nombre);
+        cout << "Introduzca los id de las peliculas, con id=-1 se detendra la caputra, recuerdo que las peliculas tienen id no negativa" << endl;
+        int idpeli; vector<int> lpelicula;
+        do{
+          cin << idpeli;
+          if(idpeli != -1)
+            lpelicula.push_back(idpeli);
+        }while(idpeli != -1);
+        cout << "Introduzca el precio del pack, tendria que ser no negativo" << endl;
+        double precio;
+        cin >> precio;
+        ModificarPack(lpelicula, precio ,nombre ,con)
       break;
       case 3:
-
+        int idpeli;
+        cout << "Introduzca el id de la pelicula a desactivar" << endl;
+        cin >> idpeli:
+        InhabilitarPelicula(idpeli, con);
       break;
       case 4:
-
+        cout << "Introduzca el nombre del pack a desactivar" << endl;
+        string nombre;
+        getline(cin,nombre);
+        DesactivarPack(nombre,con);
       break;
       case 5:
-
+        cout << "Inserte el id de la pelicula y el telefono de la persona a la que se recomienda la pelicula, inserta la id y despues el telfono, si inserta id=-1 se detendra la captura" << endl;
+        vector< pair <unsigned, unsigned > > clienteRPeliculas;
+        int id_peli;
+        int tel;
+        do{
+          cin >> id_peli;
+          cin >> tel;
+          if(id_peli!=-1){
+            pair <unsigned, unsigned > init(id_peli,tel);
+            clienteRPeliculas.push_back(init);
+          }
+        }while(id_peli != -1);
+        RecibirRecomendaciones(clienteRPeliculas, con);
       break;
       case 6:
-
+        int tam;
+        cout << "Cuantos packs va a ingresar" << endl;
+        cin >> tam;
+        cout << "Escriba el nombre de los packs a informar"<< endl;
+        vector<string> listaPacks;
+        for(int i=0; i < tam; i++){
+          string nombre;
+          getline(cin,nombre);
+          listaPacks.push_back(nombre);
+        }
+        InformarNovedades(listaPacks, con);
       break;
       case 7:
         cout << "Cerrando menu" << endl;
@@ -196,16 +241,7 @@ void SubMenuSuministrar (SAConnection *con){
 		busqueda.setCommandText(_TSA("SELECT COUNT(*) FROM PROVEEDOR WHERE CIF = :1"));
 		busquda.Param(1).setAsInt64() = CIF;
 		busqueda.Execute();
-
-
-		busqueda.Fetch();
-		int n = busqueda[1].asInt64();
-	}while(n!=1);
-
-
-
-
-		if (busqueda.Fetch());
+		if (busqueda.Fetch())
 			n = busqueda[1].asInt64();
 		else
 			n = -1;
@@ -282,7 +318,7 @@ main(int argc, char* argv[]){
           }
           else{
             cout << "Sesion iniciada" << endl;
-            MenuCliente(idses, &con);
+            MenuCliente(idses,telf, &con);
           }
 
           break;
@@ -315,50 +351,49 @@ main(int argc, char* argv[]){
           break;
       }
     };
-	
+    con.Disconnect();
+}
 	/*SUBMENU CLIENTES*/
-void SubMenuCliente (SAConnection *con){
-	
+void SubMenuCliente (int idSesion, int telefono, SAConnection *con){
+
 	cout<<"Está usted en el submenú del de departamento de finanzas, ¿Qué desea hacer?"<<endl;
     cout<<"\t1- Ver pelicula\n\t2- Modificar Datos\n\t3- Buscar Película\n\t4- Mostrar Catálogo\n\t5- Mostrar Recomendaciones\n\t6- Dar de baja\n\t7- Finalizar Sesión"<<endl;
     cin>>opcion;
     switch(opcion){
-      case 1: 
+      case 1:
       	int idP;
-      
+
       	cout << "Introduzca el ID de la película que desea ver: ";
       	cin >> idP;
-      
+
       	VerPelicula(idSesion, idP, con);
       break;
-      
-      case 2: 
+
+      case 2:
       break;
-      
-      case 3: 
+
+      case 3:
       	string tit_busc;
-      	
+
       	cout << "Inserte el título de la película que quiera ver: ";
       	getline(cin,tit_busc);
-      	
+
       	BuscarTituloCatalogo (tit_busc, con);
       break;
-      
-      case 4: 
+
+      case 4:
       	MostrarCatalogo(con);
       break;
-      
-      case 5: 
-      	MostrarRecomendación(telefono,con); 
+
+      case 5:
+      	MostrarRecomendaciones(telefono,con);
       break;
-      
-      case 6: 
+
+      case 6:
       break;
-      
-      case 7: 
+
+      case 7:
       break;
   }
-	
-}
 
 }
