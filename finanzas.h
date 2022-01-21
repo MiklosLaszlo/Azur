@@ -69,4 +69,9 @@ FacturaProveedor RealizarPago(int cif, double precio, SADateTime fechaPago, SACo
 
 BalanceGastos BalanceDeGastos(SAConnection* con);
 
+//Funciones auxiliares para mostrar las estructuras 
+void mostrarContratoCliente(ContratoCliente contrato);
+void mostrarContratoProveedor(ContratoProveedor contrato);
+void mostrarBalance(BalanceGastos balanceTotal);
+
 #endif
