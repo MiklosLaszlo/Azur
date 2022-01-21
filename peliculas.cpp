@@ -59,8 +59,10 @@ void Peliculas::InhabilitarPelicula(int idP, SAConnection* con)
 
 
 void Pelicula::SuministrarPelicula(string t, int a, string d, string p, int CIF, SAConnection* con){
-	SACommand guardado, suministrar;
+	SACommand guardado, suministrar, selectID, suministrarId;
 	guardado.setConnection(con);
+	selectID.setConnection(con);
+	suministrarId.setConnection(con);
 	guardado.setCommandText(_TSA("SAVEPOINT suministrarpelicula"));
 	
 	try{
@@ -76,17 +78,30 @@ void Pelicula::SuministrarPelicula(string t, int a, string d, string p, int CIF,
   	SANumeric auxa(a);
   	SAString auxd(d.c_str());
   	SAString auxp(p.c_str());
-	SANumerix auxCIF(CIF);
+	SANumeric auxCIF(CIF);
   	
   	suministrar.setConnection(con);
-  	suministrar.setCommandText(_TSA("INSERT INTO SUMINISTRAPELICULA (idPelicula,titulo,director,anio,productora,CIF) VALUES (:1,:2,:3,:4,:5,:6)"));
-  	//suministrar.Param(1).setAsInt64() = auxId;
-  	suministrar.Param(2).setAsString() = auxt;
-  	suministrar.Param(3).setAsString() = auxd;
-  	suministrar.Param(4).setAsInt64() = auxa;
-  	suministrar.Param(5).setAsString() = auxp;
-	suministrar.Param(6).setAsInt64() = auxCIF;
+  	suministrar.setCommandText(_TSA("INSERT INTO SUMINISTRAPELICULA (titulo,director,anio,productora,CIF) VALUES (:1,:2,:3,:4,:5)"));
+  	suministrar.Param(1).setAsString() = auxt;
+  	suministrar.Param(2).setAsString() = auxd;
+  	suministrar.Param(3).setAsInt64() = auxa;
+  	suministrar.Param(4).setAsString() = auxp;
+	suministrar.Param(5).setAsInt64() = auxCIF;
   	
+	selectID.setCommandText(_TSA("SELECT secuencia_suministrarIdP.currval FROM dual"));
+ 	 try{
+    	selectID.Execute();
+    	selectID.FetchNext(); //Dispongo la información del select
+  	}
+  	catch(SAException &x){
+    	cerr<<x.ErrText().GetMultiByteChars()<<endl;
+	}
+  	int id = selectID.Param(1).asInt64();
+	
+	suministrarId.setCommandText(_TSA("INSERT INTO SUMINISTRAPELICULA idPelicula VALUES (:1)"));
+	suministrarId.Param(1).setAsInt64() = id;
+	suministrarId.Execute();
+	
   	try{
     	suministrar.Execute();
   	}
