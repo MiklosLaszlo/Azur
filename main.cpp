@@ -32,12 +32,34 @@ void Submenufinanzas(SAConnection* con){
     cin>>opcion;
     switch(opcion){
       case 1: //Contrato cliente
+	int tlfCliente, numPacks;
+	int[3] fechaFin;
+	vector<string> packsContratados;
+	double precio;
+		    
+	cout<<"Introduzca el telefono del cliente: ";
+	cin>>tlfCliente;
+	cout<<"\n¿Cuantos packs desea contratar el cliente?: ";
+	cin>>numPacks;
+	SAString aux;
+	    for(int i=0; i<numPacks; i++){
+		cout<<"\n\tIntroduzca el nombre del pack "<<i<<":";
+		cin>>pack;
+		packsContratados.push_back(aux);
+	    }
+		    
+	contratoC = GenerarContratoCliente(, con);
+	mostrarContratoProveedor(contratoP);	    
         break;
+		    
       case 2: //Contrato proveedor
-        
+        contratoP = GenerarContratoProveedor(, con);
+	mostrarContratoProveedor(contratoP);
         break;
+		    
       case 3: //Balance gastos
         balance = BalanceDeGastos(con);
+	mostrarBalance(balance);
         break;
     }
   }
