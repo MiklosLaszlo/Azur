@@ -12,9 +12,9 @@ using namespace std;
 
 void InformarNovedades(string listaPacks, SAConnection* con);
 
-void ModificarPack(vector<unsigned> idPeliculas, double precio ,string idPack ,SAConnection* con);
+void ModificarPack(vector<int> idPeliculas, double precio ,string idPack ,SAConnection* con);
 
-void CrearPack(vector<unsigned> idPeliculas, double precio ,string idPack ,SAConnection* con);
+void CrearPack(vector<int> idPeliculas, double precio ,string idPack ,SAConnection* con);
 
 void DesactivarPack(string idPack ,SAConnection* con);
 

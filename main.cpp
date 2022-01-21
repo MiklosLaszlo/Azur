@@ -127,7 +127,51 @@ void Submenufinanzas(SAConnection* con){
 };
 
 void Submenupakcs(SAConnection* con){
+  int opcion = 0;
+  while(opcion != 7){
+    cout<<"Está usted en el submenú de  packs, ¿Qué desea hacer?"<<endl;
+    cout<<"1)Crear pack\n2)Modificar pack\n3)Inhabilitar película\n4)Desactivar pack\n5)Recibir recomendaciones\n6)Informar novedades\n7)Salir del menu"<<endl;
+    cin << opcion;
+    switch (opcion) {
+      case 1:
+        string nombre;
+        cout << "Introduzca el nombre del pack" << endl;
+        getline(cin,nombre);
+        cout << "Introduzca los id de las peliculas, con id=-1 se detendra la caputra, recuerdo que las peliculas tienen id no negativa" << endl;
+        int idpeli; vector<int> lpelicula;
+        do{
+          cin << idpeli;
+          if(idpeli != -1)
+            lpelicula.push_back(idpeli);
+        }while(idpeli != -1);
+        cout << "Introduzca el precio del pack, tendria que ser no negativo" << endl;
+        double precio;
+        cin >> precio;
+        CrearPack(lpelicula, precio ,nombre ,con)
+      break;
+      case 2:
 
+      break;
+      case 3:
+
+      break;
+      case 4:
+
+      break;
+      case 5:
+
+      break;
+      case 6:
+
+      break;
+      case 7:
+        cout << "Cerrando menu" << endl;
+      break;
+      default:
+        cout << "Opción incorrecta" << endl;
+      break;
+    }
+  }
 };
 
 void MenuCliente(int idSesion,SAConnection* con){
@@ -137,14 +181,12 @@ void MenuCliente(int idSesion,SAConnection* con){
 
 void SubMenuSuministrar (SAConnection *con){
 	int anio, CIF, n;
-<<<<<<< HEAD
 	string titulo, director, productora;
 
-=======
-	string titulo, director, productora; 
+
+	string titulo, director, productora;
 	char YN;
-	
->>>>>>> a81f19121b763ac6d2a4e51bd45b0bc86468dc46
+
 	do{
 		cout << "Introduzca el CIF de su empresa: ";
 		cin >> CIF;
@@ -154,23 +196,22 @@ void SubMenuSuministrar (SAConnection *con){
 		busqueda.setCommandText(_TSA("SELECT COUNT(*) FROM PROVEEDOR WHERE CIF = :1"));
 		busquda.Param(1).setAsInt64() = CIF;
 		busqueda.Execute();
-<<<<<<< HEAD
+
 
 		busqueda.Fetch();
 		int n = busqueda[1].asInt64();
 	}while(n!=1);
 
 
-=======
-		
+
+
 		if (busqueda.Fetch());
 			n = busqueda[1].asInt64();
 		else
 			n = -1;
 	}while(n!=1);
-	
+
 	do{
->>>>>>> a81f19121b763ac6d2a4e51bd45b0bc86468dc46
 	cout << "Va a suministrar una película. Introduzca los siguientes datos: " << endl;
 	cout << "Título: ";
 	getline(cin,titulo);
@@ -182,7 +223,7 @@ void SubMenuSuministrar (SAConnection *con){
 	getline(cin,productora);
 
 	SuministrarPelicula(titulo,anio,director,productora,CIF,con);
-		
+
 	cout << "¿Quiere seguir suministrando películas? (Y/N)" << endl;
 	cin >> YN;
 	}while(YN=='Y');
