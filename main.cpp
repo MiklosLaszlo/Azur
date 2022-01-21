@@ -121,13 +121,13 @@ void SubMenuSuministrar (SAConnection *con){
 	
 	cout << "Va a suministrar una película. Introduzca los siguientes datos: " << endl;
 	cout << "Título: ";
-	cin >> titulo;
+	getline(cin,titulo);
 	cout << "Año: ";
 	cin >> anio;
 	cout << "Director: ";
-	cin >> director;
+	getline(cin,director);
 	cout << "Productora: ";
-	cin >> productora;
+	getline(cin,productora);
 	
 	SuministrarPelicula(titulo,anio,director,productora,CIF,con);
 };
