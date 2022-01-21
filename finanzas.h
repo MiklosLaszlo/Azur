@@ -30,7 +30,7 @@ struct ContratoProveedor{
 	int tlfProveedor;
 	SAString correo;
 	int cif;
-	vector<SAString> peliculasASuministrar;
+	vector<SAString> peliculasAActivar;
 	SADateTime fechaInicio;
 	SADateTime fechaFin;
 	double precio;
