@@ -17,7 +17,7 @@ struct ContratoCliente{
 	SAString correo;
 	SAString sexo;
 	SADateTime fechaNacimiento;
-	double tarjeta;
+	int tarjeta;
 	vector<SAString> packsContratados;
 	SADateTime fechaInicio;
 	SADateTime fechaFin;
