@@ -308,7 +308,7 @@ void SubMenuCliente (SAConnection *con){
       break;
       
       case 5: 
-      	MostrarRecomendación(telefono,con)
+      	MostrarRecomendación(telefono,con); 
       break;
       
       case 6: 
