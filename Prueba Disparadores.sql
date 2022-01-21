@@ -184,6 +184,16 @@ BEGIN
 END insertar_IdSesion;
 /
 
+-- Cuando el cliente se da de baja, se elimina sesionActiva --
+CREATE OR REPLACE TRIGGER finSesionActiva
+AFTER DELETE ON CLIENTEACTIVO
+FOR EACH ROW
+BEGIN
+    UPDATE SESIONCLIENTESESION SET horaFin=CURRENT_TIMESTAMP;
+    DELETE FROM SESIONACTIVA WHERE idSesion IN (SELECT idSesion FROM SESIONCLIENTESSESION WHERE telefono=old.telefono);
+END
+/
+
 -- Cuando el cliente inicia sesion, se crea sesionActiva --
 CREATE OR REPLACE TRIGGER crearSesionActiva
 AFTER INSERT ON SESIONCLIENTESESION
