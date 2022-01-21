@@ -17,7 +17,7 @@ struct ContratoCliente{
 	SAString correo;
 	SAString sexo;
 	SADateTime fechaNacimiento;
-	double tarjeta;
+	int tarjeta;
 	vector<SAString> packsContratados;
 	SADateTime fechaInicio;
 	SADateTime fechaFin;
@@ -30,7 +30,7 @@ struct ContratoProveedor{
 	int tlfProveedor;
 	SAString correo;
 	int cif;
-	vector<SAString> peliculasASuministrar;
+	vector<SAString> peliculasAActivar;
 	SADateTime fechaInicio;
 	SADateTime fechaFin;
 	double precio;
@@ -68,5 +68,12 @@ FacturaCliente RecibirPago(int tlf, double precio, SADateTime fechaPago, SAConne
 FacturaProveedor RealizarPago(int cif, double precio, SADateTime fechaPago, SAConnection* con);
 
 BalanceGastos BalanceDeGastos(SAConnection* con);
+
+//Funciones auxiliares para mostrar las estructuras 
+void mostrarContratoCliente(ContratoCliente contrato);
+void mostrarContratoProveedor(ContratoProveedor contrato);
+void mostrarBalance(BalanceGastos balanceTotal);
+void mostrarFacturaCliente(FacturaCliente factura);
+void mostrarFacturaProveedor(FacturaProveedor factura);
 
 #endif

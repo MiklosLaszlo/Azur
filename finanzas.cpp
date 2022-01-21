@@ -90,7 +90,7 @@ ContratoCliente GenerarContratoCliente(int tlf, vector<SAString> listaPacks, SAD
   }
 
   contrato={ id, selectCliente[1].asString(), tlf, selectCliente[2].asString(), selectCliente[3].asString(),
-    selectCliente[4].asDateTime(), selectCliente[5].asDouble(), listaPacks, SADateTime::currentDateTime(), fechaFin, precio};
+    selectCliente[4].asDateTime(), selectCliente[5].asInt64(), listaPacks, SADateTime::currentDateTime(), fechaFin, precio};
   return contrato;
 }
 
@@ -342,4 +342,54 @@ BalanceGastos BalanceDeGastos(SAConnection* con){
   balanceTotal.gastos=fproveedores;
   
   return balanceTotal;
+}
+
+void mostrarContratoCliente(ContratoCliente contrato){
+  cout<<"Datos del contrato generado para el cliente"<<endl;
+  cout<<"\tidContrato:"<<contrato.idContrato<<"\n\tNombre del cliente:"<<contrato.nombreCliente.GetMultiByteChar()<<endl;
+  cout<<"\tTelefono:"<<contrato.tlfCliente<<"\n\tCorreo:"<<contrato.correo.GetMultiByteChar()<<endl;
+  cout<<"\tSexo:"<<contrato.sexo.GetMultiByteChar()<<"\n\tFecha nacimiento:"<<contrato.fechaNacimiento.GetDay()<<"/"<<contrato.fechaNacimiento.GetMonth()<<"/"<<contrato.fechaNacimiento.GetYear()<<endl;
+  cout<<"\tNum tarjeta:"<<contrato.tarjeta<<"\n\tPacks contratados:";
+    for(int i=0; i<contrato.packsContratados.size(); i++){
+      cout<<"\n\t\t"<<contrato.packsContratados[i].GetMultiByteChar();
+    }
+  cout<<"\n\tFecha inicio:"<<contrato.fechaInicio.GetDay()<<"/"<<contrato.fechaInicio.GetMonth()<<"/"<<contrato.fechaInicio.GetYear()<<endl;
+  cout<<"\n\tFecha fin:"<<contrato.fechaFin.GetDay()<<"/"<<contrato.fechaFin.GetMonth()<<"/"<<contrato.fechaFin.GetYear()<<endl;
+  cout<<"\n\tPrecio:"<<contrato.precio<<endl;
+}
+
+void mostrarContratoProveedor(ContratoProveedor contrato){
+  cout<<"Datos del contrato generado para el proveedor"<<endl;
+  cout<<"\tidContrato:"<<contrato.idContrato<<"\n\tNombre del proveedor:"<<contrato.nombreProveedor.GetMultiByteChar()<<endl;
+  cout<<"\tTelefono:"<<contrato.tlfProveedor<<"\n\tCorreo:"<<contrato.correo.GetMultiByteChar()<<endl;
+  cout<<"\tCIF:"<<contrato.cif<<"\n\tPeliculas a activar:";
+    for(int i=0; i<contrato.peliculasAActivar.size(); i++){
+      cout<<"\n\t\t"<<contrato.peliculasAActivar[i].GetMultiByteChar();
+    }
+  cout<<"\n\tFecha inicio:"<<contrato.fechaInicio.GetDay()<<"/"<<contrato.fechaInicio.GetMonth()<<"/"<<contrato.fechaInicio.GetYear()<<endl;
+  cout<<"\n\tFecha fin:"<<contrato.fechaFin.GetDay()<<"/"<<contrato.fechaFin.GetMonth()<<"/"<<contrato.fechaFin.GetYear()<<endl;
+  cout<<"\n\tPrecio:"<<contrato.precio<<endl;
+}
+
+void mostrarFacturaCliente(FacturaCliente factura){
+  cout<<"Factura de cliente"<<endl;
+  cout<<"\n\tidFactura:"<<factura.idFactura<<"\n\tPrecio:"<<factura.precio<<"\n\tTelefono cliente:"<<factura.tlfCliente<<endl;
+  cout<<"\n\tFecha pago:"<<factura.fechaPago.GetDay()<<"/"<<factura.fechaPago.GetMonth()<<"/"<<factura.fechaPago.GetYear()<<endl;
+}
+
+void mostrarFacturaProveedor(FacturaProveedor factura){
+  cout<<"Factura de proveedor"<<endl;
+  cout<<"\n\tidFactura:"<<factura.idFactura<<"\n\tPrecio:"<<factura.precio<<"\n\tCIF:"<<factura.cif<<endl;
+  cout<<"\n\tFecha pago:"<<factura.fechaPago.GetDay()<<"/"<<factura.fechaPago.GetMonth()<<"/"<<factura.fechaPago.GetYear()<<endl;
+}
+
+void mostrarBalance(BalanceGastos balanceTotal){
+  cout<<"Datos del balance de gastos"<<endl;
+  cout<<"Ingresos:"<<endl;
+    for(int i=0; i<balanceTotal.ingresos.size(); i++)
+      mostrarFacturaCliente(balanceTotal.ingresos[i]);
+  cout<<"Gastos:"<<endl;
+    for(int i=0; i<balanceTotal.gastos.size(); i++)
+      mostrarFacturaProveedor(balanceTotal.gastos[i]); 
+  cout<<"Balance"<<balanceTotal.balance<<endl;
 }

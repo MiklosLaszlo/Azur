@@ -17,8 +17,13 @@ using namespace std;
   public:*/
 
 void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, SADateTime f, unsigned int t, SAConnection* con);
+<<<<<<< HEAD
 
 void IniciarSesion(unsigned int telf, SAConnection* con);
+=======
+  
+bool IniciarSesion(unsigned int telf, string pw, SAConnection* con);
+>>>>>>> 0408ab0965f437e95b5b851fbb81fb608428b652
 
 void FinalizarSesion(unsigned int id, SAConnection* con);
 

@@ -22,6 +22,20 @@ CREATE TABLE CLIENTEACTIVO(
     PRIMARY KEY(telefono)
 );
 
+CREATE TABLE SESIONCLIENTESESION(
+    idSesion INT PRIMARY KEY,
+    telefono INT,
+    horaInicio DATE NOT NULL,
+    horaFin DATE,
+    FOREIGN KEY (telefono) REFERENCES cliente(telefono)
+);
+
+CREATE TABLE SESIONACTIVA(
+    idSesion INT,
+    FOREIGN KEY (idSesion) REFERENCES sesionclientessesion(idSesion),
+    PRIMARY KEY (idSesion)
+);
+
 CREATE TABLE PACK(
     nombrePack varchar2(20) PRIMARY KEY,
     precio FLOAT NOT NULL
@@ -49,6 +63,8 @@ CREATE TABLE FIRMACLIENTECONTRATOCLIENTE(
     telefono INT,
     FOREIGN KEY telefono REFERENCES CLIENTE(telefono)
 );
+
+CREATE SEQUENCE secuencia_suministrarIdP; 
 
 CREATE TABLE SUMINISTRAPELICULA(
 	idPelicula INT PRIMARY KEY NOT NULL,
@@ -284,18 +300,18 @@ END comprobarPeliculaInsertada;
 CREATE OR REPLACE TRIGGER insertarNuevoIdPelicula
 BEFORE INSERT ON PELICULA
 FOR EACH ROW
-DECLARE
-	idP INTEGER;
 BEGIN
-	SELECT COUNT(*) INTO idP FROM PELICULA;
-	:new.idPelicula = idPelicula+1;
+	SELECT secuencia_suministrarIdP.nextval INTO :new.idPelicula FROM dual;
 END insertarNuevoIdPelicula;
 /
 
 
 CREATE OR REPLACE TRIGGER desactivarPacks
-BEFORE DELETE ON PACKS
+AFTER DELETE ON SUMINISTRAPELICULA
 FOR EACH ROW
-DECLARE
+BEGIN
+	DELETE PACKACTIVO WHERE nombrepack = (SELECT nombrepack FROM PELICULAPACK WHERE idPelicula = :old.idPelicula);
+END
+/	
 	
 >>>>>>> ee09d22d9910514f83b1075345ee3d350f257373
