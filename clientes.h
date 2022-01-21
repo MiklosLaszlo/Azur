@@ -27,7 +27,7 @@ void FinalizarSesion(unsigned int id, SAConnection* con);
 
 void DarBajaCliente(int idSes, SAConnection* con);
 
-void ModificarCliente(string n, string c, unsigned int telf, string cor, char s, SADateTime f, unsigned int t, SAConnection* con);
+void ModificarCliente(string n, string c, unsigned int idSesion, string cor, char s, SADateTime f, unsigned int t, SAConnection* con);
 //};
 
 
