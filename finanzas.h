@@ -73,5 +73,7 @@ BalanceGastos BalanceDeGastos(SAConnection* con);
 void mostrarContratoCliente(ContratoCliente contrato);
 void mostrarContratoProveedor(ContratoProveedor contrato);
 void mostrarBalance(BalanceGastos balanceTotal);
+void mostrarFacturaCliente(FacturaCliente factura);
+void mostrarFacturaProveedor(FacturaProveedor factura);
 
 #endif
