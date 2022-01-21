@@ -13,11 +13,11 @@ using namespace std;
   char sexo;
   string fecha_nacimiento;
   unsigned int tarjeta;
-  
+
   public:*/
-  
+
 void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, SADateTime f, unsigned int t, SAConnection* con);
-  
+
 void IniciarSesion(unsigned int telf, SAConnection* con);
 
 void FinalizarSesion(unsigned int id, SAConnection* con);
