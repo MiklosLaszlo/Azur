@@ -20,7 +20,7 @@ class Pelicula{
   void InhabilitarPelicula (int idP, SAConnection* con);
   void BuscarTituloCatalogo (string t, SAConnection *con);d
   void MostrarRecomendaciones (int telefono,SAConnection *con);
-  void VerPelicula (int telefono, int idPelicula, SAConnection *con);
+  void VerPelicula (int idSesion, int idPelicula, SAConnection *con);
   
 };
 
