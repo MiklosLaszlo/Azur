@@ -41,6 +41,62 @@ CREATE TABLE RECOMENDACION {
   PRIMARY KEY(telefono,idPelicula)
 };
 
+CREATE TABLE FIRMACLIENTECONTRATOCLIENTE(
+    idContratoCliente INT PRIMARY KEY,
+    fechainicio DATE NOT NULL,
+    fechafin DATE NOT NULL,
+    precio REAL NOT NULL ADD CONSTRAINT precioPositivo CHECK precio>=0,
+    telefono INT,
+    FOREIGN KEY telefono REFERENCES CLIENTE(telefono)
+);
+
+CREATE SEQUENCE secuencia_contratoCliente; --Genera el id de la tabla de contrato-cliente
+
+CREATE TABLE CONTIENEN(
+    idContratoCliente INT,
+    nombrepack varchar(20),
+    FOREIGN KEY idContratoCliente REFERENCES FIRMACLIENTECONTRATOCLIENTE(idContratoCliente),
+    FOREIGN KEY nombrepack REFERENCES PACK(nombrepack),
+);
+
+CREATE TABLE PROVEEDOR(
+    cif INT PRIMARY KEY,
+    nombreempresa varchar(20) NOT NULL,
+    telefonoempresa INT NOT NULL,
+    correoempresa varchar(20) NOT NULL
+);
+
+CREATE TABLE FIRMAPROVEEDORCONTRATOPROVEEDOR(
+    idContratoProveedor INT PRIMARY KEY,
+    fechainicio DATE NOT NULL,
+    fechafin DATE NOT NULL,
+    precio REAL NOT NULL ADD CONSTRAINT precioPositivo CHECK precio>=0,
+    cif INT,
+    FOREIGN KEY cif REFERENCES PROVEEDOR(cif)
+);
+
+CREATE SEQUENCE secuencia_contratoProveedor; --Genera el id de la tabla de contrato-proveedor
+
+CREATE TABLE FACTURACLIENTEPAGA(
+    idfacturac INT PRIMARY KEY,
+    fecha DATE NOT NULL,
+    precio REAL NOT NULL ADD CONSTRAINT precioPositivo CHECK precio>=0,
+    telefono INT,
+    FOREIGN KEY telefono REFERENCES CLIENTE(telefono)
+);
+
+CREATE SEQUENCE secuencia_facturaCliente; --Genera el id de la tabla de factura-cliente
+
+CREATE TABLE FACTURAPROVEEDORRECIBEDINERO(
+    idfacturap INT PRIMARY KEY,
+    fecha DATE NOT NULL,
+    precio REAL NOT NULL ADD CONSTRAINT precioPositivo CHECK precio>=0,
+    cif INT,
+    FOREIGN KEY cif REFERENCES PROVEEDOR(cif)
+);
+
+CREATE SEQUENCE secuencia_facturaProveedor; --Genera el id de la tabla de factura-proveedor
+
 -- Disparadores --
 
 -- Cuando se de de alta un cliente, este se activa --
