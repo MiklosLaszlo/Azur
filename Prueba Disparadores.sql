@@ -11,7 +11,7 @@ CREATE TABLE CLIENTE(
     contrasena varchar2(20) NOT NULL,
     telefono INT PRIMARY KEY,
     correo varchar2(50) NOT NULL,
-    sexo CHAR,
+    sexo CHAR CHECK (sexo IN ('H', 'M', 'O' )),
     fechanacimiento DATE,
     tarjeta INT NOT NULL
 );
