@@ -11,7 +11,7 @@ CREATE TABLE CLIENTE(
     contrasena varchar2(20) NOT NULL,
     telefono INT PRIMARY KEY,
     correo varchar2(50) NOT NULL,
-    sexo CHAR,
+    sexo CHAR CHECK (sexo IN ('H', 'M', 'O' )),
     fechanacimiento DATE,
     tarjeta INT NOT NULL
 );
@@ -200,6 +200,16 @@ FOR EACH ROW
 BEGIN
     SELECT secuencia_suministrarIdSesion.nextval INTO :new.idSesion FROM dual;
 END insertar_IdSesion;
+/
+
+-- Cuando el cliente se da de baja, se elimina sesionActiva --
+CREATE OR REPLACE TRIGGER finSesionActiva
+AFTER DELETE ON CLIENTEACTIVO
+FOR EACH ROW
+BEGIN
+    UPDATE SESIONCLIENTESESION SET horaFin=CURRENT_TIMESTAMP;
+    DELETE FROM SESIONACTIVA WHERE idSesion IN (SELECT idSesion FROM SESIONCLIENTESSESION WHERE telefono=old.telefono);
+END
 /
 
 -- Cuando el cliente inicia sesion, se crea sesionActiva --
