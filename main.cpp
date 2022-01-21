@@ -134,7 +134,7 @@ void SubMenuSuministrar (SAConnection *con){
 	
 	SuministrarPelicula(titulo,anio,director,productora,CIF,con);
 		
-	cout << "¿Quiere seguir suministrando películas?" << endl;
+	cout << "¿Quiere seguir suministrando películas? (Y/N)" << endl;
 	cin >> YN;
 	}while(YN=='Y');
 };
