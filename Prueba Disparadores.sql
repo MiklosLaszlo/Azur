@@ -50,6 +50,8 @@ CREATE TABLE FIRMACLIENTECONTRATOCLIENTE(
     FOREIGN KEY telefono REFERENCES CLIENTE(telefono)
 );
 
+CREATE SEQUENCE secuencia_suministrarIdP; 
+
 CREATE TABLE SUMINISTRAPELICULA(
 	idPelicula INT PRIMARY KEY NOT NULL,
 	titulo VARCHAR2(50) UNIQUE NOT NULL,
@@ -284,11 +286,8 @@ END comprobarPeliculaInsertada;
 CREATE OR REPLACE TRIGGER insertarNuevoIdPelicula
 BEFORE INSERT ON PELICULA
 FOR EACH ROW
-DECLARE
-	idP INTEGER;
 BEGIN
-	SELECT COUNT(*) INTO idP FROM PELICULA;
-	:new.idPelicula = idPelicula+1;
+	SELECT secuencia_suministrarIdP.nextval INTO :new.idPelicula FROM dual;
 END insertarNuevoIdPelicula;
 /
 
