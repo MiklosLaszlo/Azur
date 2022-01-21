@@ -2,6 +2,9 @@
 #define CLIENTES_H
 
 #include <SQLAPI.h>
+#include <cstring>
+#include <string>
+#include <iostream>
 using namespace std;
 
 /*class Cliente

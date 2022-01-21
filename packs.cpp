@@ -21,7 +21,7 @@ void InformarNovedades(vector<string> listaPacks, SAConnection* con){
 
   if(simulo_correos.open("Correos_enviados.txt")){
     telclientes.setCommandText(_TSA("SELECT correo FROM clientes WHERE telefono IN (SELECT * FROM clientesActivos)")); // Obtengo el correo de todos los clientes activos
-    packs.setCommandText(_TSA("SELECT idPelicula, titulo, director, productora, anno FROM peliculaactiva NATURAL JOIN Peliculapack NATURAL JOIN PACKACTIVO WHERE nombrePack:=1"));
+    packs.setCommandText(_TSA("SELECT idPelicula, titulo, director, productora, anio FROM PELICULAACTIVA NATURAL JOIN Peliculapack NATURAL JOIN PACKACTIVO WHERE nombrePack:=1"));
     try{
       telclientes.Execute();
     }

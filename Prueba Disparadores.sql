@@ -66,22 +66,22 @@ CREATE TABLE FIRMACLIENTECONTRATOCLIENTE(
     FOREIGN KEY telefono REFERENCES CLIENTE(telefono)
 );
 
-CREATE SEQUENCE secuencia_suministrarIdP; 
+CREATE SEQUENCE secuencia_suministrarIdP;
 
 CREATE TABLE SUMINISTRAPELICULA(
 	idPelicula INT PRIMARY KEY NOT NULL,
 	titulo VARCHAR2(50) UNIQUE NOT NULL,
-	anio INT, 
+	anio INT,
 	director varchar2(50),
 	productora varchar2(50),
 	CIF INT
-	
+
 	FOREIGN KEY (CIF) REFERENCES PROVEEDOR(CIF)
 );
 
 CREATE TABLE PELICULAACTIVA(
     idPelicula INT PRIMARY KEY NOT NULL,
-	
+
     FOREIGN KEY (idPelicula) REFERENCES PELICULA(idPelicula),
     PRIMARY KEY(idPelicula)
 );
@@ -89,20 +89,21 @@ CREATE TABLE PELICULAACTIVA(
 CREATE TABLE VE(
 	idSesion int NOT NULL,
 	idPelicula int NOT NULL,
-	
+
 	FOREIGN KEY (idSesion) REFERENCES SESIONCLIENTESESION,
 	FOREIGN KEY (idPelicula) REFERENCES SUMINISTRAPELICULA,
 	PRIMARY KEY (idSesion,idPelicula)
 );
 
 --Genera el id de la tabla de contrato-cliente
-CREATE SEQUENCE secuencia_contratoCliente; 
+CREATE SEQUENCE secuencia_contratoCliente;
 
 CREATE TABLE CONTIENEN(
     idContratoCliente INT,
     nombrepack varchar(20),
     FOREIGN KEY idContratoCliente REFERENCES FIRMACLIENTECONTRATOCLIENTE(idContratoCliente),
     FOREIGN KEY nombrepack REFERENCES PACK(nombrepack),
+    PRIMARY KEY (idContratoCliente,nombrepack)
 );
 
 CREATE TABLE PROVEEDOR(
@@ -121,8 +122,25 @@ CREATE TABLE FIRMAPROVEEDORCONTRATOPROVEEDOR(
     FOREIGN KEY cif REFERENCES PROVEEDOR(cif)
 );
 
+CREATE TABLE ACTIVA(
+  idPelicula INT,
+  idContratoProveedor INT,
+  FOREIGN KEY idPelicula REFERENCES SUMINISTRAPELICULA(idPelicula),
+  FOREIGN KEY idContratoProveedor REFERENCES FIRMAPROVEEDORCONTRATOPROVEEDOR(idContratoProveedor),
+  PRIMARY KEY (idPelicula,idContratoProveedor)
+
+);
+
+CREATE TABLE PELICULAPACK(
+  idPelicula INT,
+  nombrepack varchar(20),
+  FOREIGN KEY idPelicula REFERENCES SUMINISTRAPELICULA(idPelicula),
+  FOREIGN KEY nombrepack REFERENCES PACK(nombrepack),
+  PRIMARY KEY (idPelicula,nombrepack)
+);
+
 --Genera el id de la tabla de contrato-proveedor
-CREATE SEQUENCE secuencia_contratoProveedor; 
+CREATE SEQUENCE secuencia_contratoProveedor;
 
 CREATE TABLE FACTURACLIENTEPAGA(
     idfacturac INT PRIMARY KEY,
@@ -133,7 +151,7 @@ CREATE TABLE FACTURACLIENTEPAGA(
 );
 
 --Genera el id de la tabla de factura-cliente
-CREATE SEQUENCE secuencia_facturaCliente; 
+CREATE SEQUENCE secuencia_facturaCliente;
 
 CREATE TABLE FACTURAPROVEEDORRECIBEDINERO(
     idfacturap INT PRIMARY KEY,
@@ -144,7 +162,7 @@ CREATE TABLE FACTURAPROVEEDORRECIBEDINERO(
 );
 
 --Genera el id de la tabla de factura-proveedor
-CREATE SEQUENCE secuencia_facturaProveedor; 
+CREATE SEQUENCE secuencia_facturaProveedor;
 
 -- Disparadores --
 
@@ -176,7 +194,7 @@ END tarjeta_correcta;
 /
 
 -- Crea id sesion --
-CREATE OR REPLACE TRIGGER insertar_IdSesion 
+CREATE OR REPLACE TRIGGER insertar_IdSesion
 BEFORE insert on  SESIONCLIENTESESION
 FOR EACH ROW
 BEGIN
@@ -281,7 +299,7 @@ CREATE OR REPLACE TRIGGER insertar_ContratoCliente
       cli INTEGER
     BEGIN
       --el tlf que quiero insertar
-      SELECT COUNT(*) INTO cli FROM ClienteActivo WHERE telefono=new.telefono; 
+      SELECT COUNT(*) INTO cli FROM ClienteActivo WHERE telefono=new.telefono;
       IF (cli<1) THEN
         RAISE_APPLICATION_ERROR(-20100, 'INTENTO DE CREAR CONTRATO A UN CLIENTE NO ACTIVO')
       END IF
@@ -290,7 +308,7 @@ CREATE OR REPLACE TRIGGER insertar_ContratoCliente
 /
 
 --Crea id contrato proveedor
-CREATE OR REPLACE TRIGGER insertar_ContratoProveedor 
+CREATE OR REPLACE TRIGGER insertar_ContratoProveedor
   before insert on firmaProveedorContratoProveedor
   for each row
     BEGIN
@@ -299,7 +317,7 @@ CREATE OR REPLACE TRIGGER insertar_ContratoProveedor
 /
 
 --Crea id factura cliente
-CREATE OR REPLACE TRIGGER insertar_FacturaCliente 
+CREATE OR REPLACE TRIGGER insertar_FacturaCliente
   before insert on facturaClientePaga
   for each row
     BEGIN
@@ -308,7 +326,7 @@ CREATE OR REPLACE TRIGGER insertar_FacturaCliente
 /
 
 --Crea id factura proveedor
-CREATE OR REPLACE TRIGGER insertar_FacturaProveedor 
+CREATE OR REPLACE TRIGGER insertar_FacturaProveedor
   before insert on facturaProveedorRecibeDinero
   for each row
     BEGIN
@@ -323,7 +341,7 @@ DECLARE
 	idP INTEGER;
 BEGIN
 	SELECT COUNT(*) INTO idP FROM PELICULA WHERE idPelicula = :new.idPelicula;
-	
+
 	IF (idP >= 1) THEN
 		RAISE_APPLICATION_ERROR(-20015, 'PELÍCULA YA SUMINISTRADA');
 	END IF;
@@ -346,6 +364,6 @@ FOR EACH ROW
 BEGIN
 	DELETE PACKACTIVO WHERE nombrepack = (SELECT nombrepack FROM PELICULAPACK WHERE idPelicula = :old.idPelicula);
 END
-/	
-	
+/
+
 >>>>>>> ee09d22d9910514f83b1075345ee3d350f257373
