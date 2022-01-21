@@ -137,8 +137,14 @@ void MenuCliente(int idSesion,SAConnection* con){
 
 void SubMenuSuministrar (SAConnection *con){
 	int anio, CIF, n;
+<<<<<<< HEAD
 	string titulo, director, productora;
 
+=======
+	string titulo, director, productora; 
+	char YN;
+	
+>>>>>>> a81f19121b763ac6d2a4e51bd45b0bc86468dc46
 	do{
 		cout << "Introduzca el CIF de su empresa: ";
 		cin >> CIF;
@@ -148,12 +154,23 @@ void SubMenuSuministrar (SAConnection *con){
 		busqueda.setCommandText(_TSA("SELECT COUNT(*) FROM PROVEEDOR WHERE CIF = :1"));
 		busquda.Param(1).setAsInt64() = CIF;
 		busqueda.Execute();
+<<<<<<< HEAD
 
 		busqueda.Fetch();
 		int n = busqueda[1].asInt64();
 	}while(n!=1);
 
 
+=======
+		
+		if (busqueda.Fetch());
+			n = busqueda[1].asInt64();
+		else
+			n = -1;
+	}while(n!=1);
+	
+	do{
+>>>>>>> a81f19121b763ac6d2a4e51bd45b0bc86468dc46
 	cout << "Va a suministrar una película. Introduzca los siguientes datos: " << endl;
 	cout << "Título: ";
 	getline(cin,titulo);
@@ -165,6 +182,10 @@ void SubMenuSuministrar (SAConnection *con){
 	getline(cin,productora);
 
 	SuministrarPelicula(titulo,anio,director,productora,CIF,con);
+		
+	cout << "¿Quiere seguir suministrando películas? (Y/N)" << endl;
+	cin >> YN;
+	}while(YN=='Y');
 };
 
 main(int argc, char* argv[]){

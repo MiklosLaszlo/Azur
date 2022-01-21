@@ -22,6 +22,8 @@ CREATE TABLE CLIENTEACTIVO(
     PRIMARY KEY(telefono)
 );
 
+CREATE SEQUENCE secuencia_suministrarIdSesion;
+
 CREATE TABLE SESIONCLIENTESESION(
     idSesion INT PRIMARY KEY,
     telefono INT,
@@ -171,6 +173,35 @@ FOR EACH ROW WHEN(to_string(new.tarjeta).size() != 16)
 BEGIN
     RAISE_APPLICATION_ERROR(-20011, 'TARJETA INVALIDA');
 END tarjeta_correcta;
+/
+
+-- Crea id sesion --
+CREATE OR REPLACE TRIGGER insertar_IdSesion 
+BEFORE insert on  SESIONCLIENTESESION
+FOR EACH ROW
+BEGIN
+    SELECT secuencia_suministrarIdSesion.nextval INTO :new.idSesion FROM dual;
+END insertar_IdSesion;
+/
+
+-- Cuando el cliente inicia sesion, se crea sesionActiva --
+CREATE OR REPLACE TRIGGER crearSesionActiva
+AFTER INSERT ON SESIONCLIENTESESION
+FOR EACH ROW
+BEGIN
+    INSERT INTO SESIONACTIVA VALUES(:new.idSesion);
+END crearSesionActiva;
+/
+
+-- Comprueba que un cliente solo tiene una sesion activa --
+CREATE OR REPLACE TRIGGER sesion_unica
+BEFORE insert on SESIONCLIENTES
+FOR EACH ROW
+DECLARE
+    ses INTEGER
+BEGIN
+    SELECT COUNT(*) INTO ses FROM SESIONACTIVA WHERE telefono=new.telefono;
+END
 /
 
 -- Comprueba que el precio sea correcto en los pack --
