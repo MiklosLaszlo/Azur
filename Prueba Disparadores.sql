@@ -163,21 +163,41 @@ END crearClienteActivo;
 
 -- Comprueba que el telefono tiene 9 dígitos --
 CREATE OR REPLACE TRIGGER telefono_correto
-BEFORE INSERT ON PACK
-FOR EACH ROW WHEN(to_string(new.telefono).size() != 9)
+BEFORE INSERT ON CLIENTE
+FOR EACH ROW
+DECLARE
+    tam INTEGER;
 BEGIN
-    RAISE_APPLICATION_ERROR(-20010, 'TELEFONO INVALIDO');
+    SELECT length(to_char(:new.telefono)) INTO tam from dual;
+    if(tam != 9) THEN
+        RAISE_APPLICATION_ERROR(-20010, 'TELEFONO INVALIDO');
+    END IF;
 END telefono_correcto;
 /
 
 -- Comprueba que la tarjeta tiene 16 dígitos --
 CREATE OR REPLACE TRIGGER tarjeta_correcta
 BEFORE INSERT OR UPDATE ON CLIENTE
-FOR EACH ROW WHEN(to_string(new.tarjeta).size() != 16)
+FOR EACH ROW
+DECLARE
+    tam INTEGER;
 BEGIN
-    RAISE_APPLICATION_ERROR(-20011, 'TARJETA INVALIDA');
+    SELECT length(to_char(:new.tarjeta)) INTO tam from dual;
+    if(tam != 16) THEN
+        RAISE_APPLICATION_ERROR(-20011, 'TARJETA INVALIDA');
+    END IF;
 END tarjeta_correcta;
 /
+
+INSERT INTO CLIENTE VALUES('Pepe', 'Solomillo', 123456789, 'Pepeguit', 'O', TO_DATE('22/10/2005','dd/mm/yyyy'), 1234567890123456);
+INSERT INTO CLIENTE VALUES('Pepa', 'Solomillo', 888888888, 'Pepa@g', 'M', TO_DATE('22/10/1980','dd/mm/yyyy'), 1234567890123466);
+INSERT INTO CLIENTE VALUES('Jose Manuel', 'Arroz', 111111111, 'jm@g', 'H', TO_DATE('22/10/2000','dd/mm/yyyy'), 1234567890123556);
+INSERT INTO CLIENTE VALUES('Rafela', 'Fileta', 222222222, 'Rafaela@g', 'O', TO_DATE('1/1/1990','dd/mm/yyyy'), 1234567890124456);
+INSERT INTO CLIENTE VALUES('Ressu', 'Almagro', 333333333, 'Ressu@g', 'M', TO_DATE('22/12/2001','dd/mm/yyyy'), 1234567890123486);
+INSERT INTO CLIENTE VALUES('Perro', 'Jamon', 444444444, 'Pepeguit', 'H', TO_DATE('22/11/1900','dd/mm/yyyy'), 1234567890123459);
+
+SELECT * FROM CLIENTE;
+SELECT * FROM CLIENTEACTIVO;
 
 -- Crea id sesion --
 CREATE OR REPLACE TRIGGER insertar_IdSesion
@@ -186,16 +206,6 @@ FOR EACH ROW
 BEGIN
     SELECT secuencia_suministrarIdSesion.nextval INTO :new.idSesion FROM dual;
 END insertar_IdSesion;
-/
-
--- Cuando el cliente se da de baja, se elimina sesionActiva --
-CREATE OR REPLACE TRIGGER finSesionActiva
-AFTER DELETE ON CLIENTEACTIVO
-FOR EACH ROW
-BEGIN
-    UPDATE SESIONCLIENTESESION SET horaFin=CURRENT_TIMESTAMP;
-    DELETE FROM SESIONACTIVA WHERE idSesion IN (SELECT idSesion FROM SESIONCLIENTESSESION WHERE telefono=old.telefono);
-END
 /
 
 -- Cuando el cliente inicia sesion, se crea sesionActiva --
@@ -209,16 +219,26 @@ END crearSesionActiva;
 
 -- Comprueba que un cliente solo tiene una sesion activa --
 CREATE OR REPLACE TRIGGER sesion_unica
-BEFORE insert on SESIONCLIENTES
+BEFORE insert on SESIONCLIENTESESION
 FOR EACH ROW
 DECLARE
-    ses INTEGER
+    ses INTEGER;
 BEGIN
-    SELECT COUNT(*) INTO ses FROM SESIONCLIENTESESION WHERE telefono=new.telefono AND (idSesion IN SELECT idSesion FROM SESIONACTIVA);
+    SELECT COUNT(*) INTO ses FROM SESIONCLIENTESESION WHERE telefono=:new.telefono AND (idSesion IN (SELECT idSesion FROM SESIONACTIVA) );
     IF(ses>0) THEN
     	RAISE_APPLICATION_ERROR(-20012, 'SESION UNICA');
     END IF;
 END sesion_unica;
+/
+
+-- Cuando el cliente se da de baja, se elimina sesionActiva --
+CREATE OR REPLACE TRIGGER finSesionActiva
+AFTER DELETE ON CLIENTEACTIVO
+FOR EACH ROW
+BEGIN
+    UPDATE SESIONCLIENTESESION SET horaFin=CURRENT_TIMESTAMP WHERE telefono=:old.telefono;
+    DELETE FROM SESIONACTIVA WHERE idSesion IN (SELECT idSesion FROM SESIONCLIENTESESION WHERE telefono=:old.telefono);
+END finSesionActiva;
 /
 
 -- Comprueba que el precio sea correcto en los pack --
@@ -244,14 +264,9 @@ BEGIN
 END crearPackActivo;
 /
 
--- Comprueba que el precio no sea negativo --
-CREATE OR REPLACE TRIGGER precio_correcto
-BEFORE INSERT ON PACK
-FOR EACH ROW WHEN(new.precio < 0)
-BEGIN
-    RAISE_APPLICATION_ERROR(-20001, 'PRECIO INVALIDO');
-END precio_correcto;
-/
+INSERT INTO PACK VALUES('Miedo',20.1);
+SELECT * FROM PACK;
+SELECT * FROM PACKACTIVO;
 
 -- Comprueba que cuando se inserta una recomendacion esta esta inicialmente recomendada a un cliente activo y a una pelicula activa --
 CREATE OR REPLACE TRIGGER comprobarRecomendacionInsertar
@@ -271,34 +286,17 @@ BEGIN
 END comprobarRecomendacionInsertar;
 /
 
-<<<<<<< HEAD
-
-/*SELECT id_pelicula FROM peliculasactivas
-  where id_peliucla=:1 and (id_pelicula in ( Select id_pelicula From PAckPElicula
-      where nombrepakc in (Select nombrePack from PackActivo
-        where nombrePAck IN (Select nombrePack From Contienen
-          Where idContrato IN (Select idContrato From ContratoCliente
-            Where idContrato IN (Select idContrato From ClienteContrato
-              Where tle IN (Select tle From SesionCliente Where idSesion = :2)
-            )
-          )
-        )
-      )
-    )
-  );*/
-=======
---Crea id contrato cliente y comprueba que el cliente es activo
 CREATE OR REPLACE TRIGGER insertar_ContratoCliente
   before insert on firmaClienteContratoCliente
   for each row
     DECLARE
-      cli INTEGER
+      cli INTEGER;
     BEGIN
       --el tlf que quiero insertar
-      SELECT COUNT(*) INTO cli FROM ClienteActivo WHERE telefono=new.telefono;
+      SELECT COUNT(*) INTO cli FROM ClienteActivo WHERE telefono=:new.telefono;
       IF (cli<1) THEN
-        RAISE_APPLICATION_ERROR(-20100, 'INTENTO DE CREAR CONTRATO A UN CLIENTE NO ACTIVO')
-      END IF
+        RAISE_APPLICATION_ERROR(-20100, 'INTENTO DE CREAR CONTRATO A UN CLIENTE NO ACTIVO');
+      END IF;
       SELECT secuencia_contratoCliente.nextval INTO :new.idContratoCliente FROM dual;
     END insertar_ContratoCliente;
 /
@@ -330,36 +328,35 @@ CREATE OR REPLACE TRIGGER insertar_FacturaProveedor
     END insertar_FacturaProveedor;
 /
 
+/*
+DROP TRIGGER comprobarPeliculaInsertada;
 CREATE OR REPLACE TRIGGER comprobarPeliculaInsertada
-BEFORE INSERT ON PELICULA
+BEFORE INSERT ON SUMINISTRAPELICULA
 FOR EACH ROW
 DECLARE
 	idP INTEGER;
 BEGIN
-	SELECT COUNT(*) INTO idP FROM PELICULA WHERE idPelicula = :new.idPelicula;
+	SELECT COUNT(*) INTO idP FROM SUMINISTRAPELICULA WHERE idPelicula = :new.idPelicula;
 
 	IF (idP >= 1) THEN
 		RAISE_APPLICATION_ERROR(-20015, 'PELÍCULA YA SUMINISTRADA');
 	END IF;
 END comprobarPeliculaInsertada;
 /
-
+*/
 
 CREATE OR REPLACE TRIGGER insertarNuevoIdPelicula
-BEFORE INSERT ON PELICULA
+BEFORE INSERT ON SUMINISTRAPELICULA
 FOR EACH ROW
 BEGIN
 	SELECT secuencia_suministrarIdP.nextval INTO :new.idPelicula FROM dual;
 END insertarNuevoIdPelicula;
 /
 
-
 CREATE OR REPLACE TRIGGER desactivarPacks
-AFTER DELETE ON SUMINISTRAPELICULA
+AFTER DELETE ON PELICULAACTIVA
 FOR EACH ROW
 BEGIN
-	DELETE PACKACTIVO WHERE nombrepack = (SELECT nombrepack FROM PELICULAPACK WHERE idPelicula = :old.idPelicula);
-END
+	DELETE FROM PACKACTIVO WHERE nombrepack IN (SELECT nombrepack FROM PELICULAPACK WHERE idPelicula = :old.idPelicula);
+END desactivarPacks;
 /
-
->>>>>>> ee09d22d9910514f83b1075345ee3d350f257373
