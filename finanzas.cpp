@@ -343,3 +343,16 @@ BalanceGastos BalanceDeGastos(SAConnection* con){
   
   return balanceTotal;
 }
+
+void mostrarContratoCliente(ContratoCliente contrato){
+  cout<<"Datos del contrato generado para el cliente"<<endl;
+  cout<<"\tidContrato:"<<contrato.idContrato<<"\n\tNombre del cliente:"<<contrato.nombreCliente.GetMultiByteChar()<<endl;
+  cout<<"\tTelefono:"<<contrato.tlfCliente<<"\n\tCorreo:"<<contrato.correo.GetMultiByteChar()<<endl;
+  cout<<"\tSexo:"<<contrato.sexo.GetMultiByteChar()<<"\n\tFecha nacimiento:"<<contrato.fechaNacimiento.GetDay()<<"/"<<contrato.fechaNacimiento.GetMonth()<<"/"<<contrato.fechaNacimiento.GetYear()<<endl;
+  cout<<"\tNum tarjeta:"<<contrato.tarjeta<<"\n\tPacks contratados:";
+    for(int i=0; i<contrato.packsContratados.size(); i++){
+      cout<<"\n\t\t"<<contrato.packsContratados[i].GetMultiByteChar();
+    }
+  cout<<"\n\tFecha inicio:"<<contrato.fechaInicio.GetDay()<<"/"<<contrato.fechaInicio.GetMonth()<<"/"<<contrato.fechaInicio.GetYear()<<endl;
+  cout<<"\n\tFecha fin:"<<contrato.fechaFin.GetDay()<<"/"<<contrato.fechaFin.GetMonth()<<"/"<<contrato.fechaFin.GetYear()<<endl;
+}
