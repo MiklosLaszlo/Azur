@@ -315,5 +315,50 @@ main(int argc, char* argv[]){
           break;
       }
     };
+	
+	/*SUBMENU CLIENTES*/
+void SubMenuCliente (SAConnection *con){
+	
+	cout<<"Está usted en el submenú del de departamento de finanzas, ¿Qué desea hacer?"<<endl;
+    cout<<"\t1- Ver pelicula\n\t2- Modificar Datos\n\t3- Buscar Película\n\t4- Mostrar Catálogo\n\t5- Mostrar Recomendaciones\n\t6- Dar de baja\n\t7- Finalizar Sesión"<<endl;
+    cin>>opcion;
+    switch(opcion){
+      case 1: 
+      	int idP;
+      
+      	cout << "Introduzca el ID de la película que desea ver: ";
+      	cin >> idP;
+      
+      	VerPelicula(idSesion, idP, con);
+      break;
+      
+      case 2: 
+      break;
+      
+      case 3: 
+      	string tit_busc;
+      	
+      	cout << "Inserte el título de la película que quiera ver: ";
+      	getline(cin,tit_busc);
+      	
+      	BuscarTituloCatalogo (tit_busc, con);
+      break;
+      
+      case 4: 
+      	MostrarCatalogo(con);
+      break;
+      
+      case 5: 
+      	MostrarRecomendación(telefono,con); 
+      break;
+      
+      case 6: 
+      break;
+      
+      case 7: 
+      break;
+  }
+	
+}
 
 }

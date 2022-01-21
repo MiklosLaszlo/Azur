@@ -200,8 +200,11 @@ FOR EACH ROW
 DECLARE
     ses INTEGER
 BEGIN
-    SELECT COUNT(*) INTO ses FROM SESIONACTIVA WHERE telefono=new.telefono;
-END
+    SELECT COUNT(*) INTO ses FROM SESIONCLIENTESESION WHERE telefono=new.telefono AND (idSesion IN SELECT idSesion FROM SESIONACTIVA);
+    IF(ses>0) THEN
+    	RAISE_APPLICATION_ERROR(-20012, 'SESION UNICA');
+    END IF;
+END sesion_unica;
 /
 
 -- Comprueba que el precio sea correcto en los pack --
