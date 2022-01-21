@@ -50,7 +50,8 @@ CREATE TABLE FIRMACLIENTECONTRATOCLIENTE(
     FOREIGN KEY telefono REFERENCES CLIENTE(telefono)
 );
 
-CREATE SEQUENCE secuencia_contratoCliente; --Genera el id de la tabla de contrato-cliente
+--Genera el id de la tabla de contrato-cliente
+CREATE SEQUENCE secuencia_contratoCliente; 
 
 CREATE TABLE CONTIENEN(
     idContratoCliente INT,
@@ -75,7 +76,8 @@ CREATE TABLE FIRMAPROVEEDORCONTRATOPROVEEDOR(
     FOREIGN KEY cif REFERENCES PROVEEDOR(cif)
 );
 
-CREATE SEQUENCE secuencia_contratoProveedor; --Genera el id de la tabla de contrato-proveedor
+--Genera el id de la tabla de contrato-proveedor
+CREATE SEQUENCE secuencia_contratoProveedor; 
 
 CREATE TABLE FACTURACLIENTEPAGA(
     idfacturac INT PRIMARY KEY,
@@ -85,7 +87,8 @@ CREATE TABLE FACTURACLIENTEPAGA(
     FOREIGN KEY telefono REFERENCES CLIENTE(telefono)
 );
 
-CREATE SEQUENCE secuencia_facturaCliente; --Genera el id de la tabla de factura-cliente
+--Genera el id de la tabla de factura-cliente
+CREATE SEQUENCE secuencia_facturaCliente; 
 
 CREATE TABLE FACTURAPROVEEDORRECIBEDINERO(
     idfacturap INT PRIMARY KEY,
@@ -95,7 +98,8 @@ CREATE TABLE FACTURAPROVEEDORRECIBEDINERO(
     FOREIGN KEY cif REFERENCES PROVEEDOR(cif)
 );
 
-CREATE SEQUENCE secuencia_facturaProveedor; --Genera el id de la tabla de factura-proveedor
+--Genera el id de la tabla de factura-proveedor
+CREATE SEQUENCE secuencia_facturaProveedor; 
 
 -- Disparadores --
 
