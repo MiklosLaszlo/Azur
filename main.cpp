@@ -17,7 +17,11 @@ void MenuPrincipal(){
   // 5 COsas de la empresa -> MEnu empresa (solo suministrar peliculas)
 };
 
-void Submenufinanzas(){
+void Submenufinanzas(SAConnection* con){
+
+};
+
+void Submenupakcs(SAConnection* con){
 
 };
 
@@ -34,5 +38,6 @@ main(int argc, char* argv[]){
         exit(-1);
     }
 
+    int i =0;
 
 }
