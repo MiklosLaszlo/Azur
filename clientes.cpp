@@ -170,7 +170,7 @@ void FinalizarSesion(int idSes, SAConnection* con){
   con->commit();
 };
 
-void DarBajaCliente(unsigned int telf, SAConnection* con){
+void DarBajaCliente(int idSes, SAConnection* con){
   SACommand guardado, desactiva;
   guardado.setConnection(con);
   guardado.setCommandText(_TSA("SAVEPOINT darbajacliente"));
@@ -185,8 +185,8 @@ void DarBajaCliente(unsigned int telf, SAConnection* con){
   }
   
   desactiva.setConnection(con);
-  desactiva.setCommandText(_TSA("DELETE FROM CLIENTEACTIVO WHERE telefono=:1"));
-  desactiva.Param(1).setAsInt64() = telf;
+  desactiva.setCommandText(_TSA("DELETE FROM CLIENTEACTIVO WHERE telefono IN (SELECT telefono FROM SESIONCLIENTESESION WHERE idSesion=:1)"));
+  desactiva.Param(1).setAsInt64() = idSES;
   
   try{
     desactiva.Execute();
