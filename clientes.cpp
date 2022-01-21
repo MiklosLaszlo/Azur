@@ -100,15 +100,74 @@ int IniciarSesion(unsigned int telf, string pw, SAConnection* con){
     inicia.Param(1).setAsInt() = telf;
     inicia.Param(2).setAsDateTime() = SADateTime::currentDataTime();
     
+    try{
+      inicia.Execute();
+    }
+    catch(SAException &x){
+      cerr << "Error al iniciar sesion\n";
+      cerr << x.ErrText().GetMulriByteChars() << endl;
+      guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT iniciarSesion"));
+      guardado.Execute();
+    }
+    
     selectID.setCommand(_TSA("SELECT secuencia_suministrarIdSesion.currval FROM dual"));
     try{
-      //selectID.E
+      selectID.Execute();
+      selectID.FetchNext();
     }
+    catch(SAS &x){
+      cerr << x.ErrText().GetMultiByetChars()<<endl;
+    }
+    
+    int id = selectID.Param(1).asInt64();
   }
+  con -> commit();
+  return id;
 };
 
-void FinalizarSesion(){
+void FinalizarSesion(int idSes, SAConnection* con){
+  SACommand guardado, finalizaSesion, borraSesionActiva;
+  guardado.setConnection(con);
+  guardado.setCommandText(_TSA("SAVEPOINT finalizarsesion"));
   
+  try{
+    guardado.execute();
+  }
+  catch(SAException &x){
+    cerr<<x.ErrText().GetMultiByteChars()<<endl;
+    cerr<<"Error a la hora de crear el SAVEPOINT" << endl;
+    return ;
+  }
+  
+  finalizaSesion.setConnection(con);
+  finalizaSesion.setCommandText(_TSA("UPDATE SESIONCLIENTESESION SET horaFin=:1"));
+  finalizaSesion.param(1).setAsDateTime() = SADateTime::currentDataTime();
+  
+  try{
+    finalizaSesion.Execute();
+  }
+  catch(SAException &x){
+    cerr << "Error al finalizar sesion\n";
+    cerr << x.ErrText().GetMulriByteChars() << endl;
+    guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT iniciarSesion"));
+    guardado.Execute();
+  }
+  
+  borraSesionActiva.setConnection(con);
+  borraSesionActiva.setCommandText(_TSA("DELETE FROM SESIONACTIVA WHERE idSesion=:1"));
+  borraSesionActiva.Param(1).setAsInt64() = idSes;
+  
+  try{
+    borraSesionActiva.Execute();
+  }
+  catch(SASException &x){
+    cerr << "Error a la hora de eliminar SesionActiva\n";
+    cerr<<x.ErrText().GetMultiByteChars()<<endl;
+    guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT finalizarSesion"));
+    guardado.Execute();
+  }
+  
+  con->commit();
 };
 
 void DarBajaCliente(unsigned int telf, SAConnection* con){

@@ -87,20 +87,7 @@ void SuministrarPelicula(string t, int a, string d, string p, int CIF, SAConnect
   	suministrar.Param(3).setAsInt64() = auxa;
   	suministrar.Param(4).setAsString() = auxp;
 	suministrar.Param(5).setAsInt64() = auxCIF;
-  	
-	selectID.setCommandText(_TSA("SELECT secuencia_suministrarIdP.currval FROM dual"));
- 	 try{
-    	selectID.Execute();
-    	selectID.FetchNext(); //Dispongo la información del select
-  	}
-  	catch(SAException &x){
-    	cerr<<x.ErrText().GetMultiByteChars()<<endl;
-	}
-  	int id = selectID.Param(1).asInt64();
-	
-	suministrarId.setCommandText(_TSA("INSERT INTO SUMINISTRAPELICULA idPelicula VALUES (:1)"));
-	suministrarId.Param(1).setAsInt64() = id;
-	suministrarId.Execute();
+
 	
   	try{
     	suministrar.Execute();
@@ -111,6 +98,16 @@ void SuministrarPelicula(string t, int a, string d, string p, int CIF, SAConnect
     	guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT suministrarpelicula"));
     	guardado.Execute();
   	}
+	
+	/*selectID.setCommandText(_TSA("SELECT secuencia_suministrarIdP.currval FROM dual"));
+ 	 try{
+    	selectID.Execute();
+    	selectID.FetchNext(); //Dispongo la información del select
+  	}
+  	catch(SAException &x){
+    	cerr<<x.ErrText().GetMultiByteChars()<<endl;
+	}
+  	int id = selectID.Param(1).asInt64(); NO HACE FALTA*/
 
   	con->commit();
 }
