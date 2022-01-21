@@ -90,7 +90,7 @@ ContratoCliente GenerarContratoCliente(int tlf, vector<SAString> listaPacks, SAD
   }
 
   contrato={ id, selectCliente[1].asString(), tlf, selectCliente[2].asString(), selectCliente[3].asString(),
-    selectCliente[4].asDateTime(), selectCliente[5].asDouble(), listaPacks, SADateTime::currentDateTime(), fechaFin, precio};
+    selectCliente[4].asDateTime(), selectCliente[5].asInt64(), listaPacks, SADateTime::currentDateTime(), fechaFin, precio};
   return contrato;
 }
 
