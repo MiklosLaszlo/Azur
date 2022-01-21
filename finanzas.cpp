@@ -9,7 +9,7 @@ ContratoCliente GenerarContratoCliente(int tlf, vector<SAString> listaPacks, SAD
   selectCliente.setConnection(con);
   insertPack.setConnection(con);
   selectID.setConnection(con);
-  
+
   SACommand guardado;
   guardado.setConnection(con);
   guardado.setCommandText(_TSA("SAVEPOINT contratoCliente"));
@@ -98,7 +98,7 @@ ContratoCliente GenerarContratoCliente(int tlf, vector<SAString> listaPacks, SAD
 void DarAltaEmpresa(SAString nombre, int tlf, SAString correo, int cif, SAConnection* con){
   SACommand insertProveedor;
   insertProveedor.setConnection(con);
-  
+
   insertProveedor.setCommandText(_TSA("INSERT INTO proveedor (cif,nombreempresa,telefonoempresa,correoempresa) VALUES (:1,:2,:3,:4)"));
   insertProveedor.Param(1).setAsInt64() = cif;
   insertProveedor.Param(2).setAsString() = nombre;
@@ -123,7 +123,7 @@ ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, 
   selectProveedor.setConnection(con);
   selectID.setConnection(con);
   insertActiva.setConnection(con);
-  
+
   SACommand guardado;
   guardado.setConnection(con);
   guardado.setCommandText(_TSA("SAVEPOINT contratoProveedor"));
@@ -153,7 +153,7 @@ ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, 
   }
 
   //Inserto el contrato, un trigger crea su id correspondiente
-  insertContrato.setCommandText(_TSA("INSERT INTO firmaProveedorContratoProveedor (fechainicio,fechafin,precio,cif) VALUES (:1,:2,:3,:4)"));
+  insertContrato.setCommandText(_TSA("INSERT INTO FIRMACP (fechainicio,fechafin,precio,cif) VALUES (:1,:2,:3,:4)"));
   insertContrato.Param(1).setAsDateTime() = SADateTime::currentDateTime();
   insertContrato.Param(2).setAsDateTime() = fechaFin;
   insertContrato.Param(3).setAsDouble() = precio;
@@ -184,7 +184,7 @@ ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, 
     return contrato;
   }
   int idContrato = selectID.Param(1).asInt64();
-  
+
   int idPelicula;
   for(int i=0; i<peliculas.size(); i++){//Activo las peliculas contratadas
     selectID.setCommandText(_TSA("SELECT idpelicula FROM suministrapelicula WHERE titulo=peliculas[i] AND suministrapelicula.cif=cif"));
@@ -227,7 +227,7 @@ FacturaCliente RecibirPago(int tlf, double precio, SADateTime fechaPago, SAConne
   FacturaCliente factura;
   SACommand insertFactura, selcetID;
   insertFactura.setConnection(con);
-  
+
   insertFactura.setCommandText(_TSA("INSERT INTO facturaClientePaga (telefono,precio,fecha) VALUES (:1,:2,:3)"));
   insertFactura.Param(1).setAsInt64() = tlf;
   insertFactura.Param(2).setAsDouble() = precio;
@@ -241,7 +241,7 @@ FacturaCliente RecibirPago(int tlf, double precio, SADateTime fechaPago, SAConne
     factura.idfacturac=-1;
     return factura;
   }
- 
+
   selectID.setCommandText(_TSA("SELECT secuencia_facturaCliente.currval FROM dual"));
   try{
     selectID.Execute();
@@ -253,7 +253,7 @@ FacturaCliente RecibirPago(int tlf, double precio, SADateTime fechaPago, SAConne
     factura.idfacturac=-1;
     return factura;
   }
-  int id = selectID.Param(1).asInt64(); 
+  int id = selectID.Param(1).asInt64();
   factura={id, precio, tlf, fechaPago};
   return factura;
 }
@@ -262,7 +262,7 @@ FacturaProveedor RealizarPago(double precio, int cif, SADateTime fechaPago, SACo
   FacturaProveedor factura;
   SACommand insertFactura, selcetID;
   insertFactura.setConnection(con);
-  
+
   insertFactura.setCommandText(_TSA("INSERT INTO facturaProveedorRecibeDinero (cif,precio,fecha) VALUES (:1,:2,:3)"));
   insertFactura.Param(1).setAsInt64() = cif;
   insertFactura.Param(2).setAsDouble() = precio;
@@ -276,7 +276,7 @@ FacturaProveedor RealizarPago(double precio, int cif, SADateTime fechaPago, SACo
     factura.idfacturac=-1;
     return factura;
   }
- 
+
   selectID.setCommandText(_TSA("SELECT secuencia_facturaProveedor.currval FROM dual"));
   try{
     selectID.Execute();
@@ -285,10 +285,10 @@ FacturaProveedor RealizarPago(double precio, int cif, SADateTime fechaPago, SACo
   catch(SAException &x){
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error al obtener el id de la factura del proveedor" << endl;
-    factura.idfacturac=-1; 
+    factura.idfacturac=-1;
     return factura;
   }
-  int id = selectID.Param(1).asInt64(); 
+  int id = selectID.Param(1).asInt64();
   factura={id, precio, cif, fechaPago};
   return factura;
 }
@@ -304,7 +304,7 @@ BalanceGastos BalanceDeGastos(SAConnection* con){
   SACommand selectFClientes, selectFProveedores;
   selectFClientes.setConnection(con);
   selectFProveedores.setConnection(con);
-  
+
   selectFClientes.setCommandText(_TSA("SELECT * FROM facturaClientePaga"));
   try{
     selectFClientes.Execute();
@@ -315,14 +315,14 @@ BalanceGastos BalanceDeGastos(SAConnection* con){
     balanceTotal.balanceCorrecto = false;
     return balanceTotal;
   }
-  
+
   while(selectFClientes.FetchNext()){
     fcliente = {selectFClientes[1].asInt64(), selectFClientes[3].asReal(), selectFClientes[4].asInt64(), selectFClientes[2].asDateTime()};
     fclientes.push_back(fcliente);
     balanceTotal.balance = balanceTotal.balance + selectFClientes[3].asReal();
   }
   balanceTotal.ingresos=fclientes;
-  
+
   selectFProveedores.setCommandText(_TSA("SELECT * FROM facturaProveedorRecibeDinero"));
   try{
     selectFProveedores.Execute();
@@ -333,14 +333,14 @@ BalanceGastos BalanceDeGastos(SAConnection* con){
     balanceTotal.balanceCorrecto = false;
     return balanceTotal;
   }
-  
+
   while(selectFProveedores.FetchNext()){
     fproveedor = {selectFProveedores[1].asInt64(), selectFProveedores[3].asReal(), selectFProveedores[4].asInt64(), selectFProveedores[2].asDateTime()};
     fproveedores.push_back(fproveedor);
     balanceTotal.balance = balanceTotal.balance - selectFProveedores[3].asReal();
   }
   balanceTotal.gastos=fproveedores;
-  
+
   return balanceTotal;
 }
 
@@ -390,6 +390,6 @@ void mostrarBalance(BalanceGastos balanceTotal){
       mostrarFacturaCliente(balanceTotal.ingresos[i]);
   cout<<"Gastos:"<<endl;
     for(int i=0; i<balanceTotal.gastos.size(); i++)
-      mostrarFacturaProveedor(balanceTotal.gastos[i]); 
+      mostrarFacturaProveedor(balanceTotal.gastos[i]);
   cout<<"Balance"<<balanceTotal.balance<<endl;
 }

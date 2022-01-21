@@ -24,7 +24,7 @@ CREATE TABLE PROVEEDOR(
     correoempresa varchar(20) NOT NULL
 );
 
-CREATE TABLE FIRMAPROVEEDORCONTRATOPROVEEDOR(
+CREATE TABLE FIRMACP(
     idContratoProveedor INT PRIMARY KEY,
     fechainicio DATE NOT NULL,
     fechafin DATE NOT NULL,
@@ -71,7 +71,7 @@ CREATE OR REPLACE TRIGGER insertar_ContratoCliente --Crea id contrato cliente y 
 /
 
 CREATE OR REPLACE TRIGGER insertar_ContratoProveedor --Crea id contrato proveedor
-  before insert on firmaProveedorContratoProveedor
+  before insert on FIRMACP
   for each row
     BEGIN
       SELECT secuencia_contratoProveedor.nextval INTO :new.idContratoProveedor FROM dual;

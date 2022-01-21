@@ -1,11 +1,5 @@
 SELECT table_name FROM user_tables;
 
-DROP TRIGGER precio_correcto;
-
-DROP TABLE PACK;
-
--- CREAR tablas --
-
 CREATE TABLE CLIENTE(
     nombreCliente varchar2(50) NOT NULL,
     contrasena varchar2(20) NOT NULL,
@@ -34,7 +28,7 @@ CREATE TABLE SESIONCLIENTESESION(
 
 CREATE TABLE SESIONACTIVA(
     idSesion INT,
-    FOREIGN KEY (idSesion) REFERENCES sesionclientessesion(idSesion),
+    FOREIGN KEY (idSesion) REFERENCES SESIONCLIENTESESION(idSesion),
     PRIMARY KEY (idSesion)
 );
 
@@ -49,21 +43,11 @@ CREATE TABLE PACKACTIVO (
     PRIMARY KEY(nombrePack)
 );
 
-CREATE TABLE RECOMENDACION {
-  telefono INT,
-  idPelicula INT,
-  FOREIGN KEY (telefono) REFERENCES cliente(telefono),
-  FOREIGN KEY (idPelicula) REFERENCES pelicula(idPelicula),
-  PRIMARY KEY(telefono,idPelicula)
-};
-
-CREATE TABLE FIRMACLIENTECONTRATOCLIENTE(
-    idContratoCliente INT PRIMARY KEY,
-    fechainicio DATE NOT NULL,
-    fechafin DATE NOT NULL,
-    precio REAL NOT NULL ADD CONSTRAINT precioPositivo CHECK precio>=0,
-    telefono INT,
-    FOREIGN KEY telefono REFERENCES CLIENTE(telefono)
+CREATE TABLE PROVEEDOR(
+    cif INT PRIMARY KEY,
+    nombreempresa varchar(20) NOT NULL,
+    telefonoempresa INT NOT NULL,
+    correoempresa varchar(20) NOT NULL
 );
 
 CREATE SEQUENCE secuencia_suministrarIdP;
@@ -74,95 +58,97 @@ CREATE TABLE SUMINISTRAPELICULA(
 	anio INT,
 	director varchar2(50),
 	productora varchar2(50),
-	CIF INT
-
+	CIF INT,
 	FOREIGN KEY (CIF) REFERENCES PROVEEDOR(CIF)
 );
 
 CREATE TABLE PELICULAACTIVA(
     idPelicula INT PRIMARY KEY NOT NULL,
-
-    FOREIGN KEY (idPelicula) REFERENCES PELICULA(idPelicula),
-    PRIMARY KEY(idPelicula)
+    FOREIGN KEY (idPelicula) REFERENCES SUMINISTRAPELICULA(idPelicula)
 );
 
 CREATE TABLE VE(
 	idSesion int NOT NULL,
 	idPelicula int NOT NULL,
 
-	FOREIGN KEY (idSesion) REFERENCES SESIONCLIENTESESION,
-	FOREIGN KEY (idPelicula) REFERENCES SUMINISTRAPELICULA,
+	FOREIGN KEY (idSesion) REFERENCES SESIONCLIENTESESION(idSesion),
+	FOREIGN KEY (idPelicula) REFERENCES SUMINISTRAPELICULA(idPelicula),
 	PRIMARY KEY (idSesion,idPelicula)
 );
 
---Genera el id de la tabla de contrato-cliente
 CREATE SEQUENCE secuencia_contratoCliente;
+
+CREATE TABLE FIRMACLIENTECONTRATOCLIENTE(
+    idContratoCliente INT PRIMARY KEY,
+    fechainicio DATE NOT NULL,
+    fechafin DATE NOT NULL,
+    precio REAL NOT NULL CONSTRAINT precioPositivo CHECK (precio>=0),
+    telefono INT,
+    FOREIGN KEY (telefono) REFERENCES CLIENTE(telefono)
+);
 
 CREATE TABLE CONTIENEN(
     idContratoCliente INT,
     nombrepack varchar(20),
-    FOREIGN KEY idContratoCliente REFERENCES FIRMACLIENTECONTRATOCLIENTE(idContratoCliente),
-    FOREIGN KEY nombrepack REFERENCES PACK(nombrepack),
-    PRIMARY KEY (idContratoCliente,nombrepack)
+    FOREIGN KEY (idContratoCliente) REFERENCES FIRMACLIENTECONTRATOCLIENTE(idContratoCliente),
+    FOREIGN KEY (nombrePack) REFERENCES PACK(nombrePack),
+    PRIMARY KEY (idContratoCliente,nombrePack)
 );
 
-CREATE TABLE PROVEEDOR(
-    cif INT PRIMARY KEY,
-    nombreempresa varchar(20) NOT NULL,
-    telefonoempresa INT NOT NULL,
-    correoempresa varchar(20) NOT NULL
+CREATE TABLE RECOMENDACION (
+  telefono INT,
+  idPelicula INT,
+  FOREIGN KEY (telefono) REFERENCES CLIENTE(telefono),
+  FOREIGN KEY (idPelicula) REFERENCES SUMINISTRAPELICULA(idPelicula),
+  PRIMARY KEY (telefono,idPelicula)
 );
 
-CREATE TABLE FIRMAPROVEEDORCONTRATOPROVEEDOR(
+--Genera el id de la tabla de contrato-proveedor
+CREATE SEQUENCE secuencia_contratoProveedor;
+CREATE TABLE FIRMACP(
     idContratoProveedor INT PRIMARY KEY,
     fechainicio DATE NOT NULL,
     fechafin DATE NOT NULL,
-    precio REAL NOT NULL ADD CONSTRAINT precioPositivo CHECK precio>=0,
+    precio REAL NOT NULL CONSTRAINT precioPos CHECK (precio>=0),
     cif INT,
-    FOREIGN KEY cif REFERENCES PROVEEDOR(cif)
+    FOREIGN KEY (cif) REFERENCES PROVEEDOR(cif)
 );
 
 CREATE TABLE ACTIVA(
   idPelicula INT,
   idContratoProveedor INT,
-  FOREIGN KEY idPelicula REFERENCES SUMINISTRAPELICULA(idPelicula),
-  FOREIGN KEY idContratoProveedor REFERENCES FIRMAPROVEEDORCONTRATOPROVEEDOR(idContratoProveedor),
+  FOREIGN KEY (idPelicula) REFERENCES SUMINISTRAPELICULA(idPelicula),
+  FOREIGN KEY (idContratoProveedor) REFERENCES FIRMACP(idContratoProveedor),
   PRIMARY KEY (idPelicula,idContratoProveedor)
-
 );
 
 CREATE TABLE PELICULAPACK(
   idPelicula INT,
   nombrepack varchar(20),
-  FOREIGN KEY idPelicula REFERENCES SUMINISTRAPELICULA(idPelicula),
-  FOREIGN KEY nombrepack REFERENCES PACK(nombrepack),
+  FOREIGN KEY (idPelicula) REFERENCES SUMINISTRAPELICULA(idPelicula),
+  FOREIGN KEY (nombrepack) REFERENCES PACK(nombrepack),
   PRIMARY KEY (idPelicula,nombrepack)
-);
-
---Genera el id de la tabla de contrato-proveedor
-CREATE SEQUENCE secuencia_contratoProveedor;
-
-CREATE TABLE FACTURACLIENTEPAGA(
-    idfacturac INT PRIMARY KEY,
-    fecha DATE NOT NULL,
-    precio REAL NOT NULL ADD CONSTRAINT precioPositivo CHECK precio>=0,
-    telefono INT,
-    FOREIGN KEY telefono REFERENCES CLIENTE(telefono)
 );
 
 --Genera el id de la tabla de factura-cliente
 CREATE SEQUENCE secuencia_facturaCliente;
-
-CREATE TABLE FACTURAPROVEEDORRECIBEDINERO(
-    idfacturap INT PRIMARY KEY,
+CREATE TABLE FACTURACLIENTEPAGA(
+    idfacturac INT PRIMARY KEY,
     fecha DATE NOT NULL,
-    precio REAL NOT NULL ADD CONSTRAINT precioPositivo CHECK precio>=0,
-    cif INT,
-    FOREIGN KEY cif REFERENCES PROVEEDOR(cif)
+    precio REAL NOT NULL CONSTRAINT pPositivo CHECK (precio>=0),
+    telefono INT,
+    FOREIGN KEY (telefono) REFERENCES CLIENTE(telefono)
 );
 
 --Genera el id de la tabla de factura-proveedor
 CREATE SEQUENCE secuencia_facturaProveedor;
+CREATE TABLE FACTURAPROVEEDORRECIBEDINERO(
+    idfacturap INT PRIMARY KEY,
+    fecha DATE NOT NULL,
+    precio REAL NOT NULL CHECK (precio>=0),
+    cif INT,
+    FOREIGN KEY (cif) REFERENCES PROVEEDOR(cif)
+);
 
 -- Disparadores --
 
@@ -319,7 +305,7 @@ CREATE OR REPLACE TRIGGER insertar_ContratoCliente
 
 --Crea id contrato proveedor
 CREATE OR REPLACE TRIGGER insertar_ContratoProveedor
-  before insert on firmaProveedorContratoProveedor
+  before insert on FIRMACP
   for each row
     BEGIN
       SELECT secuencia_contratoProveedor.nextval INTO :new.idContratoProveedor FROM dual;
