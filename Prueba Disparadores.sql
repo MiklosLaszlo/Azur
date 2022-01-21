@@ -24,16 +24,16 @@ CREATE TABLE CLIENTEACTIVO(
 
 CREATE TABLE SESIONCLIENTESESION(
     idSesion INT PRIMARY KEY,
-	telefono INT,
-	horaInicio DATE NOT NULL,
-	horaFin DATE,
-	FOREIGN KEY (telefono) REFERENCES cliente(telefono)
+    telefono INT,
+    horaInicio DATE NOT NULL,
+    horaFin DATE,
+    FOREIGN KEY (telefono) REFERENCES cliente(telefono)
 );
 
 CREATE TABLE SESIONACTIVA(
-	idSesion INT,
-	FOREIGN KEY (idSesion) REFERENCES sesionclientessesion(idSesion),
-	PRIMARY KEY (idSesion)
+    idSesion INT,
+    FOREIGN KEY (idSesion) REFERENCES sesionclientessesion(idSesion),
+    PRIMARY KEY (idSesion)
 );
 
 CREATE TABLE PACK(
