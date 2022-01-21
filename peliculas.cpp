@@ -80,7 +80,7 @@ void Pelicula::SuministrarPelicula(string t, int a, string d, string p, int CIF,
   	
   	suministrar.setConnection(con);
   	suministrar.setCommandText(_TSA("INSERT INTO SUMINISTRAPELICULA (idPelicula,titulo,director,anio,productora,CIF) VALUES (:1,:2,:3,:4,:5,:6)"));
-  	suministrar.Param(1).setAsInt64() = auxId;
+  	//suministrar.Param(1).setAsInt64() = auxId;
   	suministrar.Param(2).setAsString() = auxt;
   	suministrar.Param(3).setAsString() = auxd;
   	suministrar.Param(4).setAsInt64() = auxa;
@@ -119,6 +119,7 @@ void Pelicula::BuscarTituloCatalogo(string t, SAConnection *con){
     while(comando.FetchNext()) {
         cout<<" "<<comando[1].asString()<<"\t\t"<<comando[2].asString()<<"\t\t"<<comando[3].asInt64()<<"\t\t"<<comando[4].asString()<<endl;
     }
+	con -> commit;
 }	
 
 
@@ -140,6 +141,8 @@ void Pelicula::MostrarRecomendaciones(int telefono, SAConnection *con){
     while(comando.FetchNext()) {
         cout<<" "<<comando[1].asString()<<"\t\t"<<comando[2].asString()<<"\t\t"<<comando[3].asInt64()<<"\t\t"<<comando[4].asString()<<endl;
     }
+	
+	con -> commit;
 }
 
 
@@ -160,6 +163,7 @@ void Pelicula::VerPelicula(int idSesion, int idPel, SAConnection *con){
     	cout<<x.ErrText().GetMultiByteChars()<<endl;  
     }
 	
+	con->commit;
 	
 }
 
