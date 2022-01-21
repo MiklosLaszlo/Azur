@@ -50,6 +50,21 @@ CREATE TABLE FIRMACLIENTECONTRATOCLIENTE(
     FOREIGN KEY telefono REFERENCES CLIENTE(telefono)
 );
 
+CREATE TABLE PELICULA(
+	idPelicula INT PRIMARY KEY NOT NULL,
+	titulo VARCHAR2(30) NOT NULL,
+	anio INT, 
+	director varchar2(30),
+	productora varchar2(30),
+);
+
+CREATE TABLE PELICULAACTIVA(
+    idPelicula INT PRIMARY KEY NOT NULL,
+	
+    FOREIGN KEY (idPelicula) REFERENCES PELICULA(idPelicula),
+    PRIMARY KEY(idPelicula)
+);
+
 --Genera el id de la tabla de contrato-cliente
 CREATE SEQUENCE secuencia_contratoCliente; 
 
