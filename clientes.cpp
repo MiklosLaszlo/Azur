@@ -9,13 +9,13 @@
 
 using namespace std;
 
-void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, SADateTime f,
-                 unsigned int t, SAConnection* con){
+void DarAltaCliente(string n, string c,  int telf, string cor, char s, SADateTime f,
+                  int t, SAConnection* con){
 /*  if(n.length()<50 && c.length()<50 && to_string(telf).length()==9 && cor.length()<50
      && (s=='F' || s=='M' || s=='O') && f.length()<50 && to_string(t).length()==16){*/
   SACommand guardado, crear;
   guardado.setConnection(con);
-  guardado.setCommandText(_TSA("SAVE POINT registrarcliente"));
+  guardado.setCommandText(_TSA("SAVEPOINT registrarcliente"));
 
   try{
     guardado.Execute();
@@ -31,7 +31,7 @@ void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, S
   SAString auxcor(cor.c_str());
   SAString auxs(&s);
   crear.setConnection(con);
-  crear.setCommandText(_TSA("INSERT INTO cliente VALUES(:1, :2, :3, :4, :5, :6, :7)"));
+  crear.setCommandText(_TSA("INSERT INTO cliente (nombrecliente,contrasena,telefono,correo,sexo,fechanacimiento,tarjeta) VALUES(:1, :2, :3, :4, :5, :6, :7)"));
   crear.Param(1).setAsString() = auxn;
   crear.Param(2).setAsString() = auxc;
   crear.Param(3).setAsInt64() = telf;
@@ -56,7 +56,8 @@ void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, S
         cout << "El telefono debe tener 9 digitos\n";
         break;
       case 20011:
-        cout << "La tarjeta debe tener 16 digitos\n";
+        cout << "La tarjeta debe tener 5 digitos\n";
+
         break;
       default:
         cout << "Excepción no controlada\n" << endl;
@@ -72,7 +73,7 @@ void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, S
   con->Commit();
 };
 
-int IniciarSesion(unsigned int telf, string pw, SAConnection* con){
+int IniciarSesion( int telf, string pw, SAConnection* con){
   SACommand guardado, inicia, selectID;
   int id=-1;
   guardado.setConnection(con);
@@ -88,10 +89,12 @@ int IniciarSesion(unsigned int telf, string pw, SAConnection* con){
   }
 
   inicia.setConnection(con);
+
   SAString auxc(pw.c_str());
   inicia.setCommandText(_TSA("SELECT * FROM CLIENTE WHERE (telefono = :1 AND contrasena = :2)"));
   inicia.Param(1).setAsInt64() = telf;
   inicia.Param(2).setAsString() = auxc;
+  inicia.Execute();
 
   if(!(inicia.FetchNext())){
     cerr << "Telefono o contraseña incorrecta\n";
@@ -102,7 +105,6 @@ int IniciarSesion(unsigned int telf, string pw, SAConnection* con){
     inicia.Param(1).setAsInt64() = telf;
     SADateTime fechas = SADateTime::currentDateTime();
     inicia.Param(2).setAsDateTime() = fechas;
-
     try{
       inicia.Execute();
     }
@@ -113,16 +115,16 @@ int IniciarSesion(unsigned int telf, string pw, SAConnection* con){
       guardado.Execute();
     }
 
-    selectID.setCommandText(_TSA("SELECT secuencia_suministrarIdSesion.currval FROM dual"));
+    inicia.setCommandText(_TSA("SELECT secuencia_suministrarIdSesion.currval FROM dual"));
     try{
-      selectID.Execute();
-      selectID.FetchNext();
+      inicia.Execute();
+      inicia.FetchNext();
     }
     catch(SAException &x){
       cerr << x.ErrText().GetMultiByteChars()<<endl;
     }
 
-    id = selectID.Param(1).asInt64();
+    id = inicia[1].asInt64();
   }
   con -> Commit();
   return id;
@@ -190,11 +192,11 @@ void DarBajaCliente(int idSes, SAConnection* con){
   con->Commit();
 };
 
-void ModificarCliente(string n, string c, int idSes, string cor, char s, SADateTime f, unsigned int t, SAConnection* con){
-  SACommand guardado, modificar, getTlf;
+void ModificarCliente(string n, string c, int idSes, string cor, char s, SADateTime f, int t, SAConnection* con){
+  SACommand guardado, modificar;
   guardado.setConnection(con);
   guardado.setCommandText(_TSA("SAVEPOINT modifcliente"));
-
+  int coso;
   try{
     guardado.Execute();
   }
@@ -209,32 +211,34 @@ void ModificarCliente(string n, string c, int idSes, string cor, char s, SADateT
   SAString auxcor(cor.c_str());
   SAString auxs(&s);
   modificar.setConnection(con);
-  modificar.setCommandText(_TSA("SELECT telefono FROM SESIONCLIENTESESION WHERE idSesion=:1)"));
+  modificar.setCommandText(_TSA("SELECT telefono FROM SESIONCLIENTESESION WHERE idSesion=:1"));
   modificar.Param(1).setAsInt64() = idSes;
   modificar.Execute();
-
   if(!(modificar.FetchNext())){
     cerr << "El cliente que se quiere modificar no pertenece a la base de datos\n";
+
   }
   else{
-    modificar.setCommandText(_TSA("UPDATE CLIENTE SET nombre=:1, contraseña=:2, correo=:3, sexo=:4, fecha=:5, tarjeta=:6 WHERE telefono=:7"));
+    coso = modificar[1].asInt64();
+    modificar.setCommandText(_TSA("UPDATE CLIENTE SET nombrecliente=:1, contrasena=:2, correo=:3, sexo=:4, fechanacimiento=:5, tarjeta=:6 WHERE telefono=:7"));
     modificar.Param(1).setAsString() = auxn;
     modificar.Param(2).setAsString() = auxc;
     modificar.Param(3).setAsString() = auxcor;
     modificar.Param(4).setAsString() = auxs;
     modificar.Param(5).setAsDateTime() = f;
     modificar.Param(6).setAsInt64() = t;
-    modificar.Param(7).setAsInt64() = modificar[1].asInt64();
+    modificar.Param(7).setAsInt64() = coso;
 
     try{
       modificar.Execute();
     }
     catch(SAException &x){
+
       cerr << "Error al modificar alguno de los datos del cliente, se cancelaran todos los cambios\n";
       int i = x.ErrNativeCode();
       switch(i){
         case 20011:
-          cout << "La tarjeta debe tener 16 cifras\n";
+          cout << "La tarjeta debe tener 5 cifras\n";
           break;
         default:
           cout << "Excepcion no controlada\n";

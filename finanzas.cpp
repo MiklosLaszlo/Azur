@@ -23,7 +23,7 @@ ContratoCliente GenerarContratoCliente(int tlf, vector<SAString> listaPacks, SAD
   }
 
   //Consulto los datos del cliente, hay un trigger que verifica que el cliente sea activo
-  selectCliente.setCommandText(_TSA("SELECT nombre,correoelectronico,sexo,fechanacimiento,tarjeta FROM Cliente where telefono=(:1)"));
+  selectCliente.setCommandText(_TSA("SELECT nombrecliente,correo,sexo,fechanacimiento,tarjeta FROM Cliente where telefono=:1"));
   selectCliente.Param(1).setAsInt64()=tlf;
   try{
     selectCliente.Execute();
@@ -69,10 +69,10 @@ ContratoCliente GenerarContratoCliente(int tlf, vector<SAString> listaPacks, SAD
     guardado.Execute();
     return contrato;
   }
-  int id = selectID.Param(1).asInt64();
+  int id = selectID[1].asInt64();
 
   //Un trigger comprueba que los packs contratados son activos
-  insertPack.setCommandText(_TSA("INSERT INTO continen VALUES (:1,:2)"));
+  insertPack.setCommandText(_TSA("INSERT INTO contienen VALUES (:1,:2)"));
   insertPack.Param(1).setAsInt64() = id;
   try{
     for(int i=0; i<listaPacks.size(); i++){
@@ -91,7 +91,7 @@ ContratoCliente GenerarContratoCliente(int tlf, vector<SAString> listaPacks, SAD
 
   contrato={ id, selectCliente[1].asString(), tlf, selectCliente[2].asString(), selectCliente[3].asString(),
     selectCliente[4].asDateTime(), selectCliente[5].asInt64(), listaPacks, SADateTime::currentDateTime(), fechaFin, precio};
-  
+
   con->Commit(); //Hacemos el cambio permanente
   return contrato;
 }
@@ -101,11 +101,12 @@ void DarAltaEmpresa(SAString nombre, int tlf, SAString correo, int cif, SAConnec
   SACommand insertProveedor;
   insertProveedor.setConnection(con);
 
+  cout << nombre.GetMultiByteChars() << " " << tlf << " " << correo.GetMultiByteChars() << " " << cif << endl;
   insertProveedor.setCommandText(_TSA("INSERT INTO proveedor (cif,nombreempresa,telefonoempresa,correoempresa) VALUES (:1,:2,:3,:4)"));
   insertProveedor.Param(1).setAsInt64() = cif;
   insertProveedor.Param(2).setAsString() = nombre;
   insertProveedor.Param(3).setAsInt64() = tlf;
-  insertProveedor.Param(2).setAsString() = correo;
+  insertProveedor.Param(4).setAsString() = correo;
   try{
     insertProveedor.Execute();
   }
@@ -172,7 +173,7 @@ ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, 
     guardado.Execute();
     return contrato;
   }
-
+  cout << "h" << endl;
   selectID.setCommandText(_TSA("SELECT secuencia_contratoProveedor.currval FROM dual"));
   try{
     selectID.Execute();
@@ -186,15 +187,17 @@ ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, 
     guardado.Execute();
     return contrato;
   }
-  int idContrato = selectID.Param(1).asInt64();
+  int idContrato = selectID[1].asInt64();
 
   int idPelicula;
   for(int i=0; i<peliculas.size(); i++){//Activo las peliculas contratadas
-    selectID.setCommandText(_TSA("SELECT idpelicula FROM suministrapelicula WHERE titulo=peliculas[i] AND suministrapelicula.cif=cif"));
+    selectID.setCommandText(_TSA("SELECT idpelicula FROM suministrapelicula WHERE titulo=:1 AND cif=:2"));
+    selectID.Param(1).setAsString() = peliculas[i];
+    selectID.Param(2).setAsInt64() = cif;
     try{
       selectID.Execute();
       selectID.FetchNext(); //Dispongo la información del select
-      idPelicula = selectID.Param(1).asInt64();
+      idPelicula = selectID[1].asInt64();
     }
     catch(SAException &x){
       cerr<<x.ErrText().GetMultiByteChars()<<endl;
@@ -204,7 +207,6 @@ ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, 
       guardado.Execute();
       return contrato;
     }
-
     insertActiva.setCommandText(_TSA("INSERT INTO Activa (idpelicula,idContratoProveedor) VALUES (:1,:2)"));
     insertActiva.Param(1).setAsInt64() = idPelicula;
     insertActiva.Param(2).setAsInt64() = idContrato;
@@ -223,16 +225,18 @@ ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, 
 
   contrato={ idContrato, selectProveedor[1].asString(), selectProveedor[2].asInt64(), selectProveedor[3].asString(), cif, peliculas,
             SADateTime::currentDateTime(), fechaFin, precio};
-  
+
   con->Commit(); //Hacemos el cambio permanente
   return contrato;
 }
 
 FacturaCliente RecibirPago(int tlf, double precio, SADateTime fechaPago, SAConnection* con){
   FacturaCliente factura;
-  SACommand insertFactura, selectID;
+  SACommand insertFactura, selectID,guardado;
+  guardado.setConnection(con);
+  guardado.setCommandText(_TSA("SAVEPOINT modifcliente"));
+  selectID.setConnection(con);
   insertFactura.setConnection(con);
-
   insertFactura.setCommandText(_TSA("INSERT INTO facturaClientePaga (telefono,precio,fecha) VALUES (:1,:2,:3)"));
   insertFactura.Param(1).setAsInt64() = tlf;
   insertFactura.Param(2).setAsDouble() = precio;
@@ -243,6 +247,8 @@ FacturaCliente RecibirPago(int tlf, double precio, SADateTime fechaPago, SAConne
   catch(SAException &x){
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error al insertar la factura del cliente" << endl;
+    guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT modificarcliente"));
+    guardado.Execute();
     factura.idfacturac=-1;
     return factura;
   }
@@ -255,21 +261,25 @@ FacturaCliente RecibirPago(int tlf, double precio, SADateTime fechaPago, SAConne
   catch(SAException &x){
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error al obtener el id de la factura del cliente" << endl;
+    guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT modificarcliente"));
+    guardado.Execute();
     factura.idfacturac=-1;
     return factura;
   }
-  int id = selectID.Param(1).asInt64();
+  int id = selectID[1].asInt64();
   factura={id, precio, tlf, fechaPago};
-  
+
   con->Commit(); //Hacemos el cambio permanente
   return factura;
 }
 
 FacturaProveedor RealizarPago( int cif, double precio, SADateTime fechaPago, SAConnection* con){
   FacturaProveedor factura;
-  SACommand insertFactura, selectID;
+  SACommand insertFactura, selectID, guardado;
   insertFactura.setConnection(con);
-
+  guardado.setConnection(con);
+  guardado.setCommandText(_TSA("SAVEPOINT modifcliente"));
+  selectID.setConnection(con);
   insertFactura.setCommandText(_TSA("INSERT INTO facturaProveedorRecibeDinero (cif,precio,fecha) VALUES (:1,:2,:3)"));
   insertFactura.Param(1).setAsInt64() = cif;
   insertFactura.Param(2).setAsDouble() = precio;
@@ -280,6 +290,8 @@ FacturaProveedor RealizarPago( int cif, double precio, SADateTime fechaPago, SAC
   catch(SAException &x){
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error al insertar la factura del proveedor" << endl;
+    guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT modificarcliente"));
+    guardado.Execute();
     factura.idfacturap=-1;
     return factura;
   }
@@ -292,12 +304,14 @@ FacturaProveedor RealizarPago( int cif, double precio, SADateTime fechaPago, SAC
   catch(SAException &x){
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error al obtener el id de la factura del proveedor" << endl;
+    guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT modificarcliente"));
+    guardado.Execute();
     factura.idfacturap=-1;
     return factura;
   }
-  int id = selectID.Param(1).asInt64();
+  int id = selectID[1].asInt64();
   factura={id, precio, cif, fechaPago};
-  
+
   con->Commit(); //Hacemos el cambio permanente
   return factura;
 }
@@ -362,8 +376,8 @@ void mostrarContratoCliente(ContratoCliente contrato){
     for(int i=0; i<contrato.packsContratados.size(); i++){
       cout<<"\n\t\t"<<contrato.packsContratados[i].GetMultiByteChars();
     }
-  cout<<"\n\tFecha inicio:"<<contrato.fechaInicio.GetDay()<<"/"<<contrato.fechaInicio.GetMonth()<<"/"<<contrato.fechaInicio.GetYear()<<endl;
-  cout<<"\n\tFecha fin:"<<contrato.fechaFin.GetDay()<<"/"<<contrato.fechaFin.GetMonth()<<"/"<<contrato.fechaFin.GetYear()<<endl;
+  cout<<"\n\tFecha inicio:"<<contrato.fechaInicio.GetDay()<<"/"<<contrato.fechaInicio.GetMonth()<<"/"<<contrato.fechaInicio.GetYear();
+  cout<<"\n\tFecha fin:"<<contrato.fechaFin.GetDay()<<"/"<<contrato.fechaFin.GetMonth()<<"/"<<contrato.fechaFin.GetYear();
   cout<<"\n\tPrecio:"<<contrato.precio<<endl;
 }
 
@@ -375,20 +389,20 @@ void mostrarContratoProveedor(ContratoProveedor contrato){
     for(int i=0; i<contrato.peliculasAActivar.size(); i++){
       cout<<"\n\t\t"<<contrato.peliculasAActivar[i].GetMultiByteChars();
     }
-  cout<<"\n\tFecha inicio:"<<contrato.fechaInicio.GetDay()<<"/"<<contrato.fechaInicio.GetMonth()<<"/"<<contrato.fechaInicio.GetYear()<<endl;
+  cout<<"\n\tFecha inicio:"<<contrato.fechaInicio.GetDay()<<"/"<<contrato.fechaInicio.GetMonth()<<"/"<<contrato.fechaInicio.GetYear();
   cout<<"\n\tFecha fin:"<<contrato.fechaFin.GetDay()<<"/"<<contrato.fechaFin.GetMonth()<<"/"<<contrato.fechaFin.GetYear()<<endl;
   cout<<"\n\tPrecio:"<<contrato.precio<<endl;
 }
 
 void mostrarFacturaCliente(FacturaCliente factura){
   cout<<"Factura de cliente"<<endl;
-  cout<<"\n\tidFactura:"<<factura.idfacturac<<"\n\tPrecio:"<<factura.precio<<"\n\tTelefono cliente:"<<factura.tlfCliente<<endl;
+  cout<<"\n\tidFactura:"<<factura.idfacturac<<"\n\tPrecio:"<<factura.precio<<"\n\tTelefono cliente:"<<factura.tlfCliente;
   cout<<"\n\tFecha pago:"<<factura.fechaPago.GetDay()<<"/"<<factura.fechaPago.GetMonth()<<"/"<<factura.fechaPago.GetYear()<<endl;
 }
 
 void mostrarFacturaProveedor(FacturaProveedor factura){
   cout<<"Factura de proveedor"<<endl;
-  cout<<"\n\tidFactura:"<<factura.idfacturap<<"\n\tPrecio:"<<factura.precio<<"\n\tCIF:"<<factura.cif<<endl;
+  cout<<"\n\tidFactura:"<<factura.idfacturap<<"\n\tPrecio:"<<factura.precio<<"\n\tCIF:"<<factura.cif;
   cout<<"\n\tFecha pago:"<<factura.fechaPago.GetDay()<<"/"<<factura.fechaPago.GetMonth()<<"/"<<factura.fechaPago.GetYear()<<endl;
 }
 
@@ -400,5 +414,5 @@ void mostrarBalance(BalanceGastos balanceTotal){
   cout<<"Gastos:"<<endl;
     for(int i=0; i<balanceTotal.gastos.size(); i++)
       mostrarFacturaProveedor(balanceTotal.gastos[i]);
-  cout<<"Balance"<<balanceTotal.balance<<endl;
+  cout<<"Balance: "<<balanceTotal.balance<<endl;
 }

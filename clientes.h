@@ -19,15 +19,15 @@ using namespace std;
 
   public:*/
 
-void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, SADateTime f, unsigned int t, SAConnection* con);
+void DarAltaCliente(string n, string c,  int telf, string cor, char s, SADateTime f,  int t, SAConnection* con);
 
-int IniciarSesion(unsigned int telf, string pw, SAConnection* con);
+int IniciarSesion( int telf, string pw, SAConnection* con);
 
 void FinalizarSesion(int idSes, SAConnection* con);
 
 void DarBajaCliente(int idSes, SAConnection* con);
 
-void ModificarCliente(string n, string c, int idSes, string cor, char s, SADateTime f, unsigned int t, SAConnection* con);
+void ModificarCliente(string n, string c, int idSes, string cor, char s, SADateTime f,  int t, SAConnection* con);
 //};
 
 

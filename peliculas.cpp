@@ -72,8 +72,7 @@ void SuministrarPelicula(string t, int a, string d, string p, int CIF, SAConnect
     	cerr<<"Error a la hora de crear el SAVEPOINT" << endl;
     	return ;
   	}
-
-  	SAString auxt(t.c_str());
+		SAString auxt(t.c_str());
   	SAString auxd(d.c_str());
   	SAString auxp(p.c_str());
 
@@ -116,7 +115,7 @@ void BuscarTituloCatalogo(string t, SAConnection *con){
 
     comando.setConnection(con);
     cout<<"Películas con el título buscado: "<<endl;
-    comando.setCommandText(_TSA("SELECT titulo FROM PELICULAACTIVA NATURAL JOIN SUMINISTRAPELICULA WHERE titulo = :1"));
+    comando.setCommandText(_TSA("SELECT * FROM PELICULAACTIVA NATURAL JOIN SUMINISTRAPELICULA WHERE titulo = :1"));
     comando.Param(1).setAsString() = auxt;
 
     try{comando.Execute();}
@@ -126,7 +125,7 @@ void BuscarTituloCatalogo(string t, SAConnection *con){
 
     cout<<" IdPelicula\tTitulo\tDirector\tAño\tProductora"<<endl;
     while(comando.FetchNext()) {
-        cout<<" "<<comando[1].asInt64()<<"\t\t"<<comando[2].asString().GetMultiByteChars()<<"\t\t"<<comando[3].asString().GetMultiByteChars()<<"\t\t"<<comando[4].asInt64()<<"\t\t"<<comando[5].asString().GetMultiByteChars()<<endl;
+        cout<<" "<<comando[1].asInt64()<<"\t\t"<<comando[2].asString().GetMultiByteChars()<<"\t\t"<<comando[4].asString().GetMultiByteChars()<<"\t\t"<<comando[3].asInt64()<<"\t\t"<<comando[5].asString().GetMultiByteChars()<<endl;
     }
 	con -> Commit();
 }
@@ -137,7 +136,7 @@ void MostrarRecomendaciones(int telefono, SAConnection *con){
 
 	comando.setConnection(con);
 	cout << "Películas recomendadas para ti" << endl;
-	comando.setCommandText((_TSA("SELECT idPelicula FROM RECOMENDACION NATURAL JOIN PELICULAACTIVA NATURAL JOIN SUMINISTRAPELICULA WHERE telefono = :1")));
+	comando.setCommandText((_TSA("SELECT * FROM RECOMENDACION NATURAL JOIN PELICULAACTIVA NATURAL JOIN SUMINISTRAPELICULA WHERE telefono = :1")));
 	comando.Param(1).setAsInt64() = telefono;
 
 	try{comando.Execute();}
@@ -147,7 +146,7 @@ void MostrarRecomendaciones(int telefono, SAConnection *con){
 
     cout<<" IdPelicula\tTitulo\tDirector\tAño\tProductora"<<endl;
     while(comando.FetchNext()) {
-        cout<<" "<<comando[1].asInt64()<<"\t\t"<<comando[2].asString().GetMultiByteChars()<<"\t\t"<<comando[3].asString().GetMultiByteChars()<<"\t\t"<<comando[4].asInt64()<<"\t\t"<<comando[5].asString().GetMultiByteChars()<<endl;
+        cout<<" "<<comando[1].asInt64()<<"\t\t"<<comando[3].asString().GetMultiByteChars()<<"\t\t"<<comando[5].asString().GetMultiByteChars()<<"\t\t"<<comando[4].asInt64()<<"\t\t"<<comando[6].asString().GetMultiByteChars()<<endl;
     }
 
 	con -> Commit();
@@ -168,7 +167,7 @@ void VerPelicula(int idSesion, int idPel, SAConnection *con){
     catch(SAException &x){
     	cout<<x.ErrText().GetMultiByteChars()<<endl;
     }
-
+	cout << "DIsfrute de su pelicula" << endl;
 	con->Commit();
 
 }

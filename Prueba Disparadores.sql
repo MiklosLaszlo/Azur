@@ -391,9 +391,37 @@ BEGIN
             )
           order by fechainicio desc
       )
+    )
+  )
     );
     IF(ple>0) THEN
     	RAISE_APPLICATION_ERROR(-20050, 'La pelicula o no existe o no la tiene contratada actualmente');
     END IF;
 END confirmave;
+/
+
+CREATE OR REPLACE TRIGGER activarpeli
+AFTER INSERT ON ACTIVA
+FOR EACH ROW
+DECLARE
+  ple INTEGER;
+BEGIN
+  SELECT COUNT(*) INTO ple FROM PELICULAACTIVA WHERE idPelicula=:new.idPelicula;
+  IF (ple < 1) THEN
+    INSERT INTO PELICULAACTIVA VALUES(:new.idPelicula);
+  END IF;
+END activarpeli;
+/
+
+CREATE OR REPLACE TRIGGER comprobarpeliactiva
+AFTER INSERT ON PELICULAPACK
+FOR EACH ROW
+DECLARE
+  ple INTEGER;
+BEGIN
+  SELECT COUNT(*) INTO ple FROM PELICULAACTIVA WHERE idPelicula=:new.idPelicula;
+  IF (ple < 1) THEN
+    RAISE_APPLICATION_ERROR(-20004,'Pelcula no activa')
+  END IF;
+END activarpeli;
 /

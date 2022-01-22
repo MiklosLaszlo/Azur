@@ -18,7 +18,7 @@ void CrearPack(vector<int> idPeliculas, double precio ,string idPack ,SAConnecti
 
 void DesactivarPack(string idPack ,SAConnection* con);
 
-void RecibirRecomendaciones(vector< pair <unsigned, unsigned >> clienteRPeliculas, SAConnection* con);
+void RecibirRecomendaciones(vector< pair <int, int > > clienteRPeliculas, SAConnection* con);
 
 
 #endif
