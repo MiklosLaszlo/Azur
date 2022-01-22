@@ -20,8 +20,8 @@ void InformarNovedades(vector<string> listaPacks, SAConnection* con){
   ofstream simulo_correos;
   simulo_correos.open("Correos_enviados.txt");
   if(simulo_correos){
-    telclientes.setCommandText(_TSA("SELECT correo FROM clientes WHERE telefono IN (SELECT * FROM clientesActivos)")); // Obtengo el correo de todos los clientes activos
-    packs.setCommandText(_TSA("SELECT idPelicula, titulo, director, productora, anio FROM PELICULAACTIVA NATURAL JOIN Peliculapack NATURAL JOIN PACKACTIVO WHERE nombrePack:=1"));
+    telclientes.setCommandText(_TSA("SELECT correo FROM cliente WHERE telefono IN (SELECT * FROM clienteActivo)")); // Obtengo el correo de todos los clientes activos
+    packs.setCommandText(_TSA("SELECT idPelicula, titulo, director, productora, anio FROM SuministraPelicula NATURAL JOIN Peliculapack NATURAL JOIN PACKACTIVO WHERE nombrePack=:1"));
     try{
       telclientes.Execute();
     }
@@ -31,8 +31,10 @@ void InformarNovedades(vector<string> listaPacks, SAConnection* con){
       return ;
     }
     // Para cada elemento de lista Packs, mirar si esta en PAcks Activos y luego enviar el correo...
+
     while(telclientes.FetchNext()){
-      simulo_correos <<"Informando a " <<telclientes[1].asString().GetMultiByteChars();
+      simulo_correos <<"Informando a " <<telclientes[1].asString().GetMultiByteChars() << endl;
+
       for(int i = 0; i < listaPacks.size(); i++){
         SAString auxiliar(listaPacks[i].c_str());
         packs.Param(1).setAsString() = auxiliar;
@@ -59,7 +61,7 @@ void InformarNovedades(vector<string> listaPacks, SAConnection* con){
 
 //REVISAR LUEGO
 //Se tiene que modificar el pack y luego activarlo o no se hace nada
-void ModificarPack(vector<int> idPeliculas, double precio ,string idPack ,SAConnection* con){
+void ModificarPack(vector<int> idPeliculas, double precio ,string nombrepack ,SAConnection* con){
   SACommand guardado, modificar;
   guardado.setConnection(con);
   guardado.setCommandText(_TSA("SAVEPOINT modifcarpack"));
@@ -73,9 +75,9 @@ void ModificarPack(vector<int> idPeliculas, double precio ,string idPack ,SAConn
     return ;
   }
 
-  SAString auxiliar(idPack.c_str());
+  SAString auxiliar(nombrepack.c_str());
   modificar.setConnection(con);
-  modificar.setCommandText(_TSA("SELECT * FROM PACK WHERE idPack = :1"));
+  modificar.setCommandText(_TSA("SELECT * FROM PACK WHERE nombrepack = :1"));
   modificar.Param(1).setAsString() = auxiliar;
   modificar.Execute();
   if(!(modificar.FetchNext() )){
@@ -83,7 +85,7 @@ void ModificarPack(vector<int> idPeliculas, double precio ,string idPack ,SAConn
   }
   else{
     // Modifica los datos internos del Pack
-    modificar.setCommandText(_TSA("UPDATE PACK set precio=:1 WHERE idPack=:2")); // con un trigger se puede controlar el insert en packs activos
+    modificar.setCommandText(_TSA("UPDATE PACK set precio=:1 WHERE nombrepack=:2")); // con un trigger se puede controlar el insert en packs activos
     modificar.Param(2).setAsString() = auxiliar;
     modificar.Param(1).setAsDouble() = precio;
     try{
@@ -109,7 +111,7 @@ void ModificarPack(vector<int> idPeliculas, double precio ,string idPack ,SAConn
     }
 
     //Borra todas las peliculas que estaban ligadas al PAck antes
-    modificar.setCommandText(_TSA("DELETE * FROM Peliculapack WHERE idPack = :1"));
+    modificar.setCommandText(_TSA("DELETE FROM Peliculapack WHERE nombrepack = :1"));
     modificar.Param(1).setAsString() = auxiliar;
     try{
       modificar.Execute();
@@ -146,7 +148,7 @@ void ModificarPack(vector<int> idPeliculas, double precio ,string idPack ,SAConn
 
 //REVISAR LUEGO
 // O se crea todo y se activa el pack o no se hace nada
-void CrearPack(vector<int> idPeliculas, double precio ,string idPack ,SAConnection* con){
+void CrearPack(vector<int> idPeliculas, double precio ,string nombrepack ,SAConnection* con){
   SACommand guardado, crear;
   guardado.setConnection(con);
   guardado.setCommandText(_TSA("SAVEPOINT crearpack"));
@@ -160,7 +162,7 @@ void CrearPack(vector<int> idPeliculas, double precio ,string idPack ,SAConnecti
     return ;
   }
 
-  SAString auxiliar(idPack.c_str());
+  SAString auxiliar(nombrepack.c_str());
   crear.setConnection(con);
   crear.setCommandText(_TSA("INSERT INTO pack VALUES(:1 , :2)")); // Con un TRIGGER se puede controlar que insert en packs activos
   crear.Param(1).setAsString() = auxiliar;
@@ -214,7 +216,7 @@ void CrearPack(vector<int> idPeliculas, double precio ,string idPack ,SAConnecti
 };
 
 //REVISAR LUEGO
-void DesactivarPack(string idPack ,SAConnection* con){
+void DesactivarPack(string nombrepack ,SAConnection* con){
   SACommand guardado, desactivar;
   guardado.setConnection(con);
   guardado.setCommandText(_TSA("SAVEPOINT desactivarpack"));
@@ -228,7 +230,7 @@ void DesactivarPack(string idPack ,SAConnection* con){
     return ;
   }
 
-  SAString auxiliar(idPack.c_str());
+  SAString auxiliar(nombrepack.c_str());
   desactivar.setConnection(con);
   desactivar.setCommandText(_TSA("DELETE FROM PACKACTIVO WHERE nombrePack=:1"));
   desactivar.Param(1).setAsString() = auxiliar;
@@ -247,14 +249,16 @@ void DesactivarPack(string idPack ,SAConnection* con){
 };
 
 //REVISAR LUEGO
-void RecibirRecomendaciones(vector< pair <unsigned, unsigned >> clienteRPeliculas ,SAConnection* con){
-  SACommand recomendaciones;
+void RecibirRecomendaciones(vector< pair <int, int >> clienteRPeliculas ,SAConnection* con){
+  SACommand recomendaciones, guardado;
+  guardado.setConnection(con);
+  guardado.setCommandText(_TSA("SAVEPOINT desactivarpack"));
   recomendaciones.setConnection(con);
   recomendaciones.setCommandText(_TSA("INSERT INTO recomendacion VALUES(:1,:2)"));
 
   for(int i = 0; i < clienteRPeliculas.size(); i++){
-    recomendaciones.Param(1).setAsUInt64() = clienteRPeliculas[i].first;
-    recomendaciones.Param(2).setAsUInt64() = clienteRPeliculas[i].first;
+    recomendaciones.Param(1).setAsInt64() = clienteRPeliculas[i].second;
+    recomendaciones.Param(2).setAsInt64() = clienteRPeliculas[i].first;
     try{
       recomendaciones.Execute();
     }
@@ -277,6 +281,8 @@ void RecibirRecomendaciones(vector< pair <unsigned, unsigned >> clienteRPelicula
           cerr<<x.ErrText().GetMultiByteChars()<<endl;
           break;
       }
+      guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT desactivarpack"));
+      guardado.Execute();
     }
   }
 
