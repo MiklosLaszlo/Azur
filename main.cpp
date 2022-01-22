@@ -22,7 +22,7 @@ void MenuPrincipal(){
   // 2 Inciar Sesion cliente -> Menu cliente (ver pelicula, modficar datos, buscar catalago, mostrar catalog/recomendaciones, dar de baja y finalizar sesion)
   // 3 COSAS EMPLEADO (iniciar sesion "empleado") -> Menu empleado (submenu de packs, submenu finanzas)
   // 4 Dar alta Empresa
-  // 5 COsas de la empresa -> MEnu empresa (solo suministrar peliculas)
+  // 5 Cosas de la empresa -> Menu empresa (solo suministrar peliculas)
   // 6 Salir
 };
 
@@ -30,14 +30,18 @@ void Submenufinanzas(SAConnection* con){
   //1 generar contrato de un cliente
   //2 generar contrato empleado
   //3 balance de gastos
+  //4 recibir pago de un cliente
+  //5 pagar a un proveedor
+  //6 Salir del submenu
   int opcion = 0;
   BalanceGastos balance;
   ContratoCliente contratoC;
   ContratoProveedor contratoP;
 
-  while(opcion!=4){
-    cout<<"Está usted en el submenú del de departamento de finanzas, ¿Qué desea hacer?"<<endl;
-    cout<<"\t1- Generar contrato cliente\n\t2- Generar contrato proveedor\n\t3- Balance de gastos\n\t4- Salir del submenú"<<endl;
+  while(opcion!=6){
+    cout<<"Está usted en el submenú del de departamento de finanzas"<<endl;
+    cout<<"\n\t1- Generar contrato cliente\n\t2- Generar contrato proveedor\n\t3- Balance de gastos\n\t4- Factura de un cliente\n\t5- Factura de un proveedor\n\t6- Salir del submenú"<<endl;
+    cout<<"¿Qué desea hacer?: ";
     cin>>opcion;
     switch(opcion){
       case 1:{ //Contrato cliente
@@ -47,7 +51,7 @@ void Submenufinanzas(SAConnection* con){
 	vector<string> packsContratados;
 	double precio;
 
-	cout<<"Introduzca el telefono del cliente: ";
+	cout<<"\nIntroduzca el telefono del cliente: ";
 	cin>>tlfCliente;
 	cout<<"\n¿Cuantos packs desea contratar el cliente?: ";
 	cin>>numPacks;
@@ -79,7 +83,7 @@ void Submenufinanzas(SAConnection* con){
 	vector<string> peliculasParaActivar;
 	double precio;
 
-	cout<<"Introduzca el CIF del proveedor: ";
+	cout<<"\nIntroduzca el CIF del proveedor: ";
 	cin>>cif;
 	cout<<"\n¿Cuantas peliculas desea contratar de las suministradas?: ";
 	cin>>numPeliculas;
@@ -104,6 +108,44 @@ void Submenufinanzas(SAConnection* con){
         balance = BalanceDeGastos(con);
 	mostrarBalance(balance);
         break;
+		    
+      case 4: //Factura cliente
+	FacturaCliente facturac;
+	int tlfCliente;
+	double precio;
+	int[3] fechaPago;
+		    
+	cout<<"\nIntroduzca el telefono del cliente: ";
+	cin>>tlfCliente;
+	cout<<"\nIntroduzca el precio de la factura: ";
+	cin>>precio;
+	cout<<"\nIntroduzca la fecha de finalización de pago (3 ints: dia mes anio): ";
+	cin>>fechaPago[0]>>fechaPago[1]>>fechaPago[2];
+	SADateTime f_pago(fechaPago[0], fechaPago[1], fechaPago[2]);
+		    
+        facturac = RecibirPago(tlfCliente, precio, f_pago, con);
+	mostrarFacturaCliente(facturac);
+		    
+        break;
+	
+      case 5: //Factura proveedor
+	FacturaProveedor facturap;
+	int cif;
+	double precio;
+	int[3] fechaPago;
+		    
+	cout<<"\nIntroduzca el CIF del proveedor: ";
+	cin>>cif;
+	cout<<"\nIntroduzca el precio de la factura: ";
+	cin>>precio;
+	cout<<"\nIntroduzca la fecha de finalización de pago (3 ints: dia mes anio): ";
+	cin>>fechaPago[0]>>fechaPago[1]>>fechaPago[2];
+	SADateTime f_pago(fechaPago[0], fechaPago[1], fechaPago[2]);
+		    
+        facturac = RecibirPago(precio, cif, f_pago, con);
+	mostrarFacturaProveedor(facturap);
+		    
+        break;		    
     }
   }
 };
