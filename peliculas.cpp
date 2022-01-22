@@ -20,12 +20,12 @@ void MostrarCatalogo(SAConnection* con){
     }
     cout<<" IdPelicula\tTitulo\tDirector\tAño\tProductora"<<endl;
     while(comando.FetchNext()) {
-        cout<<" "<<comando[1].asInt64()<<"\t\t"<<comando[2].asString()<<"\t\t"<<comando[3].asString()<<"\t\t"<<comando[4].asInt64()<<"\t\t"<<comando[5].asString()<<endl;
+        cout<<" "<<comando[1].asInt64()<<"\t\t"<<comando[2].asString().GetMultiByteChars()<<"\t\t"<<comando[3].asString().GetMultiByteChars()<<"\t\t"<<comando[4].asInt64()<<"\t\t"<<comando[5].asString().GetMultiByteChars()<<endl;
     }
 }
 
 
-void InhabilitarPelicula(int idP, SAConnection* con)
+void InhabilitarPelicula(int idP, SAConnection* con){
   SACommand guardado, inhabilitar;
   guardado.setConnection(con);
   guardado.setCommandText(_TSA("SAVEPOINT inhabilitarpelicula"));
@@ -39,10 +39,9 @@ void InhabilitarPelicula(int idP, SAConnection* con)
     return ;
   }
 
-  SANumeric auxiliar(idP);
   inhabilitar.setConnection(con);
   inhabilitar.setCommandText(_TSA("DELETE FROM PELICULAACTIVA WHERE idPelicula=:1"));
-  inhabilitar.Param(1).SetAsInt() = auxiliar;
+  inhabilitar.Param(1).setAsInt64() = idP;
 
   try{
     inhabilitar.Execute();
@@ -54,7 +53,7 @@ void InhabilitarPelicula(int idP, SAConnection* con)
     guardado.Execute();
   }
 
-  con->commit();
+  con->Commit();
 }
 
 
@@ -64,7 +63,7 @@ void SuministrarPelicula(string t, int a, string d, string p, int CIF, SAConnect
 	selectID.setConnection(con);
 	suministrarId.setConnection(con);
 	guardado.setCommandText(_TSA("SAVEPOINT suministrarpelicula"));
-	
+
 	try{
     	guardado.Execute();
   	}
@@ -73,22 +72,20 @@ void SuministrarPelicula(string t, int a, string d, string p, int CIF, SAConnect
     	cerr<<"Error a la hora de crear el SAVEPOINT" << endl;
     	return ;
   	}
-  	
+
   	SAString auxt(t.c_str());
-  	SANumeric auxa(a);
   	SAString auxd(d.c_str());
   	SAString auxp(p.c_str());
-	SANumeric auxCIF(CIF);
-  	
+
   	suministrar.setConnection(con);
   	suministrar.setCommandText(_TSA("INSERT INTO SUMINISTRAPELICULA (titulo,director,anio,productora,CIF) VALUES (:1,:2,:3,:4,:5)"));
   	suministrar.Param(1).setAsString() = auxt;
   	suministrar.Param(2).setAsString() = auxd;
-  	suministrar.Param(3).setAsInt64() = auxa;
+  	suministrar.Param(3).setAsInt64() = a;
   	suministrar.Param(4).setAsString() = auxp;
-	suministrar.Param(5).setAsInt64() = auxCIF;
+	suministrar.Param(5).setAsInt64() = CIF;
 
-	
+
   	try{
     	suministrar.Execute();
   	}
@@ -98,7 +95,7 @@ void SuministrarPelicula(string t, int a, string d, string p, int CIF, SAConnect
     	guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT suministrarpelicula"));
     	guardado.Execute();
   	}
-	
+
 	/*selectID.setCommandText(_TSA("SELECT secuencia_suministrarIdP.currval FROM dual"));
  	 try{
     	selectID.Execute();
@@ -109,74 +106,69 @@ void SuministrarPelicula(string t, int a, string d, string p, int CIF, SAConnect
 	}
   	int id = selectID.Param(1).asInt64(); NO HACE FALTA*/
 
-  	con->commit();
+  	con->Commit();
 }
 
 
 void BuscarTituloCatalogo(string t, SAConnection *con){
 	SACommand comando;
 	SAString auxt(t.c_str());
-	
+
     comando.setConnection(con);
     cout<<"Películas con el título buscado: "<<endl;
-    comando.setCommandText(_TSA("SELECT titulo FROM PELICULAACTIVA NATURAL JOIN SUMINISTRAPELICULA WHERE titulo = :1")); 
+    comando.setCommandText(_TSA("SELECT titulo FROM PELICULAACTIVA NATURAL JOIN SUMINISTRAPELICULA WHERE titulo = :1"));
     comando.Param(1).setAsString() = auxt;
-    
+
     try{comando.Execute();}
     catch(SAException &x){
     	cout<<x.ErrText().GetMultiByteChars()<<endl;
     }
-    
+
     cout<<" IdPelicula\tTitulo\tDirector\tAño\tProductora"<<endl;
     while(comando.FetchNext()) {
-        cout<<" "<<comando[1].asInt64()<<"\t\t"<<comando[2].asString()<<"\t\t"<<comando[3].asString()<<"\t\t"<<comando[4].asInt64()<<"\t\t"<<comando[5].asString()<<endl;
+        cout<<" "<<comando[1].asInt64()<<"\t\t"<<comando[2].asString().GetMultiByteChars()<<"\t\t"<<comando[3].asString().GetMultiByteChars()<<"\t\t"<<comando[4].asInt64()<<"\t\t"<<comando[5].asString().GetMultiByteChars()<<endl;
     }
-	con -> commit;
-}	
+	con -> Commit();
+}
 
 
 void MostrarRecomendaciones(int telefono, SAConnection *con){
 	SACommand comando;
-	SANumeric auxtel(telefono);
-	
+
 	comando.setConnection(con);
 	cout << "Películas recomendadas para ti" << endl;
 	comando.setCommandText((_TSA("SELECT idPelicula FROM RECOMENDACION NATURAL JOIN PELICULAACTIVA NATURAL JOIN SUMINISTRAPELICULA WHERE telefono = :1")));
-	comando.Param(1).setAsInt64() = auxtel;
-	
+	comando.Param(1).setAsInt64() = telefono;
+
 	try{comando.Execute();}
     catch(SAException &x){
     	cout<<x.ErrText().GetMultiByteChars()<<endl;  //¿Qué pasaría si no hubiese recomendaciones para esa persona? CREO QUE TENGO QUE CREAR TRIGGER
     }
-    
+
     cout<<" IdPelicula\tTitulo\tDirector\tAño\tProductora"<<endl;
     while(comando.FetchNext()) {
-        cout<<" "<<comando[1].asInt64()<<"\t\t"<<comando[2].asString()<<"\t\t"<<comando[3].asString()<<"\t\t"<<comando[4].asInt64()<<"\t\t"<<comando[5].asString()<<endl;
+        cout<<" "<<comando[1].asInt64()<<"\t\t"<<comando[2].asString().GetMultiByteChars()<<"\t\t"<<comando[3].asString().GetMultiByteChars()<<"\t\t"<<comando[4].asInt64()<<"\t\t"<<comando[5].asString().GetMultiByteChars()<<endl;
     }
-	
-	con -> commit;
+
+	con -> Commit();
 }
 
 
 /*AHORA MISMO SOLO BUSCO (O INTENTO) SI EL IDPELICULA ESTA EN EL PACK DEL CLIENTE*/
 void VerPelicula(int idSesion, int idPel, SAConnection *con){
 	SACommand busqueda;
-	SANumeric auxidSes(idSesion);
-	SANumeric auxidPel(idPel);
-	
+
 	busqueda.setConnection(con);
-	
-	busqueda.setCommandText(_TSA("SELECT idPelicula FROM SESIONCLIENTESESION NATURAL JOIN CONTRATOCLIENTE NATURAL JOIN PACKACTIVO WHERE idSesion = :1 AND idPelicula = :2"));
-	busqueda.Param(1).setAsInt64() = auxidSes;
-	busqueda.Param(2).setAsInt64() = auxidPel;
-	
+
+	busqueda.setCommandText(_TSA("SELECT idPelicula FROM SESIONCLIENTESESION NATURAL JOIN CONTRATOCLIENTE NATURAL JOIN PACKACTIVO NATURAL JOIN PELICULAPACK WHERE idSesion = :1 AND idPelicula = :2"));
+	busqueda.Param(1).setAsInt64() = idSesion;
+	busqueda.Param(2).setAsInt64() = idPel;
+
 	try{busqueda.Execute();}
     catch(SAException &x){
-    	cout<<x.ErrText().GetMultiByteChars()<<endl;  
+    	cout<<x.ErrText().GetMultiByteChars()<<endl;
     }
-	
-	con->commit;
-	
+
+	con->Commit();
+
 }
-
-

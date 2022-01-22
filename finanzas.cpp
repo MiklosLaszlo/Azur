@@ -4,7 +4,7 @@ using namespace std;
 
 ContratoCliente GenerarContratoCliente(int tlf, vector<SAString> listaPacks, SADateTime fechaFin, double precio, SAConnection* con){
   ContratoCliente contrato;
-  SACommand insertContrato, selectCliente, insertPack, selcetID;
+  SACommand insertContrato, selectCliente, insertPack, selectID;
   insertContrato.setConnection(con);
   selectCliente.setConnection(con);
   insertPack.setConnection(con);
@@ -19,7 +19,7 @@ ContratoCliente GenerarContratoCliente(int tlf, vector<SAString> listaPacks, SAD
   catch(SAException &x){
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error a la hora de crear el SAVEPOINT" << endl;
-    return ;
+    return contrato;
   }
 
   //Consulto los datos del cliente, hay un trigger que verifica que el cliente sea activo
@@ -105,7 +105,7 @@ void DarAltaEmpresa(SAString nombre, int tlf, SAString correo, int cif, SAConnec
   insertProveedor.Param(3).setAsInt64() = tlf;
   insertProveedor.Param(2).setAsString() = correo;
   try{
-    inserProveedor.Execute();
+    insertProveedor.Execute();
   }
   catch(SAException &x){
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
@@ -118,7 +118,7 @@ void DarAltaEmpresa(SAString nombre, int tlf, SAString correo, int cif, SAConnec
 
 ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, SADateTime fechaFin, double precio, SAConnection* con){
   ContratoProveedor contrato;
-  SACommand insertContrato, selectProveedor, selcetID, insertActiva;
+  SACommand insertContrato, selectProveedor, selectID, insertActiva;
   insertContrato.setConnection(con);
   selectProveedor.setConnection(con);
   selectID.setConnection(con);
@@ -133,7 +133,7 @@ ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, 
   catch(SAException &x){
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error a la hora de crear el SAVEPOINT" << endl;
-    return ;
+    return contrato;
   }
 
   //Consulto los datos del proveedor
@@ -202,7 +202,7 @@ ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, 
       return contrato;
     }
 
-    insertActiva.setCommandText(_TSA"INSERT INTO Activa (idpelicula,idContratoProveedor) VALUES (:1,:2)");
+    insertActiva.setCommandText(_TSA("INSERT INTO Activa (idpelicula,idContratoProveedor) VALUES (:1,:2)"));
     insertActiva.Param(1).setAsInt64() = idPelicula;
     insertActiva.Param(2).setAsInt64() = idContrato;
     try{
@@ -225,7 +225,7 @@ ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, 
 
 FacturaCliente RecibirPago(int tlf, double precio, SADateTime fechaPago, SAConnection* con){
   FacturaCliente factura;
-  SACommand insertFactura, selcetID;
+  SACommand insertFactura, selectID;
   insertFactura.setConnection(con);
 
   insertFactura.setCommandText(_TSA("INSERT INTO facturaClientePaga (telefono,precio,fecha) VALUES (:1,:2,:3)"));
@@ -260,7 +260,7 @@ FacturaCliente RecibirPago(int tlf, double precio, SADateTime fechaPago, SAConne
 
 FacturaProveedor RealizarPago(double precio, int cif, SADateTime fechaPago, SAConnection* con){
   FacturaProveedor factura;
-  SACommand insertFactura, selcetID;
+  SACommand insertFactura, selectID;
   insertFactura.setConnection(con);
 
   insertFactura.setCommandText(_TSA("INSERT INTO facturaProveedorRecibeDinero (cif,precio,fecha) VALUES (:1,:2,:3)"));
@@ -273,7 +273,7 @@ FacturaProveedor RealizarPago(double precio, int cif, SADateTime fechaPago, SACo
   catch(SAException &x){
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error al insertar la factura del proveedor" << endl;
-    factura.idfacturac=-1;
+    factura.idfacturap=-1;
     return factura;
   }
 
@@ -285,7 +285,7 @@ FacturaProveedor RealizarPago(double precio, int cif, SADateTime fechaPago, SACo
   catch(SAException &x){
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error al obtener el id de la factura del proveedor" << endl;
-    factura.idfacturac=-1;
+    factura.idfacturap=-1;
     return factura;
   }
   int id = selectID.Param(1).asInt64();
@@ -317,9 +317,9 @@ BalanceGastos BalanceDeGastos(SAConnection* con){
   }
 
   while(selectFClientes.FetchNext()){
-    fcliente = {selectFClientes[1].asInt64(), selectFClientes[3].asReal(), selectFClientes[4].asInt64(), selectFClientes[2].asDateTime()};
+    fcliente = {selectFClientes[1].asInt64(), selectFClientes[3].asDouble(), selectFClientes[4].asInt64(), selectFClientes[2].asDateTime()};
     fclientes.push_back(fcliente);
-    balanceTotal.balance = balanceTotal.balance + selectFClientes[3].asReal();
+    balanceTotal.balance = balanceTotal.balance + selectFClientes[3].asDouble();
   }
   balanceTotal.ingresos=fclientes;
 
@@ -335,9 +335,9 @@ BalanceGastos BalanceDeGastos(SAConnection* con){
   }
 
   while(selectFProveedores.FetchNext()){
-    fproveedor = {selectFProveedores[1].asInt64(), selectFProveedores[3].asReal(), selectFProveedores[4].asInt64(), selectFProveedores[2].asDateTime()};
+    fproveedor = {selectFProveedores[1].asInt64(), selectFProveedores[3].asDouble(), selectFProveedores[4].asInt64(), selectFProveedores[2].asDateTime()};
     fproveedores.push_back(fproveedor);
-    balanceTotal.balance = balanceTotal.balance - selectFProveedores[3].asReal();
+    balanceTotal.balance = balanceTotal.balance - selectFProveedores[3].asDouble();
   }
   balanceTotal.gastos=fproveedores;
 
@@ -346,12 +346,12 @@ BalanceGastos BalanceDeGastos(SAConnection* con){
 
 void mostrarContratoCliente(ContratoCliente contrato){
   cout<<"Datos del contrato generado para el cliente"<<endl;
-  cout<<"\tidContrato:"<<contrato.idContrato<<"\n\tNombre del cliente:"<<contrato.nombreCliente.GetMultiByteChar()<<endl;
-  cout<<"\tTelefono:"<<contrato.tlfCliente<<"\n\tCorreo:"<<contrato.correo.GetMultiByteChar()<<endl;
-  cout<<"\tSexo:"<<contrato.sexo.GetMultiByteChar()<<"\n\tFecha nacimiento:"<<contrato.fechaNacimiento.GetDay()<<"/"<<contrato.fechaNacimiento.GetMonth()<<"/"<<contrato.fechaNacimiento.GetYear()<<endl;
+  cout<<"\tidContrato:"<<contrato.idContrato<<"\n\tNombre del cliente:"<<contrato.nombreCliente.GetMultiByteChars()<<endl;
+  cout<<"\tTelefono:"<<contrato.tlfCliente<<"\n\tCorreo:"<<contrato.correo.GetMultiByteChars()<<endl;
+  cout<<"\tSexo:"<<contrato.sexo.GetMultiByteChars()<<"\n\tFecha nacimiento:"<<contrato.fechaNacimiento.GetDay()<<"/"<<contrato.fechaNacimiento.GetMonth()<<"/"<<contrato.fechaNacimiento.GetYear()<<endl;
   cout<<"\tNum tarjeta:"<<contrato.tarjeta<<"\n\tPacks contratados:";
     for(int i=0; i<contrato.packsContratados.size(); i++){
-      cout<<"\n\t\t"<<contrato.packsContratados[i].GetMultiByteChar();
+      cout<<"\n\t\t"<<contrato.packsContratados[i].GetMultiByteChars();
     }
   cout<<"\n\tFecha inicio:"<<contrato.fechaInicio.GetDay()<<"/"<<contrato.fechaInicio.GetMonth()<<"/"<<contrato.fechaInicio.GetYear()<<endl;
   cout<<"\n\tFecha fin:"<<contrato.fechaFin.GetDay()<<"/"<<contrato.fechaFin.GetMonth()<<"/"<<contrato.fechaFin.GetYear()<<endl;
@@ -360,11 +360,11 @@ void mostrarContratoCliente(ContratoCliente contrato){
 
 void mostrarContratoProveedor(ContratoProveedor contrato){
   cout<<"Datos del contrato generado para el proveedor"<<endl;
-  cout<<"\tidContrato:"<<contrato.idContrato<<"\n\tNombre del proveedor:"<<contrato.nombreProveedor.GetMultiByteChar()<<endl;
-  cout<<"\tTelefono:"<<contrato.tlfProveedor<<"\n\tCorreo:"<<contrato.correo.GetMultiByteChar()<<endl;
+  cout<<"\tidContrato:"<<contrato.idContrato<<"\n\tNombre del proveedor:"<<contrato.nombreProveedor.GetMultiByteChars()<<endl;
+  cout<<"\tTelefono:"<<contrato.tlfProveedor<<"\n\tCorreo:"<<contrato.correo.GetMultiByteChars()<<endl;
   cout<<"\tCIF:"<<contrato.cif<<"\n\tPeliculas a activar:";
     for(int i=0; i<contrato.peliculasAActivar.size(); i++){
-      cout<<"\n\t\t"<<contrato.peliculasAActivar[i].GetMultiByteChar();
+      cout<<"\n\t\t"<<contrato.peliculasAActivar[i].GetMultiByteChars();
     }
   cout<<"\n\tFecha inicio:"<<contrato.fechaInicio.GetDay()<<"/"<<contrato.fechaInicio.GetMonth()<<"/"<<contrato.fechaInicio.GetYear()<<endl;
   cout<<"\n\tFecha fin:"<<contrato.fechaFin.GetDay()<<"/"<<contrato.fechaFin.GetMonth()<<"/"<<contrato.fechaFin.GetYear()<<endl;
@@ -373,13 +373,13 @@ void mostrarContratoProveedor(ContratoProveedor contrato){
 
 void mostrarFacturaCliente(FacturaCliente factura){
   cout<<"Factura de cliente"<<endl;
-  cout<<"\n\tidFactura:"<<factura.idFactura<<"\n\tPrecio:"<<factura.precio<<"\n\tTelefono cliente:"<<factura.tlfCliente<<endl;
+  cout<<"\n\tidFactura:"<<factura.idfacturac<<"\n\tPrecio:"<<factura.precio<<"\n\tTelefono cliente:"<<factura.tlfCliente<<endl;
   cout<<"\n\tFecha pago:"<<factura.fechaPago.GetDay()<<"/"<<factura.fechaPago.GetMonth()<<"/"<<factura.fechaPago.GetYear()<<endl;
 }
 
 void mostrarFacturaProveedor(FacturaProveedor factura){
   cout<<"Factura de proveedor"<<endl;
-  cout<<"\n\tidFactura:"<<factura.idFactura<<"\n\tPrecio:"<<factura.precio<<"\n\tCIF:"<<factura.cif<<endl;
+  cout<<"\n\tidFactura:"<<factura.idfacturap<<"\n\tPrecio:"<<factura.precio<<"\n\tCIF:"<<factura.cif<<endl;
   cout<<"\n\tFecha pago:"<<factura.fechaPago.GetDay()<<"/"<<factura.fechaPago.GetMonth()<<"/"<<factura.fechaPago.GetYear()<<endl;
 }
 

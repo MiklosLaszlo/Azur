@@ -9,14 +9,14 @@
 
 using namespace std;
 
-void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, SADateTime f, 
+void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, SADateTime f,
                  unsigned int t, SAConnection* con){
-/*  if(n.length()<50 && c.length()<50 && to_string(telf).length()==9 && cor.length()<50 
+/*  if(n.length()<50 && c.length()<50 && to_string(telf).length()==9 && cor.length()<50
      && (s=='F' || s=='M' || s=='O') && f.length()<50 && to_string(t).length()==16){*/
   SACommand guardado, crear;
   guardado.setConnection(con);
   guardado.setCommandText(_TSA("SAVE POINT registrarcliente"));
-    
+
   try{
     guardado.Execute();
   }
@@ -25,20 +25,21 @@ void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, S
     cerr<<"Error a la hora de crear el SAVEPOINT" << endl;
     return ;
   }
-  
+
   SAString auxn(n.c_str());
   SAString auxc(c.c_str());
   SAString auxcor(cor.c_str());
+  SAString auxs(&s);
   crear.setConnection(con);
   crear.setCommandText(_TSA("INSERT INTO cliente VALUES(:1, :2, :3, :4, :5, :6, :7)"));
   crear.Param(1).setAsString() = auxn;
   crear.Param(2).setAsString() = auxc;
   crear.Param(3).setAsInt64() = telf;
   crear.Param(4).setAsString() = auxcor;
-  crear.Param(5).setAsChar() = s;
+  crear.Param(5).setAsString() = auxs;
   crear.Param(6).setAsDateTime() = f;
   crear.Param(7).setAsInt64() = t;
-  
+
   try{
     crear.Execute();
   }
@@ -59,69 +60,71 @@ void DarAltaCliente(string n, string c, unsigned int telf, string cor, char s, S
         break;
       default:
         cout << "Excepción no controlada\n" << endl;
-        cout << x-ErrText().GetMultiByteChars()<< endl;
+        cout << x.ErrText().GetMultiByteChars()<< endl;
         break;
     }
-    
+
     guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT registrarcliente"));
     guardado.Execute();
     return ;
   }
   //}
-  con->commit();
+  con->Commit();
 };
 
 int IniciarSesion(unsigned int telf, string pw, SAConnection* con){
   SACommand guardado, inicia, selectID;
-  guardado.SetConnection(con);
+  int id=-1;
+  guardado.setConnection(con);
   guardado.setCommandText(_TSA("SAVEPOINT iniciarSesion"));
-  
+
   try{
-    guardado.execute();
+    guardado.Execute();
   }
   catch(SAException &x){
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error a la hora de crear el SAVEPOINT" << endl;
-    return ;
+    return -1;
   }
-  
+
   inicia.setConnection(con);
-  SAString auxc(pw.c_string());
+  SAString auxc(pw.c_str());
   inicia.setCommandText(_TSA("SELECT * FROM CLIENTE WHERE (telefono = :1 AND contrasena = :2)"));
   inicia.Param(1).setAsInt64() = telf;
   inicia.Param(2).setAsString() = auxc;
-  
+
   if(!(inicia.FetchNext())){
     cerr << "Telefono o contraseña incorrecta\n";
     return -1;
   }
   else{
     inicia.setCommandText(_TSA("INSERT INTO SESIONCLIENTESESION (telefono,horaInicio) VALUES(:1,:2)"));
-    inicia.Param(1).setAsInt() = telf;
-    inicia.Param(2).setAsDateTime() = SADateTime::currentDataTime();
-    
+    inicia.Param(1).setAsInt64() = telf;
+    SADateTime fechas = SADateTime::currentDateTime();
+    inicia.Param(2).setAsDateTime() = fechas;
+
     try{
       inicia.Execute();
     }
     catch(SAException &x){
       cerr << "Error al iniciar sesion\n";
-      cerr << x.ErrText().GetMulriByteChars() << endl;
+      cerr << x.ErrText().GetMultiByteChars() << endl;
       guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT iniciarSesion"));
       guardado.Execute();
     }
-    
-    selectID.setCommand(_TSA("SELECT secuencia_suministrarIdSesion.currval FROM dual"));
+
+    selectID.setCommandText(_TSA("SELECT secuencia_suministrarIdSesion.currval FROM dual"));
     try{
       selectID.Execute();
       selectID.FetchNext();
     }
-    catch(SAS &x){
-      cerr << x.ErrText().GetMultiByetChars()<<endl;
+    catch(SAException &x){
+      cerr << x.ErrText().GetMultiByteChars()<<endl;
     }
-    
-    int id = selectID.Param(1).asInt64();
+
+    id = selectID.Param(1).asInt64();
   }
-  con -> commit();
+  con -> Commit();
   return id;
 };
 
@@ -129,65 +132,51 @@ void FinalizarSesion(int idSes, SAConnection* con){
   SACommand guardado, finalizaSesion, borraSesionActiva;
   guardado.setConnection(con);
   guardado.setCommandText(_TSA("SAVEPOINT finalizarsesion"));
-  
+
   try{
-    guardado.execute();
+    guardado.Execute();
   }
   catch(SAException &x){
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error a la hora de crear el SAVEPOINT" << endl;
     return ;
   }
-  
-  finalizaSesion.setConnection(con);
-  finalizaSesion.setCommandText(_TSA("UPDATE SESIONCLIENTESESION SET horaFin=:1"));
-  finalizaSesion.param(1).setAsDateTime() = SADateTime::currentDataTime();
-  
-  try{
-    finalizaSesion.Execute();
-  }
-  catch(SAException &x){
-    cerr << "Error al finalizar sesion\n";
-    cerr << x.ErrText().GetMulriByteChars() << endl;
-    guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT iniciarSesion"));
-    guardado.Execute();
-  }
-  
+
   borraSesionActiva.setConnection(con);
   borraSesionActiva.setCommandText(_TSA("DELETE FROM SESIONACTIVA WHERE idSesion=:1"));
   borraSesionActiva.Param(1).setAsInt64() = idSes;
-  
+
   try{
     borraSesionActiva.Execute();
   }
-  catch(SASException &x){
+  catch(SAException &x){
     cerr << "Error a la hora de eliminar SesionActiva\n";
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT finalizarSesion"));
     guardado.Execute();
   }
-  
-  con->commit();
+
+  con->Commit();
 };
 
 void DarBajaCliente(int idSes, SAConnection* con){
   SACommand guardado, desactiva;
   guardado.setConnection(con);
   guardado.setCommandText(_TSA("SAVEPOINT darbajacliente"));
-  
+
   try{
-    guardado.execute();
+    guardado.Execute();
   }
   catch(SAException &x){
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error a la hora de crear el SAVEPOINT" << endl;
     return ;
   }
-  
+
   desactiva.setConnection(con);
   desactiva.setCommandText(_TSA("DELETE FROM CLIENTEACTIVO WHERE telefono IN (SELECT telefono FROM SESIONCLIENTESESION WHERE idSesion=:1)"));
-  desactiva.Param(1).setAsInt64() = idSES;
-  
+  desactiva.Param(1).setAsInt64() = idSes;
+
   try{
     desactiva.Execute();
   }
@@ -197,15 +186,15 @@ void DarBajaCliente(int idSes, SAConnection* con){
     guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT darbajacliente"));
     guardado.Execute();
   }
-  
-  con->commit();
+
+  con->Commit();
 };
 
 void ModificarCliente(string n, string c, int idSes, string cor, char s, SADateTime f, unsigned int t, SAConnection* con){
   SACommand guardado, modificar, getTlf;
   guardado.setConnection(con);
   guardado.setCommandText(_TSA("SAVEPOINT modifcliente"));
-  
+
   try{
     guardado.Execute();
   }
@@ -214,15 +203,16 @@ void ModificarCliente(string n, string c, int idSes, string cor, char s, SADateT
     cerr<<"Error a la hora de crear el SAVEPOINT" << endl;
     return ;
   }
-  
+
   SAString auxn(n.c_str());
   SAString auxc(c.c_str());
   SAString auxcor(cor.c_str());
+  SAString auxs(&s);
   modificar.setConnection(con);
   modificar.setCommandText(_TSA("SELECT telefono FROM SESIONCLIENTESESION WHERE idSesion=:1)"));
-  
   modificar.Param(1).setAsInt64() = idSes;
-  
+  modificar.Execute();
+
   if(!(modificar.FetchNext())){
     cerr << "El cliente que se quiere modificar no pertenece a la base de datos\n";
   }
@@ -231,11 +221,11 @@ void ModificarCliente(string n, string c, int idSes, string cor, char s, SADateT
     modificar.Param(1).setAsString() = auxn;
     modificar.Param(2).setAsString() = auxc;
     modificar.Param(3).setAsString() = auxcor;
-    modificar.Param(4).setAsChar() = s;
-    modificar.Param(5).setAsDateTime() = auxf;
+    modificar.Param(4).setAsString() = auxs;
+    modificar.Param(5).setAsDateTime() = f;
     modificar.Param(6).setAsInt64() = t;
-    modificar.Param(7).setAsInt64() = telf;
-    
+    modificar.Param(7).setAsInt64() = modificar[1].asInt64();
+
     try{
       modificar.Execute();
     }
@@ -256,7 +246,7 @@ void ModificarCliente(string n, string c, int idSes, string cor, char s, SADateT
       return ;
     }
   }
-  
-  con->commit();
-    
+
+  con->Commit();
+
 };

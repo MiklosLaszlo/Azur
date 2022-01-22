@@ -18,8 +18,8 @@ void InformarNovedades(vector<string> listaPacks, SAConnection* con){
   telclientes.setConnection(con);
   packs.setConnection(con);
   ofstream simulo_correos;
-
-  if(simulo_correos.open("Correos_enviados.txt")){
+  simulo_correos.open("Correos_enviados.txt");
+  if(simulo_correos){
     telclientes.setCommandText(_TSA("SELECT correo FROM clientes WHERE telefono IN (SELECT * FROM clientesActivos)")); // Obtengo el correo de todos los clientes activos
     packs.setCommandText(_TSA("SELECT idPelicula, titulo, director, productora, anio FROM PELICULAACTIVA NATURAL JOIN Peliculapack NATURAL JOIN PACKACTIVO WHERE nombrePack:=1"));
     try{
@@ -31,16 +31,16 @@ void InformarNovedades(vector<string> listaPacks, SAConnection* con){
       return ;
     }
     // Para cada elemento de lista Packs, mirar si esta en PAcks Activos y luego enviar el correo...
-    while(telclientes.Fetch()){
-      simulo_correos <<"Informando a " <<telclientes[1].asString();
+    while(telclientes.FetchNext()){
+      simulo_correos <<"Informando a " <<telclientes[1].asString().GetMultiByteChars();
       for(int i = 0; i < listaPacks.size(); i++){
         SAString auxiliar(listaPacks[i].c_str());
-        pack.Param(1).setAsString() = auxiliar;
+        packs.Param(1).setAsString() = auxiliar;
         try{
-          pack.Execute();
+          packs.Execute();
           simulo_correos << " se informa del contenido del pack con nombre " << listaPacks[i] << endl;
-          while(pack.FetchNext()){
-            simulo_correos <<"Pelicula: " <<pack[2].asString() << " director: " << pack[3].asString() << " productora: " << pack[4].asString() << " año: " << pack[5].AsUInt64() << " idPelicula: " << pack[1].AsInt64() <<endl;
+          while(packs.FetchNext()){
+            simulo_correos <<"Pelicula: " <<packs[2].asString().GetMultiByteChars() << " director: " << packs[3].asString().GetMultiByteChars() << " productora: " << packs[4].asString().GetMultiByteChars() << " año: " << packs[5].asUInt64() << " idPelicula: " << packs[1].asInt64() <<endl;
 
           }
         }
@@ -53,13 +53,13 @@ void InformarNovedades(vector<string> listaPacks, SAConnection* con){
   }
 
   else{
-    cerr << "No se ha podido abrir el canal para escribir correos" << endl
+    cerr << "No se ha podido abrir el canal para escribir correos" << endl;
   }
 };
 
 //REVISAR LUEGO
 //Se tiene que modificar el pack y luego activarlo o no se hace nada
-void ModificarPack(vector<unsigned> idPeliculas, double precio ,string idPack ,SAConnection* con);{
+void ModificarPack(vector<unsigned> idPeliculas, double precio ,string idPack ,SAConnection* con){
   SACommand guardado, modificar;
   guardado.setConnection(con);
   guardado.setCommandText(_TSA("SAVEPOINT modifcarpack"));
@@ -140,7 +140,7 @@ void ModificarPack(vector<unsigned> idPeliculas, double precio ,string idPack ,S
 
 
   }
-  con->commit();
+  con->Commit();
 
 };
 
@@ -204,12 +204,12 @@ void CrearPack(vector<unsigned> idPeliculas, double precio ,string idPack ,SACon
     cerr << "Error al añadir las peliculas en el Pack, se cancelaran todos los cambios" << endl;
     guardado.setCommandText(_TSA("ROLLBACK TO SAVEPOINT crearpack"));
     guardado.Execute();
-    out<<x.ErrText().GetMultiByteChars()<<endl;
+    cout<<x.ErrText().GetMultiByteChars()<<endl;
     return ;
   }
 
 
-  con->commit();
+  con->Commit();
 
 };
 
@@ -243,7 +243,7 @@ void DesactivarPack(string idPack ,SAConnection* con){
     guardado.Execute();
   }
 
-  con->commit();
+  con->Commit();
 };
 
 //REVISAR LUEGO
@@ -272,7 +272,7 @@ void RecibirRecomendaciones(vector< pair <unsigned, unsigned >> clienteRPelicula
           cerr << "La pelicula que se quiere recomendar no esta activa" << endl;
           break;
 
-        default
+        default:
           cerr << "Execepcion no manejada" << endl;
           cerr<<x.ErrText().GetMultiByteChars()<<endl;
           break;
@@ -280,6 +280,6 @@ void RecibirRecomendaciones(vector< pair <unsigned, unsigned >> clienteRPelicula
     }
   }
 
-  con->commit();
+  con->Commit();
 
 };
