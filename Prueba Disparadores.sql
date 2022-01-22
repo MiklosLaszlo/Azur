@@ -183,7 +183,7 @@ DECLARE
     tam INTEGER;
 BEGIN
     SELECT length(to_char(:new.tarjeta)) INTO tam from dual;
-    if(tam != 16) THEN
+    if(tam != 5) THEN
         RAISE_APPLICATION_ERROR(-20011, 'TARJETA INVALIDA');
     END IF;
 END tarjeta_correcta;
