@@ -145,6 +145,14 @@ void Submenufinanzas(SAConnection* con){
         facturac = RecibirPago(precio, cif, f_pago, con);
 	mostrarFacturaProveedor(facturap);
 		    
+        break;
+		    
+      case 6:
+        cout <<"Saliendo del menú"<< endl;
+        break;
+		    
+      default:
+        cout << "Opción Inválida" << endl;
         break;		    
     }
   }
