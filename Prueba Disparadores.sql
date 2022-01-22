@@ -319,6 +319,17 @@ CREATE OR REPLACE TRIGGER insertar_ContratoProveedor
     END insertar_ContratoProveedor;
 /
 
+--
+CREATE OR REPLACE TRIGGER fechacontrato_completa
+BEFORE INSERT ON FIRMACP
+FOR EACH ROW
+BEGIN
+	IF(fechafin<fechainicio) THEN
+		RAISE APPLICATION_ERROR(-20104, 'FECHA DE FIN ANTERIOR A INICIO');
+  END IF;
+END fechacontrato_completa
+
+
 --Crea id factura cliente
 CREATE OR REPLACE TRIGGER insertar_FacturaCliente
   before insert on facturaClientePaga
