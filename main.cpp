@@ -86,7 +86,7 @@ void Submenufinanzas(SAConnection* con){
 	cout<<"\n¿Cuantas peliculas desea contratar de las suministradas?: ";
 	cin>>numPeliculas;
 	    for(int i=0; i<numPeliculas; i++){
-		cout<<"\n\tIntroduzca el nombre de la pelicula "<<i<<":";
+		cout<<"\n\tIntroduzca el nombre de la pelicula "<<i+1<<":";
 		getline(cin,pelicula);
 		SAString aux(pelicula.c_str());
 		peliculasParaActivar.push_back(aux);
