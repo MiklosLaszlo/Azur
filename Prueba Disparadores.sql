@@ -236,7 +236,7 @@ CREATE OR REPLACE TRIGGER finSesionActiva
 AFTER DELETE ON CLIENTEACTIVO
 FOR EACH ROW
 BEGIN
-    UPDATE SESIONCLIENTESESION SET horaFin=CURRENT_TIMESTAMP WHERE idSesion IN (SELECT idSesion FROM SESIONACTIVA idSesion IN (SELECT idSesion FROM SESIONCLIENTESESION WHERE telefono=:old.telefono));
+    UPDATE SESIONCLIENTESESION SET horaFin=CURRENT_TIMESTAMP WHERE idSesion IN (SELECT idSesion FROM SESIONACTIVA WHERE idSesion IN (SELECT idSesion FROM SESIONCLIENTESESION WHERE telefono=:old.telefono));
     DELETE FROM SESIONACTIVA WHERE idSesion IN (SELECT idSesion FROM SESIONCLIENTESESION WHERE telefono=:old.telefono);
 END finSesionActiva;
 /
@@ -247,7 +247,7 @@ AFTER DELETE ON SESIONACTIVA
 FOR EACH ROW
 BEGIN
     UPDATE SESIONCLIENTESESION SET horaFin=CURRENT_TIMESTAMP WHERE idSesion=:old.idSesion;
-END finSesionActiva;
+END finSesionAct;
 /
 
 -- Comprueba que el precio sea correcto en los pack --
@@ -390,21 +390,20 @@ FOR EACH ROW
 DECLARE
   ple INTEGER;
 BEGIN
-	  SELECT COUNT(*) INTO ple FROM PELICULAACTIVA WHERE idPelicula=:new.idPelicula AND (idPelicula IN
+      SELECT COUNT(*) INTO ple FROM PELICULAACTIVA WHERE (idPelicula=:new.idPelicula) AND idPelicula IN
       (SELECT idPelicula FROM PELICULAPACK WHERE nombrePack IN
         (SELECT nombrePack FROM CONTIENEN WHERE idContratoCliente IN(
-          SELECT idContratoCliente
-            FROM FIRMACLIENTECONTRATOCLIENTE WHERE (fechafin < CURRENT_TIMESTAMP) AND (telefono IN (
+          SELECT idContratoCliente 
+            FROM FIRMACLIENTECONTRATOCLIENTE WHERE (fechafin < CURRENT_TIMESTAMP) AND telefono IN (
                 SELECT telefono FROM SESIONCLIENTESESION WHERE idSesion IN (
                   SELECT idSesion FROM SESIONACTIVA WHERE idSesion=:new.idSesion
                 )
             )
-            )
-          order by fechainicio desc
+          )
       )
     );
     IF(ple>0) THEN
-    	RAISE_APPLICATION_ERROR(-20050, 'La pelicula o no existe o no la tiene contratada actualmente');
+        RAISE_APPLICATION_ERROR(-20050, 'La pelicula o no existe o no la tiene contratada actualmente');
     END IF;
 END confirmave;
 /
