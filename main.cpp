@@ -48,7 +48,7 @@ void Submenufinanzas(SAConnection* con){
 	int tlfCliente, numPacks;
 	int fechaFin[3];
 	string pack;
-	vector<string> packsContratados;
+	vector<SAString> packsContratados;
 	double precio;
 
 	cout<<"\nIntroduzca el telefono del cliente: ";
@@ -63,8 +63,6 @@ void Submenufinanzas(SAConnection* con){
 		packsContratados.push_back(aux);
 	    }
 
-	contratoC = GenerarContratoCliente(, con);
-	mostrarContratoProveedor(contratoP);
 	cout<<"\nIntroduzca la fecha de finalización del contrato (3 ints: dia mes anio): ";
 	cin>>fechaFin[0]>>fechaFin[1]>>fechaFin[2];
 	SADateTime f_fin(fechaFin[0], fechaFin[1], fechaFin[2]);
@@ -72,15 +70,15 @@ void Submenufinanzas(SAConnection* con){
 	cin>>precio;
 
 	contratoC = GenerarContratoCliente(tlfCliente, packsContratados, f_fin, precio, con);
-	mostrarContratoProveedor(contratoP);
+	mostrarContratoCliente(contratoC);
 }
         break;
 
       case 2:{ //Contrato proveedor
 	int cif, numPeliculas;
-	int[3] fechaFin;
+	int fechaFin[3];
 	string pelicula;
-	vector<string> peliculasParaActivar;
+	vector<SAString> peliculasParaActivar;
 	double precio;
 
 	cout<<"\nIntroduzca el CIF del proveedor: ";
@@ -90,7 +88,7 @@ void Submenufinanzas(SAConnection* con){
 	    for(int i=0; i<numPeliculas; i++){
 		cout<<"\n\tIntroduzca el nombre de la pelicula "<<i<<":";
 		getline(cin,pelicula);
-		SAString aux(pack.c_str());
+		SAString aux(pelicula.c_str());
 		peliculasParaActivar.push_back(aux);
 	    }
 	cout<<"\nIntroduzca la fecha de finalización del contrato (3 ints: dia mes anio): ";
@@ -99,22 +97,23 @@ void Submenufinanzas(SAConnection* con){
 	cout<<"\nIntroduzca el precio del contrato: ";
 	cin>>precio;
 
-        contratoP = GenerarContratoProveedor(, con);
+        contratoP = GenerarContratoProveedor(cif, peliculasParaActivar,f_fin, precio, con);
 	mostrarContratoProveedor(contratoP);
 }
         break;
 
-      case 3: //Balance gastos
+      case 3:{ //Balance gastos
         balance = BalanceDeGastos(con);
 	mostrarBalance(balance);
+}
         break;
-		    
-      case 4: //Factura cliente
+
+      case 4:{ //Factura cliente
 	FacturaCliente facturac;
 	int tlfCliente;
 	double precio;
-	int[3] fechaPago;
-		    
+	int fechaPago[3];
+
 	cout<<"\nIntroduzca el telefono del cliente: ";
 	cin>>tlfCliente;
 	cout<<"\nIntroduzca el precio de la factura: ";
@@ -122,18 +121,18 @@ void Submenufinanzas(SAConnection* con){
 	cout<<"\nIntroduzca la fecha de finalización de pago (3 ints: dia mes anio): ";
 	cin>>fechaPago[0]>>fechaPago[1]>>fechaPago[2];
 	SADateTime f_pago(fechaPago[0], fechaPago[1], fechaPago[2]);
-		    
+
         facturac = RecibirPago(tlfCliente, precio, f_pago, con);
 	mostrarFacturaCliente(facturac);
-		    
+}
         break;
-	
-      case 5: //Factura proveedor
+
+      case 5:{ //Factura proveedor
 	FacturaProveedor facturap;
 	int cif;
 	double precio;
-	int[3] fechaPago;
-		    
+	int fechaPago[3];
+
 	cout<<"\nIntroduzca el CIF del proveedor: ";
 	cin>>cif;
 	cout<<"\nIntroduzca el precio de la factura: ";
@@ -141,19 +140,19 @@ void Submenufinanzas(SAConnection* con){
 	cout<<"\nIntroduzca la fecha de finalización de pago (3 ints: dia mes anio): ";
 	cin>>fechaPago[0]>>fechaPago[1]>>fechaPago[2];
 	SADateTime f_pago(fechaPago[0], fechaPago[1], fechaPago[2]);
-		    
-        facturac = RecibirPago(precio, cif, f_pago, con);
+
+        facturap = RealizarPago(precio, cif, f_pago, con);
 	mostrarFacturaProveedor(facturap);
-		    
+}
         break;
-		    
+
       case 6:
         cout <<"Saliendo del menú"<< endl;
         break;
-		    
+
       default:
         cout << "Opción Inválida" << endl;
-        break;		    
+        break;
     }
   }
 };
@@ -280,67 +279,70 @@ void MenuEmpleado(SAConnection* con){
 void SubMenuCliente (int idSesion, int telefono, SAConnection *con){
 
 cout<<"Está usted en el submenú del de departamento de finanzas, ¿Qué desea hacer?"<<endl;
-  cout<<"\t1- Ver pelicula\n\t2- Modificar Datos\n\t3- Buscar Película\n\t4- Mostrar Catálogo\n\t5- Mostrar Recomendaciones\n\t6- Dar de baja\n\t7- Finalizar Sesión"<<endl;
-  cin>>opcion;
-  switch(opcion){
-    case 1:{
-      int idP;
+  int opcion=0;
+  while(opcion!=7){
+    cout<<"\t1- Ver pelicula\n\t2- Modificar Datos\n\t3- Buscar Película\n\t4- Mostrar Catálogo\n\t5- Mostrar Recomendaciones\n\t6- Dar de baja\n\t7- Finalizar Sesión"<<endl;
+    cin>>opcion;
+    switch(opcion){
+      case 1:{
+        int idP;
 
-      cout << "Introduzca el ID de la película que desea ver: ";
-      cin >> idP;
+        cout << "Introduzca el ID de la película que desea ver: ";
+        cin >> idP;
 
-      VerPelicula(idSesion, idP, con);
+        VerPelicula(idSesion, idP, con);
+      }
+      break;
+
+      case 2: {//Modificar Datos
+        string name, password, correo;
+        int dd,mm,aa;
+        unsigned int tarjeta;
+        char sexo;
+  	    cout << "Introduzca los nuevos datos:\n\tNombre: ";
+        cin >> name;
+        cout << "\n\tContraseña: ";
+        cin >> password;
+        cout << "\n\tCorreo electrónico: ";
+        cin >> correo;
+        cout << "\n\tSexo(H/M/O): ";
+        cin >> sexo;
+        cout << "\n\tEscriba su dia mes y año de nacimiento, separado por espacios: ";
+        cin >> dd; cin >> mm; cin >> aa;
+        SADateTime f(dd,mm,aa);
+        cout << "\n\Tarjeta: ";
+        cin >> tarjeta;
+        ModificarCliente(name, password, idSesion, correo, sexo, f, tarjeta, con);
+      }
+      break;
+
+      case 3:{
+        string tit_busc;
+
+        cout << "Inserte el título de la película que quiera ver: ";
+        getline(cin,tit_busc);
+
+        BuscarTituloCatalogo (tit_busc, con);
+      }
+      break;
+
+      case 4:
+        MostrarCatalogo(con);
+      break;
+
+      case 5:
+        MostrarRecomendaciones(telefono,con);
+      break;
+
+      case 6: //Dar de baja
+        DarBajaCliente(idSesion, con);
+      break;
+
+      case 7: //Finalizar sesión
+        FinalizarSesion(idSesion, con);
+      break;
     }
-    break;
-
-    case 2: {//Modificar Datos
-      string name, password, correo;
-      int dd,mm,aa;
-      unsigned int tarjeta;
-      char sexo;
-	    cout << "Introduzca los nuevos datos:\n\tNombre: ";
-      cin >> name;
-      cout << "\n\tContraseña: ";
-      cin >> password;
-      cout << "\n\tCorreo electrónico: ";
-      cin >> correo;
-      cout << "\n\tSexo(H/M/O): ";
-      cin >> sexo;
-      cout << "\n\tEscriba su dia mes y año de nacimiento, separado por espacios: ";
-      cin >> dd; cin >> mm; cin >> aa;
-      SADateTime f(dd,mm,aa);
-      cout << "\n\Tarjeta: ";
-      cin >> tarjeta;
-      ModificarCliente(name, password, idSesion, correo, sexo, f, tarjeta, con)
-    }
-    break;
-
-    case 3:{
-      string tit_busc;
-
-      cout << "Inserte el título de la película que quiera ver: ";
-      getline(cin,tit_busc);
-
-      BuscarTituloCatalogo (tit_busc, con);
-    }
-    break;
-
-    case 4:
-      MostrarCatalogo(con);
-    break;
-
-    case 5:
-      MostrarRecomendaciones(telefono,con);
-    break;
-
-    case 6: //Dar de baja
-      DarBajaCliente(idSesion, con);
-    break;
-
-    case 7: //Finalizar sesión
-      FinalizarSesion(idSesion, con);
-    break;
-}
+  }
 
 }
 
@@ -397,8 +399,7 @@ main(int argc, char* argv[]){
     con.setAutoCommit(SA_AutoCommitOff);
     int i = 0;
 
-    string n; string c; string cor; char s; unsigned int t;
-    nsigned int telf; int idses;
+    string n; string c; string cor; char s; unsigned int t; int idses;
     string nombre; int telf; string correo; int cif;
     int dd, aa, mm;
     while(i != 6){

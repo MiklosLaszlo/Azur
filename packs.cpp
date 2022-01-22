@@ -59,7 +59,7 @@ void InformarNovedades(vector<string> listaPacks, SAConnection* con){
 
 //REVISAR LUEGO
 //Se tiene que modificar el pack y luego activarlo o no se hace nada
-void ModificarPack(vector<unsigned> idPeliculas, double precio ,string idPack ,SAConnection* con){
+void ModificarPack(vector<int> idPeliculas, double precio ,string idPack ,SAConnection* con){
   SACommand guardado, modificar;
   guardado.setConnection(con);
   guardado.setCommandText(_TSA("SAVEPOINT modifcarpack"));
@@ -146,7 +146,7 @@ void ModificarPack(vector<unsigned> idPeliculas, double precio ,string idPack ,S
 
 //REVISAR LUEGO
 // O se crea todo y se activa el pack o no se hace nada
-void CrearPack(vector<unsigned> idPeliculas, double precio ,string idPack ,SAConnection* con){
+void CrearPack(vector<int> idPeliculas, double precio ,string idPack ,SAConnection* con){
   SACommand guardado, crear;
   guardado.setConnection(con);
   guardado.setCommandText(_TSA("SAVEPOINT crearpack"));

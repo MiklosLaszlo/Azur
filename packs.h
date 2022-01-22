@@ -10,7 +10,7 @@
 
 using namespace std;
 
-void InformarNovedades(string listaPacks, SAConnection* con);
+void InformarNovedades(vector<string> listaPacks, SAConnection* con);
 
 void ModificarPack(vector<int> idPeliculas, double precio ,string idPack ,SAConnection* con);
 

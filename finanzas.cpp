@@ -258,7 +258,7 @@ FacturaCliente RecibirPago(int tlf, double precio, SADateTime fechaPago, SAConne
   return factura;
 }
 
-FacturaProveedor RealizarPago(double precio, int cif, SADateTime fechaPago, SAConnection* con){
+FacturaProveedor RealizarPago( int cif, double precio, SADateTime fechaPago, SAConnection* con){
   FacturaProveedor factura;
   SACommand insertFactura, selectID;
   insertFactura.setConnection(con);
