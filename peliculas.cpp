@@ -160,7 +160,7 @@ void VerPelicula(int idSesion, int idPel, SAConnection *con){
 
 	busqueda.setConnection(con);
 
-	busqueda.setCommandText(_TSA("SELECT idPelicula FROM SESIONCLIENTESESION NATURAL JOIN CONTRATOCLIENTE NATURAL JOIN PACKACTIVO NATURAL JOIN PELICULAPACK WHERE idSesion = :1 AND idPelicula = :2"));
+	busqueda.setCommandText(_TSA("INSERT INTO VE VALUES(:1,:2)"));
 	busqueda.Param(1).setAsInt64() = idSesion;
 	busqueda.Param(2).setAsInt64() = idPel;
 

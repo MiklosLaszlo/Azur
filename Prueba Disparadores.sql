@@ -354,6 +354,7 @@ END comprobarPeliculaInsertada;
 /
 */
 
+-- Crea el id de la pelicula --
 CREATE OR REPLACE TRIGGER insertarNuevoIdPelicula
 BEFORE INSERT ON SUMINISTRAPELICULA
 FOR EACH ROW
@@ -362,10 +363,37 @@ BEGIN
 END insertarNuevoIdPelicula;
 /
 
+-- Cuando se desactiva la pelicula se desactiva el pack --
 CREATE OR REPLACE TRIGGER desactivarPacks
 AFTER DELETE ON PELICULAACTIVA
 FOR EACH ROW
 BEGIN
 	DELETE FROM PACKACTIVO WHERE nombrepack IN (SELECT nombrepack FROM PELICULAPACK WHERE idPelicula = :old.idPelicula);
 END desactivarPacks;
+/
+
+-- Asegura que el cliente que ve quiere ver la peli con idpelicula verifique que esta en esta un pack del contrato activo del cliente --
+CREATE OR REPLACE TRIGGER confirmave
+BEFORE INSERT ON VE
+FOR EACH ROW
+DECLARE
+  ple INTEGER;
+BEGIN
+	  SELECT COUNT(*) INTO ple FROM PELICULAACTIVA WHERE idPelicula=:new.idPelicula AND (idPelicula IN
+      (SELECT idPelicula FROM PELICULAPACK WHERE nombrePack IN
+        (SELECT nombrePack FROM CONTIENEN WHERE idContratoCliente IN(
+          SELECT idContratoCliente
+            FROM FIRMACLIENTECONTRATOCLIENTE WHERE (fechafin < CURRENT_TIMESTAMP) AND (telefono IN (
+                SELECT telefono FROM SESIONCLIENTESESION WHERE idSesion IN (
+                  SELECT idSesion FROM SESIONACTIVA WHERE idSesion=:new.idSesion
+                )
+            )
+            )
+          order by fechainicio desc
+      )
+    );
+    IF(ple>0) THEN
+    	RAISE_APPLICATION_ERROR(-20050, 'La pelicula o no existe o no la tiene contratada actualmente');
+    END IF;
+END confirmave;
 /
