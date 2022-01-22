@@ -421,7 +421,7 @@ main(int argc, char* argv[]){
           SADateTime f(dd,mm,aa);
           cout << "Escriba su numero de telefono  (9 digitos)" << endl;
           cin >> telf;
-          cout << "Escriba su numero de tarjeta (16 digitos)" << endl;
+          cout << "Escriba su numero de tarjeta (5 digitos)" << endl;
           cin >> t;
           cout << "Se va a intentar crear el cliente" << endl;
           DarAltaCliente(n,c,telf,cor,s,f,t, &con);
