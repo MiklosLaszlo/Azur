@@ -5,7 +5,7 @@ CREATE TABLE CLIENTE(
     contrasena varchar2(20) NOT NULL,
     telefono INT PRIMARY KEY,
     correo varchar2(50) NOT NULL,
-    sexo CHAR CHECK (sexo IN ('H', 'M', 'O' )),
+    sexo varchar2(20),
     fechanacimiento DATE,
     tarjeta INT NOT NULL
 );
@@ -183,7 +183,7 @@ DECLARE
     tam INTEGER;
 BEGIN
     SELECT length(to_char(:new.tarjeta)) INTO tam from dual;
-    if(tam != 16) THEN
+    if(tam != 5) THEN
         RAISE_APPLICATION_ERROR(-20011, 'TARJETA INVALIDA');
     END IF;
 END tarjeta_correcta;
@@ -236,7 +236,7 @@ CREATE OR REPLACE TRIGGER finSesionActiva
 AFTER DELETE ON CLIENTEACTIVO
 FOR EACH ROW
 BEGIN
-    UPDATE SESIONCLIENTESESION SET horaFin=CURRENT_TIMESTAMP WHERE idSesion IN (SELECT idSesion FROM SESIONACTIVA idSesion IN (SELECT idSesion FROM SESIONCLIENTESESION WHERE telefono=:old.telefono));
+    UPDATE SESIONCLIENTESESION SET horaFin=CURRENT_TIMESTAMP WHERE idSesion IN (SELECT idSesion FROM SESIONACTIVA WHERE idSesion IN (SELECT idSesion FROM SESIONCLIENTESESION WHERE telefono=:old.telefono));
     DELETE FROM SESIONACTIVA WHERE idSesion IN (SELECT idSesion FROM SESIONCLIENTESESION WHERE telefono=:old.telefono);
 END finSesionActiva;
 /
@@ -247,7 +247,7 @@ AFTER DELETE ON SESIONACTIVA
 FOR EACH ROW
 BEGIN
     UPDATE SESIONCLIENTESESION SET horaFin=CURRENT_TIMESTAMP WHERE idSesion=:old.idSesion;
-END finSesionActiva;
+END finSesionAct;
 /
 
 -- Comprueba que el precio sea correcto en los pack --
@@ -319,6 +319,17 @@ CREATE OR REPLACE TRIGGER insertar_ContratoProveedor
     END insertar_ContratoProveedor;
 /
 
+--
+CREATE OR REPLACE TRIGGER fechacontrato_completa
+BEFORE INSERT ON FIRMACP
+FOR EACH ROW
+BEGIN
+  IF(:new.fechafin<:new.fechainicio) THEN
+    RAISE APPLICATION_ERROR(-20104, 'FECHA DE FIN ANTERIOR A INICIO');
+  END IF;
+END fechacontrato_completa
+/
+
 --Crea id factura cliente
 CREATE OR REPLACE TRIGGER insertar_FacturaCliente
   before insert on facturaClientePaga
@@ -379,27 +390,27 @@ FOR EACH ROW
 DECLARE
   ple INTEGER;
 BEGIN
-	  SELECT COUNT(*) INTO ple FROM PELICULAACTIVA WHERE idPelicula=:new.idPelicula AND (idPelicula IN
+      SELECT COUNT(*) INTO ple FROM PELICULAACTIVA WHERE (idPelicula=:new.idPelicula) AND idPelicula IN
       (SELECT idPelicula FROM PELICULAPACK WHERE nombrePack IN
         (SELECT nombrePack FROM CONTIENEN WHERE idContratoCliente IN(
           SELECT idContratoCliente
-            FROM FIRMACLIENTECONTRATOCLIENTE WHERE (fechafin < CURRENT_TIMESTAMP) AND (telefono IN (
+            FROM FIRMACLIENTECONTRATOCLIENTE WHERE (fechafin < CURRENT_TIMESTAMP) AND telefono IN (
                 SELECT telefono FROM SESIONCLIENTESESION WHERE idSesion IN (
                   SELECT idSesion FROM SESIONACTIVA WHERE idSesion=:new.idSesion
                 )
             )
-            )
-          order by fechainicio desc
+          )
       )
     )
   )
     );
     IF(ple>0) THEN
-    	RAISE_APPLICATION_ERROR(-20050, 'La pelicula o no existe o no la tiene contratada actualmente');
+        RAISE_APPLICATION_ERROR(-20050, 'La pelicula o no existe o no la tiene contratada actualmente');
     END IF;
 END confirmave;
 /
 
+--
 CREATE OR REPLACE TRIGGER activarpeli
 AFTER INSERT ON ACTIVA
 FOR EACH ROW
@@ -413,6 +424,44 @@ BEGIN
 END activarpeli;
 /
 
+-- Comprueba que el precio sea correcto en los pack
+CREATE OR REPLACE TRIGGER precio_correcto
+BEFORE INSERT OR UPDATE ON PACK
+FOR EACH ROW WHEN(new.precio < 0)
+BEGIN
+    RAISE_APPLICATION_ERROR(-20001, 'PRECIO INVALIDO');
+END precio_correcto;
+/
+
+-- Cuando se modifique o se cree un pack este se activa, en caso de que no este activado ya --
+CREATE OR REPLACE TRIGGER crearPackActivo
+AFTER INSERT OR UPDATE ON PACK
+FOR EACH ROW
+DECLARE
+    cuantos INTEGER;
+BEGIN
+    SELECT COUNT(*) INTO cuantos FROM PACKACTIVO WHERE nombrepack= :new.nombrepack;
+    IF(cuantos < 1) THEN
+        INSERT INTO PACKACTIVO VALUES(:new.nombrepack);
+    END IF;
+END crearPackActivo;
+/
+
+--
+CREATE OR REPLACE TRIGGER activarpeli
+AFTER INSERT ON ACTIVA
+FOR EACH ROW
+DECLARE
+  ple INTEGER;
+BEGIN
+  SELECT COUNT(*) INTO ple FROM PELICULAACTIVA WHERE idPelicula=:new.idPelicula;
+  IF (ple < 1) THEN
+    INSERT INTO PELICULAACTIVA VALUES(:new.idPelicula);
+  END IF;
+END activarpeli;
+/
+
+--
 CREATE OR REPLACE TRIGGER comprobarpeliactiva
 AFTER INSERT ON PELICULAPACK
 FOR EACH ROW
@@ -423,5 +472,5 @@ BEGIN
   IF (ple < 1) THEN
     RAISE_APPLICATION_ERROR(-20004,'Pelcula no activa')
   END IF;
-END activarpeli;
+END comprobarpeliactiva;
 /
