@@ -408,3 +408,231 @@ BEGIN
     END IF;
 END confirmave;
 /
+       
+--
+CREATE OR REPLACE TRIGGER activarpeli
+AFTER INSERT ON ACTIVA
+FOR EACH ROW
+DECLARE
+  ple INTEGER;
+BEGIN
+  SELECT COUNT(*) INTO ple FROM PELICULAACTIVA WHERE idPelicula=:new.idPelicula;
+  IF (ple < 1) THEN
+    INSERT INTO PELICULAACTIVA VALUES(:new.idPelicula);
+  END IF;
+END activarpeli;
+/
+       
+--
+Itrilor
+#6772
+Miklos Laszlo, Geri, holygoo, GabiOO
+
+Miklos Laszlo — 08/01/2022
+ehh si eso podemos ir corrigiendo cosas? O hacer que os funcione sqlapi
+Itrilor — 08/01/2022
+Yo llevo aqui un rato
+Miklos Laszlo
+ ha iniciado una llamada que ha durado 3 horas.
+ — 08/01/2022
+Miklos Laszlo — 08/01/2022
+Muy buenas soy Nicolás y le quería preguntar que para realizar la defensa del trabajo del tema 4, basta con coger una cita de tutoría o si hay que hacer algo más?.
+Geri — 08/01/2022
+Muy buenas. Soy Nicolás y le quería preguntar que si para realizar la defensa del trabajo del tema 4, ¿basta con coger una cita de tutoría o hay que hacer algo más?
+GabiOO — 08/01/2022
+disparador para comprobar lo de las pelis que no estén contratadas a la vez
+Si una peli figura
+en un contrato vigente, no se puede volver a contratar hasta que dicho contrato caduque
+GabiOO — 08/01/2022
+Restricción semántica, un contrato con un proveedor solo involucra pelis suministradas por él
+GabiOO — 08/01/2022
+hay que modelar lo que hacen los triggers? (El trigger que solo escribe recom de activos)
+Itrilor
+ ha iniciado una llamada que ha durado 6 horas.
+ — 15/01/2022
+GabiOO — 15/01/2022
+estoy en breves
+Miklos Laszlo — 15/01/2022
+https://www.sqlapi.com/ApiDoc/class_s_a_date_time.html
+SADateTime | SQLAPI++
+SQLAPI++ is C++ library for accessing SQL databases (Oracle, SQL Server, Sybase, DB2, InterBase, SQLBase, Informix, MySQL, Postgre, ODBC, SQLite, SQL Anywhere).
+It provides unified API for accessing different database while also allowing access to native features.
+Imagen
+Miklos Laszlo — 15/01/2022
+-- Comprueba que el precio sea correcto en los pack
+CREATE OR REPLACE TRIGGER precio_correcto
+BEFORE INSERT OR UPDATE ON PACK
+FOR EACH ROW WHEN(new.precio < 0)
+BEGIN
+    RAISE_APPLICATION_ERROR(-20001, 'PRECIO INVALIDO');
+END precio_correcto;
+/
+
+-- Cuando se modifique o se cree un pack este se activa, en caso de que no este activado ya -- 
+CREATE OR REPLACE TRIGGER crearPackActivo
+AFTER INSERT OR UPDATE ON PACK
+FOR EACH ROW
+DECLARE
+    cuantos INTEGER;
+BEGIN
+    SELECT COUNT(*) INTO cuantos FROM PACKACTIVO WHERE nombrepack= :new.nombrepack;
+    IF(cuantos < 1) THEN
+        INSERT INTO PACKACTIVO VALUES(:new.nombrepack);
+    END IF;
+END crearPackActivo;
+/
+Geri — 15/01/2022
+Gerardo2000
+Miklos Laszlo — 15/01/2022
+SELECT * FROM SESIONACTIVA NATURAL JOIN CLIENTESESION  WHERE telefono=:1 and idSesion=:2
+Miklos Laszlo — 16/01/2022
+https://github.com/MiklosLaszlo/Azur
+GitHub
+GitHub - MiklosLaszlo/Azur: Practica 3
+Practica 3. Contribute to MiklosLaszlo/Azur development by creating an account on GitHub.
+
+Tienes una llamada perdida de 
+Miklos Laszlo
+ que ha durado 5 minutos.
+ — ayer a las 16:59
+GabiOO — ayer a las 17:05
+holis
+Miklos Laszlo — ayer a las 17:06
+t
+Tienes una llamada perdida de 
+Miklos Laszlo
+ que ha durado unos segundos.
+ — ayer a las 17:06
+GabiOO — ayer a las 17:06
+amos a esperar aue vengasn los otros
+Miklos Laszlo — ayer a las 17:06
+kay
+Geri — ayer a las 17:07
+¡Hola!
+GabiOO — ayer a las 17:07
+falta irene
+s
+Esq para esto del main
+Todo tenemos que ver qué hacer y ver qué formato darle
+Miklos Laszlo — ayer a las 17:08
+voy a probar a llamarla que me dijo que estaba KO, en el peor de los casos avanzamos sin ella (me gustaria estar todos) pero quiero acabar hoy la práctica
+GabiOO — ayer a las 17:08
+ouh,ok
+GabiOO — ayer a las 17:22
+parece que f
+Miklos Laszlo — ayer a las 17:22
+yep
+La he intetado llamar, me lo ha cogido pero parece ser que se volvio a acostar
+He probado decirle a Victor algo pero confirma que esta muy KO
+Si eso, podemos ir perfilando cosas y la parte pues le ayudo luego por tarde-noche que supongo que ha esa hora estara despierta
+GabiOO — ayer a las 17:24
+Pero cuando te  lo cogio te dijo que sí que venía?
+Miklos Laszlo — ayer a las 17:24
+Respondio monotono, pero supongo que estaba cansada
+GabiOO — ayer a las 17:24
+ok
+GabiOO
+ ha iniciado una llamada que ha durado 9 horas.
+ — ayer a las 17:25
+GabiOO — ayer a las 17:26
+se me escucha?
+se me escucha mejor?
+Igual de mal o peor?
+Miklos Laszlo — ayer a las 17:56
+Cambiar en requisititos titulo peli -> Clave candidata
+Miklos Laszlo — ayer a las 18:08
+/SELECT id_pelicula FROM peliculasactivas
+  where id_peliucla=:1 and (id_pelicula in ( Select id_pelicula From PAckPElicula
+      where nombrepakc in (Select nombrePack from PackActivo
+        where nombrePAck IN (Select nombrePack From Contienen
+          Where idContrato IN (Select idContrato From ContratoCliente
+            Where idContrato IN (Select idContrato From ClienteContrato
+              Where tle IN (Select tle From SesionCliente Where idSesion = :2)
+            )
+          )
+        )
+      )
+    )
+  );/
+Miklos Laszlo — ayer a las 20:39
+SELECT COUNT(*) INTO ncll FROM SESIONCLIENTESESION WHERE telefono=:new.telefono and (idSesion IN SELECT idSesion FROM SESIONACTIVA)
+Miklos Laszlo — ayer a las 21:53
+CURRENT_TIMESTAMP
+Miklos Laszlo — ayer a las 22:41
+CHECK (estadocivil IN ('soltero', 'casado', 'divorciado', 'viudo')
+Itrilor — hoy a las 0:19
+SANumeric no hace falta usarlo
+Miklos Laszlo — hoy a las 0:46
+reinsertar triggers finSesionActiva y finSesionAct
+Itrilor — hoy a la 1:11
+Añadir un bucle en el submenu de cliente (antes del cin)
+Miklos Laszlo — hoy a las 19:44
+Voy a retrasarme un poco
+GabiOO — hoy a las 19:45
+ouh ok no problem
+Y los demás estamos activos?
+como veo que sí, pues vamos a esperar a Nico
+Miklos Laszlo — hoy a las 19:50
+ya estoy
+Miklos Laszlo
+ ha iniciado una llamada.
+ — hoy a las 19:50
+Miklos Laszlo — hoy a las 19:50
+Estoy con Irene
+GabiOO — hoy a las 20:04
+holo
+x7485923
+Miklos Laszlo — hoy a las 20:25
+TOP 100 PERCENT
+Itrilor — hoy a las 21:40
+ALTER TABLE CLIENTE ALTER COLUMN sexo varchar2(20);
+GabiOO — hoy a las 21:46
+wenas
+GabiOO — hoy a las 22:14
+requisito semántico 5 dígitos
+GabiOO — hoy a las 23:02
+modificar cliente
+Geri — hoy a las 23:12
+Disparador peliculaPack
+GabiOO — hoy a las 23:12
+disparador pelipack
+Miklos Laszlo — hoy a las 23:21
+CREATE OR REPLACE TRIGGER activarpeli
+AFTER INSERT ON ACTIVA
+DECLARE
+  ple INTEGER;
+BEGIN:
+  SELECT COUNT(*) INTO ple FROM PELICULAACTIVA WHERE idPelicula=:new.idPelicula;
+  IF (ple < 1) THEN
+    INSERT INTO PELICULAACTIVA VALUES(:new.idPelicula);
+  END IF;
+END activarpeli;
+/
+
+--
+CREATE OR REPLACE TRIGGER activarpeli
+AFTER INSERT ON ACTIVA
+FOR EACH ROW
+DECLARE
+  ple INTEGER;
+BEGIN
+  SELECT COUNT(*) INTO ple FROM PELICULAACTIVA WHERE idPelicula=:new.idPelicula;
+  IF (ple < 1) THEN
+    INSERT INTO PELICULAACTIVA VALUES(:new.idPelicula);
+  END IF;
+END activarpeli;
+/
+
+--
+CREATE OR REPLACE TRIGGER comprobarpeliactiva
+AFTER INSERT ON PELICULAPACK
+FOR EACH ROW
+DECLARE
+  ple INTEGER;
+BEGIN
+  SELECT COUNT(*) INTO ple FROM PELICULAACTIVA WHERE idPelicula=:new.idPelicula;
+  IF (ple < 1) THEN
+    RAISE_APPLICATION_ERROR(-20004,'Pelcula no activa')
+  END IF;
+END activarpeli;
+/
