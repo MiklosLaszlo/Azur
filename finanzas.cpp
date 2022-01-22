@@ -91,6 +91,8 @@ ContratoCliente GenerarContratoCliente(int tlf, vector<SAString> listaPacks, SAD
 
   contrato={ id, selectCliente[1].asString(), tlf, selectCliente[2].asString(), selectCliente[3].asString(),
     selectCliente[4].asDateTime(), selectCliente[5].asInt64(), listaPacks, SADateTime::currentDateTime(), fechaFin, precio};
+  
+  con->Commit(); //Hacemos el cambio permanente
   return contrato;
 }
 
@@ -113,6 +115,7 @@ void DarAltaEmpresa(SAString nombre, int tlf, SAString correo, int cif, SAConnec
     return;
   }
   cout<<"\nProveedor añadido correctamente"<<endl;
+  con->Commit(); //Hacemos el cambio permanente
 }
 
 
@@ -220,6 +223,8 @@ ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, 
 
   contrato={ idContrato, selectProveedor[1].asString(), selectProveedor[2].asInt64(), selectProveedor[3].asString(), cif, peliculas,
             SADateTime::currentDateTime(), fechaFin, precio};
+  
+  con->Commit(); //Hacemos el cambio permanente
   return contrato;
 }
 
@@ -255,6 +260,8 @@ FacturaCliente RecibirPago(int tlf, double precio, SADateTime fechaPago, SAConne
   }
   int id = selectID.Param(1).asInt64();
   factura={id, precio, tlf, fechaPago};
+  
+  con->Commit(); //Hacemos el cambio permanente
   return factura;
 }
 
@@ -290,6 +297,8 @@ FacturaProveedor RealizarPago( int cif, double precio, SADateTime fechaPago, SAC
   }
   int id = selectID.Param(1).asInt64();
   factura={id, precio, cif, fechaPago};
+  
+  con->Commit(); //Hacemos el cambio permanente
   return factura;
 }
 
