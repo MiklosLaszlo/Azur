@@ -474,3 +474,13 @@ BEGIN
   END IF;
 END comprobarpeliactiva;
 /
+
+CREATE OR REPLACE TRIGGER fechascontrato_correcta
+BEFORE INSERT ON FIRMACLIENTECONTRATOCLIENTE
+FOR EACH ROW
+BEGIN
+  IF(:new.fechafin<:new.fechainicio) THEN
+    RAISE_APPLICATION_ERROR(-20104, 'FECHA DE FIN ANTERIOR A INICIO');
+  END IF;
+END fechacontrato_completa;
+/
