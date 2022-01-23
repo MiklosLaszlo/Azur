@@ -9,6 +9,11 @@ ContratoCliente GenerarContratoCliente(int tlf, vector<SAString> listaPacks, SAD
   selectCliente.setConnection(con);
   insertPack.setConnection(con);
   selectID.setConnection(con);
+  if(listaPacks.size() < 1){
+    cout << "Se quiere insertar un contrato de un cliente sin ningun pack, rechazando la inserccion" << endl;
+    contrato.idContrato = -1;
+    return contrato;
+  }
 
   SACommand guardado;
   guardado.setConnection(con);
@@ -19,6 +24,7 @@ ContratoCliente GenerarContratoCliente(int tlf, vector<SAString> listaPacks, SAD
   catch(SAException &x){
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error a la hora de crear el SAVEPOINT" << endl;
+    contrato.idContrato = -1;
     return contrato;
   }
 
@@ -127,7 +133,11 @@ ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, 
   selectProveedor.setConnection(con);
   selectID.setConnection(con);
   insertActiva.setConnection(con);
-
+  if(listaPacks.size() < 1){
+    cout << "Se quiere insertar un contrato de un proveedor sin ninguna pelicula, rechazando la inserccion" << endl;
+    contrato.idContrato = -1;
+    return contrato;
+  }
   SACommand guardado;
   guardado.setConnection(con);
   guardado.setCommandText(_TSA("SAVEPOINT contratoProveedor"));
@@ -137,6 +147,7 @@ ContratoProveedor GenerarContratoProveedor(int cif, vector<SAString> peliculas, 
   catch(SAException &x){
     cerr<<x.ErrText().GetMultiByteChars()<<endl;
     cerr<<"Error a la hora de crear el SAVEPOINT" << endl;
+    contrato.idContrato = -1;
     return contrato;
   }
 

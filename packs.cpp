@@ -65,6 +65,10 @@ void ModificarPack(vector<int> idPeliculas, double precio ,string nombrepack ,SA
   SACommand guardado, modificar;
   guardado.setConnection(con);
   guardado.setCommandText(_TSA("SAVEPOINT modifcarpack"));
+  if(idPeliculas.size() < 1){
+    cout << "Se quiere modificar un pack sin ninguna pelicula, rechazando la inserccion" << endl;
+    return ;
+  }
 
   try{
     guardado.Execute();
@@ -152,6 +156,10 @@ void CrearPack(vector<int> idPeliculas, double precio ,string nombrepack ,SAConn
   SACommand guardado, crear;
   guardado.setConnection(con);
   guardado.setCommandText(_TSA("SAVEPOINT crearpack"));
+  if(idPeliculas.size() < 1){
+    cout << "Se quiere insertar un pack sin ninguna pelicula, rechazando la inserccion" << endl;
+    return ;
+  }
 
   try{
     guardado.Execute();
