@@ -470,7 +470,7 @@ DECLARE
 BEGIN
   SELECT COUNT(*) INTO ple FROM PELICULAACTIVA WHERE idPelicula=:new.idPelicula;
   IF (ple < 1) THEN
-    RAISE_APPLICATION_ERROR(-20004,'Pelcula no activa')
+    RAISE_APPLICATION_ERROR(-20004,'Película no activa')
   END IF;
 END comprobarpeliactiva;
 /
